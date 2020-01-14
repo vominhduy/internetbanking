@@ -6,5 +6,7 @@
         public string RedisCacheEndpoint { get; set; }
         public string RedisCacheName { get; set; }
         public string ApplicationToken { get; set; }
+        public string DBEndpoint { get; set; }
+        public string DBName { get; set; }
     }
 }

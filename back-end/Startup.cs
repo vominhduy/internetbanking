@@ -1,6 +1,12 @@
 using System;
 using System.Net;
 using System.Text;
+using InternetBanking.Daos;
+using InternetBanking.DataCollections;
+using InternetBanking.DataCollections.Implementations;
+using InternetBanking.Models;
+using InternetBanking.Services;
+using InternetBanking.Services.Implementations;
 using InternetBanking.Settings;
 using InternetBanking.Settings.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,10 +41,14 @@ namespace InternetBanking
             services.AddCors();
             services.AddSingleton<ISetting, AppSetting>();
 
+            
+
             AppSetting appSettings = new AppSetting();
             var appSettingsSection = Configuration.GetSection("Settings");
 
             appSettingsSection.Bind(appSettings);
+
+            services.AddSingleton<MongoDBClient>(new MongoDBClient(appSettings.DBEndpoint, appSettings.DBName));
 
             services.AddSingleton<ISetting>(appSettings);
 
@@ -66,6 +76,15 @@ namespace InternetBanking
 
             services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
+
+
+
+            /// Add collections
+            services.AddSingleton<IEmployeeCollection, MongoEmployeeCollection>();
+            ///
+            /// Add services
+            services.AddSingleton<IEmployeeService, EmployeeService>();
+            ///
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
