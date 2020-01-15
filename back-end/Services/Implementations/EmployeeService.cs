@@ -19,5 +19,10 @@ namespace InternetBanking.Services.Implementations
         {
             return _EmployeeCollection.Get(employeeFilter);
         }
+
+        public bool Update(Employee employee)
+        {
+            return _EmployeeCollection.Update(employee) > 0;
+        }
     }
 }

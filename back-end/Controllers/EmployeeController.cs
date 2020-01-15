@@ -22,13 +22,34 @@ namespace InternetBanking.Controllers
             _Service = employeeService;
         }
 
-        // GET: api/Employee/get
-        [HttpGet("Get")]
+        // GET: api/Employee
+        [HttpGet()]
         public IActionResult GetAll()
         {
-            IEnumerable<Employee> records = _Service.GetEmployees(new EmployeeFilter() { Id = Guid.Empty, Name = "" });
+            var records = _Service.GetEmployees(new EmployeeFilter() { Id = Guid.Empty, Name = "" });
 
             return Ok(records);
+        }
+
+        // GET: api/Employee/31231123
+        [HttpGet("{id}")]
+        public IActionResult GetDetailEmployee([FromQuery] Guid id)
+        {
+            var records = _Service.GetEmployees(new EmployeeFilter() { Id = id, Name = "" });
+
+            if (records.Any())
+                return Ok(records.FirstOrDefault());
+            else
+                return NotFound();
+        }
+
+        // PUT: api/Employee
+        [HttpPut()]
+        public IActionResult UpdateEmployee([FromBody] Employee employee)
+        {
+            var res = _Service.Update(employee);
+
+            return Ok(res);
         }
     }
 }

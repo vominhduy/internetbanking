@@ -81,9 +81,11 @@ namespace InternetBanking
 
             /// Add collections
             services.AddSingleton<IEmployeeCollection, MongoEmployeeCollection>();
+            services.AddSingleton<IUserCollection, MongoUserCollection>();
             ///
             /// Add services
             services.AddSingleton<IEmployeeService, EmployeeService>();
+            services.AddSingleton<IUserService, UserService>();
             ///
         }
 

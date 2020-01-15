@@ -7,5 +7,6 @@ namespace InternetBanking.Services
     public interface IEmployeeService
     {
         public IEnumerable<Employee> GetEmployees(EmployeeFilter employeeFilter);
+        public bool Update(Employee employee);
     }
 }

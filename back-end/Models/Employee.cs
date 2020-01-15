@@ -4,11 +4,8 @@ using System.Collections.Generic;
 
 namespace InternetBanking.Models
 {
-    public class Employee
+    public class Employee : Account
     {
-        [BsonId]
-        public Guid Id { get; set; }
-        public string Name { get; set; }
         [BsonElement]
         public List<Guid> GroupIds { get; set; } = new List<Guid>();
     }
