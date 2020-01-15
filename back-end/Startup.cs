@@ -4,11 +4,11 @@ using System.Text;
 using InternetBanking.Daos;
 using InternetBanking.DataCollections;
 using InternetBanking.DataCollections.Implementations;
-using InternetBanking.Models;
 using InternetBanking.Services;
 using InternetBanking.Services.Implementations;
 using InternetBanking.Settings;
 using InternetBanking.Settings.Implementations;
+using InternetBanking.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -84,8 +84,10 @@ namespace InternetBanking
             services.AddSingleton<IUserCollection, MongoUserCollection>();
             ///
             /// Add services
+            services.AddSingleton<IContext, Context>();
             services.AddSingleton<IEmployeeService, EmployeeService>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IAccountService, AccountService>();
             ///
         }
 

@@ -11,6 +11,7 @@ namespace InternetBanking.Utils
         void SetTokenBlackList(string token, long timeExpire);
         bool IsTokenBlackList(string token);
         string GetCurrentToken(HttpRequest httpRequest);
+        string GetRole(byte roleType);
     }
 
     public class Context : IContext
@@ -59,6 +60,27 @@ namespace InternetBanking.Utils
                 tokenOld = bearerToken.StartsWith("Bearer ") ? bearerToken.Substring(7) : bearerToken;
             }
             return tokenOld;
+        }
+
+        public string GetRole(byte roleType)
+        {
+            string res = null;
+            switch (roleType)
+            {
+                case 0:
+                    res = "Admin";
+                    break;
+                case 1:
+                    res = "User";
+                    break;
+                case 2:
+                    res = "Employee";
+                    break;
+                default:
+                    res = "User";
+                    break;
+            }
+            return res;
         }
     }
 }

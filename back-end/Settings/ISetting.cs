@@ -8,5 +8,8 @@
         public string ApplicationToken { get; }
         public string DBEndpoint { get; }
         public string DBName { get; }
+        public string AesKey { get; }
+        public string AesIv { get; }
+        public uint Expiration { get; }
     }
 }

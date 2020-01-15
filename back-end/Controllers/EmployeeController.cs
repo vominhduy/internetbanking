@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using InternetBanking.Models;
 using InternetBanking.Models.Filters;
 using InternetBanking.Services;
 using InternetBanking.Settings;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
