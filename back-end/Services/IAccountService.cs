@@ -9,5 +9,6 @@ namespace InternetBanking.Services
         public AccountRespone Login(string username, string password);
         public void Logout(string token, long timeExpire);
         public void Logout(ClaimsPrincipal claimsPrincipal, HttpRequest httpRequest);
+        public AccountRespone RefreshToken(string accessToken, string refreshToken);
     }
 }

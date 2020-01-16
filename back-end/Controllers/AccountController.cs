@@ -35,5 +35,16 @@ namespace InternetBanking.Controllers
             _Service.Logout(User, Request);
             return Ok();
         }
+
+        // POST: api/Account/31231123
+        [HttpPost("Refresh")]
+        public IActionResult Refresh([FromBody] AccountRespone dataToken)
+        {
+            var res = _Service.RefreshToken(dataToken.AccessToken, dataToken.RefreshToken);
+            if (res != null)
+                return Ok(res);
+            else
+                return Unauthorized();
+        }
     }
 }

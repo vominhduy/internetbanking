@@ -13,6 +13,7 @@
 
         public string AesIv { get; set; }
 
-        public uint Expiration { get; set; }
+        public uint AccessTokenExpiration { get; set; }
+        public uint RefreshTokenExpiration { get; set; }
     }
 }

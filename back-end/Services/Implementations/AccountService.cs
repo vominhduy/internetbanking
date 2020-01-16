@@ -39,49 +39,20 @@ namespace InternetBanking.Services.Implementations
 
                 if (compare)
                 {
-                    // add claim info
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(_Setting.ApplicationToken);
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
+                    var accessToken = _Context.GenerateAccessToken(new Claim[]
                         {
                             new Claim(ClaimTypes.NameIdentifier, detail.Username),
                             new Claim(ClaimTypes.Name, detail.Name),
                             new Claim(ClaimTypes.Gender, detail.Gender.ToString())
-                        }),
-                        // time expire
-                        Expires = DateTime.UtcNow.AddMinutes(_Setting.Expiration),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
+                        });
+                    var refreshToken = _Context.GenerateRefreshToken();
 
-                    
+                    _Context.SetRefreshToken(accessToken, refreshToken);
 
-                    // get role of user
-                    tokenDescriptor.Subject.AddClaim(new Claim(ClaimTypes.Role, _Context.GetRole(detail.Role)));
-
-                    // create token
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var tokenString = tokenHandler.WriteToken(token);
-
-
-                    var tokenDescriptorRefresh = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
-                       {
-                            new Claim(ClaimTypes.NameIdentifier, tokenString)
-                       }),
-                        // time expire
-                        Expires = DateTime.UtcNow.AddMinutes(_Setting.Expiration),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
-
-                    var tokenRefresh = tokenHandler.CreateToken(tokenDescriptorRefresh);
-                    var tokenStringRefresh = tokenHandler.WriteToken(tokenRefresh);
-
+                    res = new AccountRespone();
                     res.Name = detail.Name;
-                    res.AccessToken = tokenString;
-                    res.RefreshToken = tokenStringRefresh;
+                    res.AccessToken = accessToken;
+                    res.RefreshToken = refreshToken;
                 }
             }
             return res;
@@ -98,6 +69,35 @@ namespace InternetBanking.Services.Implementations
             var timeExpire = Convert.ToInt64(claimsPrincipal.FindFirst("exp").Value);
 
             _Context.SetTokenBlackList(token, timeExpire);
+        }
+
+        public AccountRespone RefreshToken(string accessToken, string refreshToken)
+        {
+            AccountRespone res = null;
+            var oldAccessToken = _Context.GetRefreshToken(refreshToken);
+
+            if (oldAccessToken == accessToken)
+            {
+                var principal = _Context.GetPrincipalFromExpiredToken(accessToken);
+
+                res = new AccountRespone();
+
+                accessToken = _Context.GenerateAccessToken(new Claim[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, principal.FindFirst(ClaimTypes.NameIdentifier).Value),
+                            new Claim(ClaimTypes.Name, principal.FindFirst(ClaimTypes.Name).Value),
+                            new Claim(ClaimTypes.Gender, principal.FindFirst(ClaimTypes.Gender).Value)
+                        });
+                refreshToken = _Context.GenerateRefreshToken();
+
+                _Context.SetRefreshToken(accessToken, refreshToken);
+
+
+                res.Name = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+                res.AccessToken = accessToken;
+                res.RefreshToken = refreshToken;
+            }
+            return res;
         }
     }
 }

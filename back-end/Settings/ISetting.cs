@@ -10,6 +10,7 @@
         public string DBName { get; }
         public string AesKey { get; }
         public string AesIv { get; }
-        public uint Expiration { get; }
+        public uint AccessTokenExpiration { get; }
+        public uint RefreshTokenExpiration { get; }
     }
 }

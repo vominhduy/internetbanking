@@ -1,25 +1,39 @@
 ﻿using InternetBanking.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace InternetBanking.Utils
 {
     public interface IContext
     {
         void SetTokenBlackList(string token, long timeExpire);
+        string GetRefreshToken(string refreshToken);
+        void SetRefreshToken(string accessToken, string refreshToken);
         bool IsTokenBlackList(string token);
         string GetCurrentToken(HttpRequest httpRequest);
         string GetRole(byte roleType);
+        string GenerateAccessToken(IEnumerable<Claim> claims);
+        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        string GenerateRefreshToken();
     }
 
     public class Context : IContext
     {
         private const string TOKENBLACKLIST = "TOKENBLACKLIST";
+        private const string REFRESHTOKENLIST = "REFRESHTOKENLIST";
         private RedisCache _Cache;
+        private ISetting _Setting;
         public Context(ISetting setting)
         {
+            _Setting = setting;
             _Cache = new RedisCache(setting.RedisCacheEndpoint, setting.RedisCacheName);
         }
 
@@ -39,6 +53,16 @@ namespace InternetBanking.Utils
 
             long currentTime = ((DateTimeOffset)foo).ToUnixTimeSeconds();
             _Cache.Set($"{TOKENBLACKLIST}_{token}", timeExpire, TimeSpan.FromSeconds(timeExpire - currentTime));
+        }
+
+        public void SetRefreshToken(string accessToken, string refreshToken)
+        {
+            _Cache.Set($"{REFRESHTOKENLIST}_{refreshToken}", accessToken, TimeSpan.FromMinutes(_Setting.RefreshTokenExpiration));
+        }
+        public string GetRefreshToken(string refreshToken)
+        {
+            var res = _Cache.Get<string>($"{REFRESHTOKENLIST}_{refreshToken}");
+            return res;
         }
 
         public bool IsTokenBlackList(string token)
@@ -81,6 +105,55 @@ namespace InternetBanking.Utils
                     break;
             }
             return res;
+        }
+
+        public string GenerateAccessToken(IEnumerable<Claim> claims)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_Setting.ApplicationToken);
+            var tokenDescriptorRefresh = new SecurityTokenDescriptor
+            {
+                Issuer = "Blinkingcaret",
+                Audience = "Anyone",
+                NotBefore = DateTime.UtcNow,
+                Subject = new ClaimsIdentity(claims),
+                // time expire
+                Expires = DateTime.UtcNow.AddMinutes(_Setting.AccessTokenExpiration),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var tokenRefresh = tokenHandler.CreateToken(tokenDescriptorRefresh);
+            return tokenHandler.WriteToken(tokenRefresh);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Setting.ApplicationToken)),
+                ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+
+            return principal;
         }
     }
 }
