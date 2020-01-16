@@ -48,5 +48,13 @@ namespace InternetBanking.Controllers
 
             return Ok(res);
         }
+        // PUT: api/Employee
+        [HttpPost()]
+        public IActionResult AddEmployee([FromBody] Employee employee)
+        {
+            var res = _Service.Update(employee);
+
+            return Ok(res);
+        }
     }
 }

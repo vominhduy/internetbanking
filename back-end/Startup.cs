@@ -39,11 +39,8 @@ namespace InternetBanking
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddSingleton<ISetting, AppSetting>();
 
-            
-
-            AppSetting appSettings = new AppSetting();
+            AppSetting appSettings = new AppSetting(new Message());
             var appSettingsSection = Configuration.GetSection("Settings");
 
             appSettingsSection.Bind(appSettings);

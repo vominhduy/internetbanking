@@ -6,6 +6,6 @@ namespace InternetBanking.Models
     {
         public string AcccountNumber { get; set; }
         public BankAccount CheckingAccount { get; set; }
-        public List<BankAccount> SavingsAccounts { get; set; }
+        public List<BankAccount> SavingsAccounts { get; set; } = new List<BankAccount>();
     }
 }

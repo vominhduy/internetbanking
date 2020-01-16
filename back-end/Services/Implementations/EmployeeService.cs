@@ -15,6 +15,13 @@ namespace InternetBanking.Services.Implementations
             _EmployeeCollection = employeeCollection;
             _Setting = setting;
         }
+
+        public Employee Add(Employee employee)
+        {
+            _EmployeeCollection.Create(employee);
+            return employee;
+        }
+
         public IEnumerable<Employee> GetEmployees(EmployeeFilter employeeFilter)
         {
             return _EmployeeCollection.Get(employeeFilter);
@@ -22,7 +29,7 @@ namespace InternetBanking.Services.Implementations
 
         public bool Update(Employee employee)
         {
-            return _EmployeeCollection.Update(employee) > 0;
+            return _EmployeeCollection.Replace(employee) >= 0;
         }
     }
 }

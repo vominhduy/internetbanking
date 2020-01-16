@@ -2,6 +2,10 @@
 {
     public class AppSetting : ISetting
     {
+        public AppSetting(IMessage message)
+        {
+            Message = message;
+        }
         public string Temp { get; set; }
         public string RedisCacheEndpoint { get; set; }
         public string RedisCacheName { get; set; }
@@ -15,5 +19,6 @@
 
         public uint AccessTokenExpiration { get; set; }
         public uint RefreshTokenExpiration { get; set; }
+        public IMessage Message { get; set; }
     }
 }

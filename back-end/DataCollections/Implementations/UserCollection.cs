@@ -93,5 +93,32 @@ namespace InternetBanking.DataCollections.Implementations
             var res = _Collection.DeleteOne(filter);
             return res != null ? res.DeletedCount : 0;
         }
+
+        public long AddSavingsAccount(UserFilter userFilter, BankAccount bankAccount)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Empty;
+            List<FilterDefinition<User>> ops = new List<FilterDefinition<User>>(10);
+            if (!userFilter.Id.Equals(Guid.Empty))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Id, userFilter.Id));
+
+            if (!string.IsNullOrEmpty(userFilter.Name))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Name, userFilter.Name));
+
+            if (!string.IsNullOrEmpty(userFilter.Username))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Username, userFilter.Username));
+
+            if (ops.Count > 0)
+                filter = Builders<User>.Filter.And(ops);
+
+            Task<UpdateResult> res = null;
+
+
+            var data = Builders<User>.Update
+                .Push(f => f.SavingsAccounts, bankAccount);
+
+            res = _Collection.UpdateOneAsync(filter, data);
+
+            return res != null ? res.Result.ModifiedCount : 0;
+        }
     }
 }
