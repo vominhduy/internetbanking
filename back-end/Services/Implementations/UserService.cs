@@ -117,11 +117,13 @@ namespace InternetBanking.Services.Implementations
                 if (bankAccountType == BankAccountType.CheckingAccount)
                 {
                     var detail = details.FirstOrDefault().CheckingAccount;
+                    if (detail.Id == bankAccount.Id)
+                    {
+                        detail.Description = bankAccount.Description;
+                        detail.Name = bankAccount.Name;
 
-                    detail.Description = bankAccount.Description;
-                    detail.Name = bankAccount.Name;
-
-                    res = _UserCollection.UpdateCheckingAccount(filter, detail) >= 0;
+                        res = _UserCollection.UpdateCheckingAccount(filter, detail) >= 0;
+                    }
                 }
                 else
                 {

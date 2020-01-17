@@ -67,7 +67,7 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // POST: api/User/BankAccount?type=0
+        // PUT: api/User/BankAccount?type=0
         [HttpPut("BankAccount")]
         [Authorize(Roles = "User")]
         public IActionResult UpdateBankAccount([FromQuery] BankAccountType type, [FromBody] BankAccount bankAccount)
@@ -78,7 +78,7 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // POST: api/User/SavingsAccount
+        // DELETE: api/User/SavingsAccount/24839489f79sd7
         [HttpDelete("SavingsAccount/{id}")]
         [Authorize(Roles = "User")]
         public IActionResult DeleteSavingsAccount([FromQuery] Guid id)

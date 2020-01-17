@@ -46,5 +46,13 @@ namespace InternetBanking.Controllers
             else
                 return Unauthorized();
         }
+
+        // GET: api/Account/LinkingBank
+        [HttpGet("LinkingBank")]
+        public IActionResult GetLinkingBank()
+        {
+            var res = _Service.GetLinkingBank();
+            return Ok(res);
+        }
     }
 }

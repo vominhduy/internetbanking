@@ -4,9 +4,8 @@ using InternetBanking.Models.Filters;
 using InternetBanking.Settings;
 using InternetBanking.Utils;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
 using System;
-using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -16,14 +15,22 @@ namespace InternetBanking.Services.Implementations
     public class AccountService : IAccountService
     {
         private IUserCollection _UserCollection;
+        private ILinkingBankCollection _LinkingBankCollection;
         private ISetting _Setting;
         private IContext _Context;
-        public AccountService(ISetting setting, IUserCollection userCollection, IContext context)
+        public AccountService(ISetting setting, IUserCollection userCollection, IContext context, ILinkingBankCollection linkingBankCollection)
         {
             _UserCollection = userCollection;
             _Setting = setting;
             _Context = context;
+            _LinkingBankCollection = linkingBankCollection;
         }
+
+        public IEnumerable<LinkingBank> GetLinkingBank()
+        {
+            return _LinkingBankCollection.Get(new LinkingBankFilter());
+        }
+
         public AccountRespone Login(string username, string password)
         {
             AccountRespone res = null;

@@ -1,5 +1,6 @@
 ﻿using InternetBanking.Models;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace InternetBanking.Services
@@ -10,5 +11,6 @@ namespace InternetBanking.Services
         public void Logout(string token, long timeExpire);
         public void Logout(ClaimsPrincipal claimsPrincipal, HttpRequest httpRequest);
         public AccountRespone RefreshToken(string accessToken, string refreshToken);
+        public IEnumerable<LinkingBank> GetLinkingBank();
     }
 }
