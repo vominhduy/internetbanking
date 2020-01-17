@@ -19,9 +19,37 @@ namespace InternetBanking.Services.Implementations
             _Setting = setting;
         }
 
-        public bool AddSavingsAccount(UserFilter userFilter, BankAccount bankAccount)
+        public Payee AddPayee(Guid userId, Payee payee)
         {
-            var res = false;
+            Payee res = null;
+            var details = _UserCollection.Get(new UserFilter() { Id = userId });
+
+            if (details.Any())
+            {
+
+                var detail = details.FirstOrDefault();
+
+                if (detail.SavingsAccounts.FirstOrDefault(x => x.Name == payee.Name) != null)
+                {
+                    _Setting.Message.SetMessage("Duplicate name of bank account!");
+                }
+                else
+                {
+                    payee.Id = Guid.NewGuid();
+                    var countModified = _UserCollection.AddPayee(userId, payee);
+                    if (countModified > 0)
+                    {
+                        res = payee;
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public BankAccount AddSavingsAccount(UserFilter userFilter, BankAccount bankAccount)
+        {
+            BankAccount res = null;
             var details = _UserCollection.Get(userFilter);
 
             if (details.Any())
@@ -34,19 +62,44 @@ namespace InternetBanking.Services.Implementations
                 }
                 else
                 {
+                    bankAccount.Id = Guid.NewGuid();
                     userFilter.Name = null;
                     userFilter.Id = detail.Id;
-                    res = _UserCollection.AddSavingsAccount(userFilter, bankAccount) >= 0;
+                    var countModified = _UserCollection.AddSavingsAccount(userFilter, bankAccount);
+                    if (countModified > 0)
+                        res = bankAccount;
                 }
             }
 
-            return res;
+            return bankAccount;
         }
 
         public User AddUser(User user)
         {
             _UserCollection.Create(user);
             return user;
+        }
+
+        public bool DeletePayee(Guid userId, Guid payeeId)
+        {
+            var res = false;
+            var filter = new UserFilter();
+            filter.Id = userId;
+            var details = _UserCollection.Get(filter);
+
+            if (details.Any())
+            {
+                var detail = details.FirstOrDefault();
+                var payee = detail.Payees.FirstOrDefault(x => x.Id == payeeId);
+
+                if (payee != null)
+                {
+                    detail.Payees.Remove(payee);
+                    res = _UserCollection.Replace(detail) >= 0;
+                }
+            }
+
+            return res;
         }
 
         public bool DeleteSavingsAccount(Guid userId, Guid bankAccountId)
@@ -136,6 +189,26 @@ namespace InternetBanking.Services.Implementations
 
                         res = _UserCollection.UpdateSavingsAccount(filter, detail) >= 0;
                     }
+                }
+            }
+            return res;
+        }
+
+        public bool UpdatePayee(Guid userId, Payee payee)
+        {
+            var res = false;
+            var filter = new UserFilter() { Id = userId };
+            var details = _UserCollection.Get(filter);
+
+            if (details.Any())
+            {
+                var detail = details.FirstOrDefault().Payees.FirstOrDefault(x => x.Id == payee.Id);
+
+                if (detail != null)
+                {
+                    detail.MnemonicName = payee.MnemonicName;
+
+                    res = _UserCollection.UpdatePayee(userId, detail) >= 0;
                 }
             }
             return res;

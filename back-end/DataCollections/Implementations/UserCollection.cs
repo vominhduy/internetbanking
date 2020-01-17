@@ -176,5 +176,48 @@ namespace InternetBanking.DataCollections.Implementations
 
             return res != null ? res.Result.ModifiedCount : 0;
         }
+
+        public long AddPayee(Guid userId, Payee payee)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Empty;
+            List<FilterDefinition<User>> ops = new List<FilterDefinition<User>>(10);
+            if (!userId.Equals(Guid.Empty))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Id, userId));
+
+            if (ops.Count > 0)
+                filter = Builders<User>.Filter.And(ops);
+
+            Task<UpdateResult> res = null;
+
+
+            var data = Builders<User>.Update
+                .Push(f => f.Payees, payee);
+
+            res = _Collection.UpdateOneAsync(filter, data);
+
+            return res != null ? res.Result.ModifiedCount : 0;
+        }
+
+        public long UpdatePayee(Guid userId, Payee payee)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Empty;
+            List<FilterDefinition<User>> ops = new List<FilterDefinition<User>>(10);
+            if (!userId.Equals(Guid.Empty))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Id, userId));
+
+            if (ops.Count > 0)
+                filter = Builders<User>.Filter.And(ops);
+
+           // Task<UpdateResult> res = null;
+
+            var data = Builders<User>.Update
+                .Set(f => f.Payees[-1], payee);
+
+            var res = _Collection.FindOneAndUpdateAsync(x => x.Id == userId && x.Payees.Any(y => y.Id == payee.Id),
+                Builders<User>.Update
+                .Set(f => f.Payees[-1], payee));
+
+            return res != null ? 1 : 0;
+        }
     }
 }

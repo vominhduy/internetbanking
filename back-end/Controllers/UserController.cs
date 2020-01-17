@@ -99,5 +99,37 @@ namespace InternetBanking.Controllers
 
             return Ok(res);
         }
+        // Post: api/User/Payee
+        [HttpPost("Payee")]
+        [Authorize(Roles = "User")]
+        public IActionResult AddPayee([FromBody] Payee payee)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            var res = _Service.AddPayee(userId, payee);
+
+            return Ok(res);
+        }
+
+        // PUT: api/User/Payee
+        [HttpPut("Payee")]
+        [Authorize(Roles = "User")]
+        public IActionResult UpdatePayee([FromBody] Payee payee)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            var res = _Service.UpdatePayee(userId, payee);
+
+            return Ok(res);
+        }
+
+        // DELETE: api/User/Payee/2348ffgo834
+        [HttpPut("Payee/{id}")]
+        [Authorize(Roles = "User")]
+        public IActionResult DeletePayee([FromQuery] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            var res = _Service.DeletePayee(userId, id);
+
+            return Ok(res);
+        }
     }
 }
