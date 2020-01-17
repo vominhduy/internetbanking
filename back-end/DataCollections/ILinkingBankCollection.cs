@@ -9,6 +9,7 @@ namespace InternetBanking.DataCollections
     {
         void Create(LinkingBank linkingBankInfo);
         IEnumerable<LinkingBank> Get(LinkingBankFilter linkingBankFilter);
+        LinkingBank GetById(Guid id);
         void CreateTransaction(LinkingBank linkingBankInfo);
         long Replace(LinkingBank linkingBankInfo);
         long Update(LinkingBank linkingBankInfo);

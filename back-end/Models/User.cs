@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace InternetBanking.Models
 {
@@ -8,5 +9,7 @@ namespace InternetBanking.Models
         public BankAccount CheckingAccount { get; set; } = new BankAccount();
         public List<BankAccount> SavingsAccounts { get; set; } = new List<BankAccount>();
         public List<Payee> Payees { get; set; } = new List<Payee>();
+        public List<Guid> SelfDeptReminderIds { get; set; } = new List<Guid>();
+        public List<Guid> OtherDeptReminderIds { get; set; } = new List<Guid>();
     }
 }

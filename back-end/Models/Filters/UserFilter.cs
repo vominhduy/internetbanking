@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace InternetBanking.Models.Filters
 {
-    public class LinkingBankFilter
+    public class UserFilter
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string Code { get; set; }
+        public string AccountNumber { get; set; }
+        public string Username { get; set; }
     }
 }

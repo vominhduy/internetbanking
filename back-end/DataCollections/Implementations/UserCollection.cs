@@ -208,16 +208,24 @@ namespace InternetBanking.DataCollections.Implementations
             if (ops.Count > 0)
                 filter = Builders<User>.Filter.And(ops);
 
-           // Task<UpdateResult> res = null;
-
-            var data = Builders<User>.Update
-                .Set(f => f.Payees[-1], payee);
-
             var res = _Collection.FindOneAndUpdateAsync(x => x.Id == userId && x.Payees.Any(y => y.Id == payee.Id),
                 Builders<User>.Update
                 .Set(f => f.Payees[-1], payee));
 
             return res != null ? 1 : 0;
+        }
+
+        public User GetById(Guid id)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Id, id);
+
+            SortDefinition<User> sort = null;
+            ProjectionDefinition<User> projection = null;
+            FindOptions<User, User> options = null;
+
+            options = new FindOptions<User, User>() { Projection = projection, Sort = sort };
+
+            return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }
     }
 }

@@ -53,6 +53,9 @@ namespace InternetBanking.DataCollections.Implementations
             if (!string.IsNullOrEmpty(employeeFilter.Name))
                 ops.Add(Builders<LinkingBank>.Filter.Eq(x => x.Name, employeeFilter.Name));
 
+            if (!string.IsNullOrEmpty(employeeFilter.Code))
+                ops.Add(Builders<LinkingBank>.Filter.Eq(x => x.Code, employeeFilter.Code));
+
             if (ops.Count > 0)
                 filter = Builders<LinkingBank>.Filter.And(ops);
 
@@ -71,6 +74,19 @@ namespace InternetBanking.DataCollections.Implementations
             if (res != null)
                 return 1;
             return 0;
+        }
+
+        public LinkingBank GetById(Guid id)
+        {
+            FilterDefinition<LinkingBank> filter = Builders<LinkingBank>.Filter.Eq(x => x.Id, id);
+
+            SortDefinition<LinkingBank> sort = null;
+            ProjectionDefinition<LinkingBank> projection = null;
+            FindOptions<LinkingBank, LinkingBank> options = null;
+
+            options = new FindOptions<LinkingBank, LinkingBank>() { Projection = projection, Sort = sort };
+
+            return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }
 
         public long Update(LinkingBank employee)

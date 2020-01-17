@@ -12,30 +12,26 @@ namespace InternetBanking.Services.Implementations
     public class UserService : IUserService
     {
         private IUserCollection _UserCollection;
+        private ILinkingBankCollection _LinkingBankCollection;
         private ISetting _Setting;
-        public UserService(ISetting setting, IUserCollection userCollection)
+        public UserService(ISetting setting, IUserCollection userCollection, ILinkingBankCollection linkingBankCollection)
         {
             _UserCollection = userCollection;
             _Setting = setting;
+            _LinkingBankCollection = linkingBankCollection;
         }
 
         public Payee AddPayee(Guid userId, Payee payee)
         {
             Payee res = null;
-            var details = _UserCollection.Get(new UserFilter() { Id = userId });
+            var detail = _UserCollection.GetById(userId);
 
-            if (details.Any())
+            if (detail != null)
             {
+                var linkingBank = _LinkingBankCollection.GetById(payee.LinkingBankId);
 
-                var detail = details.FirstOrDefault();
-
-                if (detail.SavingsAccounts.FirstOrDefault(x => x.Name == payee.Name) != null)
+                if (linkingBank != null)
                 {
-                    _Setting.Message.SetMessage("Duplicate name of bank account!");
-                }
-                else
-                {
-                    payee.Id = Guid.NewGuid();
                     var countModified = _UserCollection.AddPayee(userId, payee);
                     if (countModified > 0)
                     {

@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace InternetBanking.Models.Filters
 {
-    public class UserFilter
+    public class DeptReminderFilter
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Username { get; set; }
+        public string AccountNumberRequestor { get; set; }
+        public string AccountNumberRecipient { get; set; }
     }
 }

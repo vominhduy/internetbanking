@@ -122,7 +122,7 @@ namespace InternetBanking.Controllers
         }
 
         // DELETE: api/User/Payee/2348ffgo834
-        [HttpPut("Payee/{id}")]
+        [HttpDelete("Payee/{id}")]
         [Authorize(Roles = "User")]
         public IActionResult DeletePayee([FromQuery] Guid id)
         {
