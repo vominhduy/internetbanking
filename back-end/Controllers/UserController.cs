@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using InternetBanking.Models;
+using InternetBanking.Models.Constants;
 using InternetBanking.Models.Filters;
 using InternetBanking.Services;
 using InternetBanking.Settings;
@@ -62,6 +63,28 @@ namespace InternetBanking.Controllers
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var res = _Service.AddSavingsAccount(new UserFilter() { Username = username }, bankAccount);
+
+            return Ok(res);
+        }
+
+        // POST: api/User/BankAccount?type=0
+        [HttpPut("BankAccount")]
+        [Authorize(Roles = "User")]
+        public IActionResult UpdateBankAccount([FromQuery] BankAccountType type, [FromBody] BankAccount bankAccount)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            var res = _Service.UpdateBankAccount(userId, type, bankAccount);
+
+            return Ok(res);
+        }
+
+        // POST: api/User/SavingsAccount
+        [HttpDelete("SavingsAccount/{id}")]
+        [Authorize(Roles = "User")]
+        public IActionResult DeleteSavingsAccount([FromQuery] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            var res = _Service.DeleteSavingsAccount(userId, id);
 
             return Ok(res);
         }

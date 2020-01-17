@@ -49,6 +49,28 @@ namespace InternetBanking.Services.Implementations
             return user;
         }
 
+        public bool DeleteSavingsAccount(Guid userId, Guid bankAccountId)
+        {
+            var res = false;
+            var filter = new UserFilter();
+            filter.Id = userId;
+            var details = _UserCollection.Get(filter);
+
+            if (details.Any())
+            {
+                var detail = details.FirstOrDefault();
+                var bankAccount = detail.SavingsAccounts.FirstOrDefault(x => x.Id == bankAccountId);
+
+                if (bankAccount != null)
+                {
+                    detail.SavingsAccounts.Remove(bankAccount);
+                    res = _UserCollection.Replace(detail) >= 0;
+                }
+            }
+
+            return res;
+        }
+
         public bool Deposit(Guid userId, BankAccountType bankAccountType, Guid bankAccountId, decimal money)
         {
             var res = false;
@@ -75,7 +97,7 @@ namespace InternetBanking.Services.Implementations
                     }
                 }
             }
-            
+
             return res;
         }
 
@@ -84,9 +106,55 @@ namespace InternetBanking.Services.Implementations
             return _UserCollection.Get(employeeFilter);
         }
 
+        public bool UpdateBankAccount(Guid userId, BankAccountType bankAccountType, BankAccount bankAccount)
+        {
+            var res = false;
+            var filter = new UserFilter() { Id = userId };
+            var details = _UserCollection.Get(filter);
+
+            if (details.Any())
+            {
+                if (bankAccountType == BankAccountType.CheckingAccount)
+                {
+                    var detail = details.FirstOrDefault().CheckingAccount;
+
+                    detail.Description = bankAccount.Description;
+                    detail.Name = bankAccount.Name;
+
+                    res = _UserCollection.UpdateCheckingAccount(filter, detail) >= 0;
+                }
+                else
+                {
+                    var detail = details.FirstOrDefault().SavingsAccounts.FirstOrDefault(x => x.Id == bankAccount.Id);
+
+                    if (detail != null)
+                    {
+                        detail.Description = bankAccount.Description;
+                        detail.Name = bankAccount.Name;
+
+                        res = _UserCollection.UpdateSavingsAccount(filter, detail) >= 0;
+                    }
+                }
+            }
+            return res;
+        }
+
         public bool UpdateUser(User user)
         {
-            return _UserCollection.Replace(user) >= 0;
+            var res = false;
+            var details = _UserCollection.Get(new UserFilter() { Id = user.Id });
+
+            if (details.Any())
+            {
+                var detail = details.FirstOrDefault();
+
+                detail.Name = user.Name;
+                detail.Gender = user.Gender;
+                detail.Address = user.Address;
+
+                res = _UserCollection.Replace(detail) >= 0;
+            }
+            return res;
         }
     }
 }
