@@ -1,7 +1,9 @@
 ﻿using InternetBanking.DataCollections;
 using InternetBanking.Models;
+using InternetBanking.Models.Constants;
 using InternetBanking.Models.Filters;
 using InternetBanking.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,6 +47,36 @@ namespace InternetBanking.Services.Implementations
         {
             _UserCollection.Create(user);
             return user;
+        }
+
+        public bool Deposit(Guid userId, BankAccountType bankAccountType, Guid bankAccountId, decimal money)
+        {
+            var res = false;
+            var filter = new UserFilter();
+            filter.Id = userId;
+            var details = _UserCollection.Get(filter);
+
+            if (details.Any())
+            {
+                var detail = details.FirstOrDefault();
+                if (bankAccountType == BankAccountType.CheckingAccount)
+                {
+                    detail.CheckingAccount.AccountBalance += money;
+                    res = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = userId }, detail.CheckingAccount) >= 0;
+                }
+                else
+                {
+                    var bankDetail = detail.SavingsAccounts.FirstOrDefault(x => x.Id == bankAccountId);
+
+                    if (bankDetail != null)
+                    {
+                        bankDetail.AccountBalance += money;
+                        res = _UserCollection.UpdateSavingsAccount(new UserFilter() { Id = userId }, bankDetail) >= 0;
+                    }
+                }
+            }
+            
+            return res;
         }
 
         public IEnumerable<User> GetUsers(UserFilter employeeFilter)

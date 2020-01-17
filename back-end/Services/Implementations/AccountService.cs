@@ -41,6 +41,7 @@ namespace InternetBanking.Services.Implementations
                 {
                     var accessToken = _Context.GenerateAccessToken(new Claim[]
                         {
+                            new Claim(ClaimTypes.PrimarySid, detail.Id.ToString()),
                             new Claim(ClaimTypes.NameIdentifier, detail.Username),
                             new Claim(ClaimTypes.Name, detail.Name),
                             new Claim(ClaimTypes.Gender, detail.Gender.ToString())

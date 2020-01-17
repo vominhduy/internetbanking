@@ -14,5 +14,7 @@ namespace InternetBanking.DataCollections
         long Update(User userInfo);
         long Delete(Guid id);
         long AddSavingsAccount(UserFilter userFilter, BankAccount bankAccount);
+        long UpdateSavingsAccount(UserFilter userFilter, BankAccount bankAccount);
+        long UpdateCheckingAccount(UserFilter userFilter, BankAccount bankAccount);
     }
 }

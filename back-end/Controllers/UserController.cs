@@ -55,13 +55,24 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // PUT: api/User/SavingsAccount
+        // POST: api/User/SavingsAccount
         [HttpPost("SavingsAccount")]
         [Authorize(Roles = "User")]
         public IActionResult CreateSavingsAccount([FromBody] BankAccount bankAccount)
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var res = _Service.AddSavingsAccount(new UserFilter() { Username = username }, bankAccount);
+
+            return Ok(res);
+        }
+
+        // PUT: api/User/Deposit
+        [HttpPost("Deposit")]
+        [Authorize(Roles = "User")]
+        public IActionResult Deposit([FromBody] Deposit depositInfo)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            var res = _Service.Deposit(userId, depositInfo.Type, depositInfo.Id, depositInfo.Money);
 
             return Ok(res);
         }

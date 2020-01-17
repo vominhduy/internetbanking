@@ -4,6 +4,7 @@ using InternetBanking.Models.Filters;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InternetBanking.DataCollections.Implementations
@@ -20,7 +21,6 @@ namespace InternetBanking.DataCollections.Implementations
 
         public void Create(User userInfo)
         {
-
             _Collection.InsertOne(userInfo);
         }
 
@@ -115,6 +115,62 @@ namespace InternetBanking.DataCollections.Implementations
 
             var data = Builders<User>.Update
                 .Push(f => f.SavingsAccounts, bankAccount);
+
+            res = _Collection.UpdateOneAsync(filter, data);
+
+            return res != null ? res.Result.ModifiedCount : 0;
+        }
+
+        public long UpdateCheckingAccount(UserFilter userFilter, BankAccount bankAccount)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Empty;
+            List<FilterDefinition<User>> ops = new List<FilterDefinition<User>>(10);
+            if (!userFilter.Id.Equals(Guid.Empty))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Id, userFilter.Id));
+
+            if (!string.IsNullOrEmpty(userFilter.Name))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Name, userFilter.Name));
+
+            if (!string.IsNullOrEmpty(userFilter.Username))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Username, userFilter.Username));
+
+            if (ops.Count > 0)
+                filter = Builders<User>.Filter.And(ops);
+
+            Task<UpdateResult> res = null;
+
+
+            var data = Builders<User>.Update
+                .Set(f => f.CheckingAccount, bankAccount);
+
+            res = _Collection.UpdateOneAsync(filter, data);
+
+            return res != null ? res.Result.ModifiedCount : 0;
+        }
+
+        public long UpdateSavingsAccount(UserFilter userFilter, BankAccount bankAccount)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Empty;
+            List<FilterDefinition<User>> ops = new List<FilterDefinition<User>>(10);
+            if (!userFilter.Id.Equals(Guid.Empty))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Id, userFilter.Id));
+
+            if (!string.IsNullOrEmpty(userFilter.Name))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Name, userFilter.Name));
+
+            if (!string.IsNullOrEmpty(userFilter.Username))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Username, userFilter.Username));
+
+            ops.Add(Builders<User>.Filter.Where(x => x.SavingsAccounts.Any(y => y.Id == bankAccount.Id)));
+
+            if (ops.Count > 0)
+                filter = Builders<User>.Filter.And(ops);
+
+            Task<UpdateResult> res = null;
+
+
+            var data = Builders<User>.Update
+                .Set(f => f.SavingsAccounts[-1], bankAccount);
 
             res = _Collection.UpdateOneAsync(filter, data);
 
