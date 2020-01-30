@@ -34,38 +34,39 @@ namespace InternetBanking.Services.Implementations
             if (userDetail != null)
             {
                 // requestor
-                deptReminder.Requestor = new Payee();
-                deptReminder.Requestor.Id = Guid.NewGuid();
-                deptReminder.Requestor.AccountNumber = userDetail.AcccountNumber;
-                var lstLinkingBank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode });
-                if (lstLinkingBank.Any())
+                deptReminder.RequestorAccountNumber = userDetail.AcccountNumber;
+
+                var recipientUser = _UserCollection.Get(new UserFilter() { AccountNumber = deptReminder.RecipientAccountNumber });
+
+                if (recipientUser != null)
                 {
-                    deptReminder.Requestor.LinkingBankId = lstLinkingBank.FirstOrDefault().Id;
-
-                    // check recipient
-                    var recipientLinkingBank = _LinkingBankCollection.GetById(deptReminder.Recipient.LinkingBankId);
-                    if (recipientLinkingBank != null)
+                    _DeptReminderCollection.Create(deptReminder);
+                    if (deptReminder.Id != Guid.Empty)
                     {
-                        if (recipientLinkingBank.Code != _Setting.BankCode) // other bank
-                        {
-                            /*TODO*/
-                            //// get user from linking bank
-                        }
-                        else // same bank
-                        {
-                            var recipientUser = _UserCollection.Get(new UserFilter() { AccountNumber = deptReminder.Recipient.AccountNumber });
-
-                            if (recipientUser != null)
-                            {
-                                _DeptReminderCollection.Create(deptReminder);
-                                if (deptReminder.Id != Guid.Empty)
-                                {
-                                    res = deptReminder;
-                                }
-                            }
-                        }
+                        res = deptReminder;
                     }
                 }
+
+                //var lstLinkingBank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode });
+                //if (lstLinkingBank.Any())
+                //{
+                //    deptReminder.Requestor.LinkingBankId = lstLinkingBank.FirstOrDefault().Id;
+
+                //    // check recipient
+                //    var recipientLinkingBank = _LinkingBankCollection.GetById(deptReminder.Recipient.LinkingBankId);
+                //    if (recipientLinkingBank != null)
+                //    {
+                //        if (recipientLinkingBank.Code != _Setting.BankCode) // other bank
+                //        {
+                //            /*TODO*/
+                //            //// get user from linking bank
+                //        }
+                //        else // same bank
+                //        {
+
+                //        }
+                //    }
+                //}
             }
             return res;
         }
@@ -142,8 +143,8 @@ namespace InternetBanking.Services.Implementations
 
             if (userDetail != null)
             {
-                var lstRecipient = _DeptReminderCollection.GetMany(new DeptReminderFilter() { AccountNumberRecipient = userDetail.AcccountNumber }).ToList();
-                var lstRequestor = _DeptReminderCollection.GetMany(new DeptReminderFilter() { AccountNumberRequestor = userDetail.AcccountNumber }).ToList();
+                var lstRecipient = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AcccountNumber }).ToList();
+                var lstRequestor = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AcccountNumber }).ToList();
 
                 lstRecipient.AddRange(lstRequestor);
 

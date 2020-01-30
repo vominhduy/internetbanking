@@ -24,8 +24,8 @@ namespace InternetBanking.Controllers
         }
 
         #region Dept reminder
-        // Get: api/User/Deptreminder
-        [HttpGet("Deptreminder")]
+        // Get: api/Deptreminder
+        [HttpGet()]
         [Authorize(Roles = "User")]
         public IActionResult GetDeptreminder()
         {
@@ -35,8 +35,8 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // POST: api/User/Deptreminder
-        [HttpPost("Deptreminder")]
+        // POST: api/Deptreminder
+        [HttpPost()]
         [Authorize(Roles = "User")]
         public IActionResult AddDeptreminder([FromBody] DeptReminder deptReminder)
         {
@@ -46,8 +46,8 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // PUT: api/User/Deptreminder
-        [HttpPut("Deptreminder")]
+        // PUT: api/Deptreminder
+        [HttpPut()]
         [Authorize(Roles = "User")]
         public IActionResult UpdateDeptreminder([FromBody] DeptReminder deptReminder)
         {
@@ -57,8 +57,8 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // DELETE: api/User/Deptreminder
-        [HttpDelete("Deptreminder/{id}")]
+        // DELETE: api/Deptreminder
+        [HttpDelete("{id}")]
         [Authorize(Roles = "User")]
         public IActionResult DeleteDeptreminder([FromQuery] Guid id)
         {
@@ -68,8 +68,8 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // POST: api/User/Deptreminder
-        [HttpPost("Deptreminder/Checkout/{id}")]
+        // POST: api/Deptreminder
+        [HttpPost("Checkout/{id}")]
         [Authorize(Roles = "User")]
         public IActionResult CheckoutDeptreminder([FromQuery] Guid id)
         {

@@ -30,11 +30,11 @@ namespace InternetBanking.DataCollections.Implementations
             if (!deptReminderFilter.Id.Equals(Guid.Empty))
                 ops.Add(Builders<DeptReminder>.Filter.Eq(x => x.Id, deptReminderFilter.Id));
 
-            if (!string.IsNullOrEmpty(deptReminderFilter.AccountNumberRecipient))
-                ops.Add(Builders<DeptReminder>.Filter.Eq(x => x.Recipient.AccountNumber, deptReminderFilter.AccountNumberRecipient));
+            if (!string.IsNullOrEmpty(deptReminderFilter.RecipientAccountNumber))
+                ops.Add(Builders<DeptReminder>.Filter.Eq(x => x.RecipientAccountNumber, deptReminderFilter.RecipientAccountNumber));
 
-            if (!string.IsNullOrEmpty(deptReminderFilter.AccountNumberRequestor))
-                ops.Add(Builders<DeptReminder>.Filter.Eq(x => x.Requestor.AccountNumber, deptReminderFilter.AccountNumberRequestor));
+            if (!string.IsNullOrEmpty(deptReminderFilter.RequestorAccountNumber))
+                ops.Add(Builders<DeptReminder>.Filter.Eq(x => x.RequestorAccountNumber, deptReminderFilter.RequestorAccountNumber));
 
             if (ops.Count > 0)
                 filter = Builders<DeptReminder>.Filter.And(ops);
