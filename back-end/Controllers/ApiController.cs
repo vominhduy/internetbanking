@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Security.Claims;
 
 namespace InternetBanking.Controllers
 {
@@ -7,6 +9,13 @@ namespace InternetBanking.Controllers
     [Route("api/[controller]")]
     public abstract class ApiController : ControllerBase
     {
+        protected Guid UserId
+        {
+            get
+            {
+                return Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+            }
+        }
     }
 
     [Authorize]

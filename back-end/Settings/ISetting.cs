@@ -12,6 +12,7 @@
         public string AesIv { get; }
         public uint AccessTokenExpiration { get; }
         public uint RefreshTokenExpiration { get; }
+        public uint TransferExpiration { get; }
         public IMessage Message { get; set; }
         public string BankCode { get; set; }
     }

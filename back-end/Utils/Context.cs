@@ -1,4 +1,5 @@
-﻿using InternetBanking.Settings;
+﻿using InternetBanking.Models;
+using InternetBanking.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
@@ -23,12 +24,17 @@ namespace InternetBanking.Utils
         string GenerateAccessToken(IEnumerable<Claim> claims);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
         string GenerateRefreshToken();
+        void SetTransfer(Guid userId, string code, Transfer transfer);
+        Transfer GetTransfer(Guid userId, string code);
+        public string MakeOTP(int length);
+        public decimal TransactionCost(decimal money);
     }
 
     public class Context : IContext
     {
         private const string TOKENBLACKLIST = "TOKENBLACKLIST";
         private const string REFRESHTOKENLIST = "REFRESHTOKENLIST";
+        private const string TRANSFER = "TRANSFER";
         private RedisCache _Cache;
         private ISetting _Setting;
         public Context(ISetting setting)
@@ -62,6 +68,16 @@ namespace InternetBanking.Utils
         public string GetRefreshToken(string refreshToken)
         {
             var res = _Cache.Get<string>($"{REFRESHTOKENLIST}_{refreshToken}");
+            return res;
+        }
+
+        public void SetTransfer(Guid userId, string code, Transfer transfer)
+        {
+            _Cache.Set($"{TRANSFER}_{userId.ToString()}_{code}", transfer, TimeSpan.FromMinutes(_Setting.TransferExpiration));
+        }
+        public Transfer GetTransfer(Guid userId, string code)
+        {
+            var res = _Cache.Get<Transfer>($"{TRANSFER}_{userId.ToString()}_{code}");
             return res;
         }
 
@@ -154,6 +170,35 @@ namespace InternetBanking.Utils
                 throw new SecurityTokenException("Invalid token");
 
             return principal;
+        }
+
+        public string MakeOTP(int length)
+        {
+            string UpperCase = "QWERTYUIOPASDFGHJKLZXCVBNM";
+            string LowerCase = "qwertyuiopasdfghjklzxcvbnm";
+            string Digits = "1234567890";
+            string allCharacters = UpperCase + LowerCase + Digits;
+            //Random will give random charactors for given length  
+            Random r = new Random();
+            String password = "";
+            for (int i = 0; i < length; i++)
+            {
+                double rand = r.NextDouble();
+                if (i == 0)
+                {
+                    password += UpperCase.ToCharArray()[(int)Math.Floor(rand * UpperCase.Length)];
+                }
+                else
+                {
+                    password += allCharacters.ToCharArray()[(int)Math.Floor(rand * allCharacters.Length)];
+                }
+            }
+            return password;
+        }
+
+        public decimal TransactionCost(decimal money)
+        {
+            return money/1000;
         }
     }
 }

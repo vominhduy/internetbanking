@@ -227,5 +227,19 @@ namespace InternetBanking.DataCollections.Implementations
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }
+
+        public long PayIn(Guid userId, BankAccount bankAccount)
+        {
+            var filter = Builders<User>.Filter.Where(x => x.Id == userId);
+            Task<UpdateResult> res = null;
+
+
+            var data = Builders<User>.Update
+                .Set(f => f.CheckingAccount, bankAccount);
+
+            res = _Collection.UpdateOneAsync(filter, data);
+
+            return res != null ? res.Result.ModifiedCount : 0;
+        }
     }
 }

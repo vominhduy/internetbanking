@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Claims;
 using InternetBanking.Models;
 using InternetBanking.Models.Constants;
 using InternetBanking.Models.Filters;
@@ -61,8 +60,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult CreateSavingsAccount([FromBody] BankAccount bankAccount)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var res = _Service.AddSavingsAccount(new UserFilter() { Username = username }, bankAccount);
+            var res = _Service.AddSavingsAccount(new UserFilter() { Id = UserId }, bankAccount);
 
             return Ok(res);
         }
@@ -72,8 +70,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult UpdateBankAccount([FromQuery] BankAccountType type, [FromBody] BankAccount bankAccount)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.UpdateBankAccount(userId, type, bankAccount);
+            var res = _Service.UpdateBankAccount(UserId, type, bankAccount);
 
             return Ok(res);
         }
@@ -83,8 +80,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult DeleteSavingsAccount([FromQuery] Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.DeleteSavingsAccount(userId, id);
+            var res = _Service.DeleteSavingsAccount(UserId, id);
 
             return Ok(res);
         }
@@ -94,8 +90,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult Deposit([FromBody] Deposit depositInfo)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.Deposit(userId, depositInfo.Type, depositInfo.Id, depositInfo.Money);
+            var res = _Service.Deposit(UserId, depositInfo.Type, depositInfo.Id, depositInfo.Money);
 
             return Ok(res);
         }
@@ -104,8 +99,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult AddPayee([FromBody] Payee payee)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.AddPayee(userId, payee);
+            var res = _Service.AddPayee(UserId, payee);
 
             return Ok(res);
         }
@@ -115,8 +109,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult UpdatePayee([FromBody] Payee payee)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.UpdatePayee(userId, payee);
+            var res = _Service.UpdatePayee(UserId, payee);
 
             return Ok(res);
         }
@@ -126,10 +119,50 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult DeletePayee([FromQuery] Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.DeletePayee(userId, id);
+            var res = _Service.DeletePayee(UserId, id);
 
             return Ok(res);
+        }
+
+        // POST: api/User/InternalTransfer
+        [HttpPost("InternalTransfer")]
+        [Authorize(Roles = "User")]
+        public IActionResult InternalTransfer([FromBody] Transfer transfer)
+        {
+            transfer.IsInternal = true;
+            var res = _Service.Transfer(UserId, transfer);
+
+            if (res != null)
+                return Ok(res);
+            else
+                return Conflict(_Setting.Message.GetMessage());
+        }
+
+        // POST: api/User/ExternalTransfer
+        [HttpPost("ExternalTransfer")]
+        [Authorize(Roles = "User")]
+        public IActionResult ExternalTransfer([FromBody] Transfer transfer)
+        {
+            transfer.IsInternal = false;
+            var res = _Service.Transfer(UserId, transfer);
+
+            if (res != null)
+                return Ok(res);
+            else
+                return Conflict(_Setting.Message.GetMessage());
+        }
+        // POST: api/User/ConfirmTransfer
+        [HttpPost("ConfirmTransfer")]
+        [Authorize(Roles = "User")]
+        public IActionResult ConfirmTransfer([FromBody] Transfer transfer)
+        {
+            transfer.IsInternal = false;
+            var res = _Service.ConfirmTransfer(UserId, transfer.Id, transfer.Otp);
+
+            if (res)
+                return Ok(res);
+            else
+                return Conflict(_Setting.Message.GetMessage());
         }
     }
 }

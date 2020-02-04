@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Linq;
-using System.Security.Claims;
 using InternetBanking.Models;
-using InternetBanking.Models.Constants;
-using InternetBanking.Models.Filters;
 using InternetBanking.Services;
 using InternetBanking.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -29,8 +25,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult GetDeptreminder()
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.GetDeptReminders(userId);
+            var res = _Service.GetDeptReminders(UserId);
 
             return Ok(res);
         }
@@ -40,8 +35,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult AddDeptreminder([FromBody] DeptReminder deptReminder)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.AddDeptReminder(userId, deptReminder);
+            var res = _Service.AddDeptReminder(UserId, deptReminder);
 
             return Ok(res);
         }
@@ -51,8 +45,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult UpdateDeptreminder([FromBody] DeptReminder deptReminder)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.UpdateDeptReminder(userId, deptReminder);
+            var res = _Service.UpdateDeptReminder(UserId, deptReminder);
 
             return Ok(res);
         }
@@ -62,8 +55,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult DeleteDeptreminder([FromQuery] Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.DeleteDeptReminder(userId, id);
+            var res = _Service.DeleteDeptReminder(UserId, id);
 
             return Ok(res);
         }
@@ -73,8 +65,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult CheckoutDeptreminder([FromQuery] Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
-            var res = _Service.CheckoutDeptReminder(userId, id);
+            var res = _Service.CheckoutDeptReminder(UserId, id);
 
             return Ok(res);
         }

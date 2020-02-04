@@ -19,6 +19,7 @@
 
         public uint AccessTokenExpiration { get; set; }
         public uint RefreshTokenExpiration { get; set; }
+        public uint TransferExpiration { get; set; }
         public IMessage Message { get; set; }
         public string BankCode { get; set; }
     }
