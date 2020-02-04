@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace InternetBanking.Controllers
 {
     [Authorize]
-    public class DeptReminderController : ApiController
+    public class DeptRemindersController : ApiController
     {
         private ISetting _Setting;
         private IDeptReminderService _Service;
 
-        public DeptReminderController(ISetting setting, IDeptReminderService service)
+        public DeptRemindersController(ISetting setting, IDeptReminderService service)
         {
             _Setting = setting;
             _Service = service;

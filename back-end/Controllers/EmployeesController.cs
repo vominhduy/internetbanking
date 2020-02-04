@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
 {
-    public class EmployeeController : ApiController
+    public class EmployeesController : ApiController
     {
         private ISetting _Setting;
         private IEmployeeService _Service;
 
-        public EmployeeController(ISetting setting, IEmployeeService employeeService)
+        public EmployeesController(ISetting setting, IEmployeeService employeeService)
         {
             _Setting = setting;
             _Service = employeeService;
@@ -53,6 +53,24 @@ namespace InternetBanking.Controllers
         public IActionResult AddEmployee([FromBody] Employee employee)
         {
             var res = _Service.Update(employee);
+
+            return Ok(res);
+        }
+
+        // POST: api/Employees/Users
+        [HttpPost()]
+        public IActionResult AddUser([FromBody] Account user)
+        {
+            var res = _Service.AddUser(user);
+
+            return Ok(res);
+        }
+
+        // POST: api/Employees/Users/PayIn
+        [HttpPost("Users/PayIn")]
+        public IActionResult PayIn([FromBody] PayInfo payInfo)
+        {
+            var res = _Service.PayIn(payInfo);
 
             return Ok(res);
         }

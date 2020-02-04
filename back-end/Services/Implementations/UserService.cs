@@ -212,6 +212,7 @@ namespace InternetBanking.Services.Implementations
                 }
                 catch (Exception)
                 {
+                    session.AbortTransactionAsync().Wait();
                     throw;
                 }
             }

@@ -11,6 +11,5 @@ namespace InternetBanking.Models
         public List<Payee> Payees { get; set; } = new List<Payee>();
         public List<Guid> SelfDeptReminderIds { get; set; } = new List<Guid>();
         public List<Guid> OtherDeptReminderIds { get; set; } = new List<Guid>();
-        public string Email { get; set; }
     }
 }

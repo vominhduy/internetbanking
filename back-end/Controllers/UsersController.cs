@@ -11,12 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace InternetBanking.Controllers
 {
     [Authorize]
-    public class UserController : ApiController
+    public class UsersController : ApiController
     {
         private ISetting _Setting;
         private IUserService _Service;
 
-        public UserController(ISetting setting, IUserService service)
+        public UsersController(ISetting setting, IUserService service)
         {
             _Setting = setting;
             _Service = service;

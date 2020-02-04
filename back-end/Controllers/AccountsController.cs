@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
 {
-    public class AccountController : ApiController
+    public class AccountsController : ApiController
     {
         private ISetting _Setting;
         private IAccountService _Service;
 
-        public AccountController(ISetting setting, IAccountService service)
+        public AccountsController(ISetting setting, IAccountService service)
         {
             _Setting = setting;
             _Service = service;
