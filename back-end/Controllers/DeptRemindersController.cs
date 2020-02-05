@@ -4,6 +4,7 @@ using InternetBanking.Services;
 using InternetBanking.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace InternetBanking.Controllers
 {
@@ -20,7 +21,9 @@ namespace InternetBanking.Controllers
         }
 
         #region Dept reminder
-        // Get: api/Deptreminder
+
+        // Xem danh sách nợ
+        // Get: api/Deptreminders
         [HttpGet()]
         [Authorize(Roles = "User")]
         public IActionResult GetDeptreminder()
@@ -30,12 +33,25 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // POST: api/Deptreminder
+        // Tạo nhắc nợ
+        // POST: api/Deptreminders
         [HttpPost()]
         [Authorize(Roles = "User")]
         public IActionResult AddDeptreminder([FromBody] DeptReminder deptReminder)
         {
             var res = _Service.AddDeptReminder(UserId, deptReminder);
+
+            return Ok(res);
+        }
+
+        // Hủy nhắc nợ
+        // PUT: api/Deptreminders/00000000-0000-0000-0000-000000000000
+        // { Notes: "" }
+        [HttpPost("{id}")]
+        [Authorize(Roles = "User")]
+        public IActionResult Cancel([FromQuery] Guid id, [FromBody] JObject deptReminder)
+        {
+            var res = _Service.CancelDeptReminder(UserId, id, deptReminder.Value<string>("Notes"));
 
             return Ok(res);
         }

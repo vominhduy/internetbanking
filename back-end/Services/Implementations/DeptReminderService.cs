@@ -369,5 +369,57 @@ namespace InternetBanking.Services.Implementations
 
             return res;
         }
+
+        public bool CancelDeptReminder(Guid userId, Guid id, string notes)
+        {
+            var res = false;
+
+            // Get chi tiết nhắc nợ
+            var details = _DeptReminderCollection.GetMany(new DeptReminderFilter() { Id = id, IsCanceled = false });
+
+            if (details.Any())
+            {
+                var detail = details.FirstOrDefault();
+                detail.CanceledNotes = notes;
+                detail.IsCanceled = true;
+
+                // Update trạng thái
+                using (var sessionTask = _MongoDBClient.StartSessionAsync())
+                {
+                    var session = sessionTask.Result;
+                    session.StartTransaction();
+                    try
+                    {
+                        if (_DeptReminderCollection.Replace(detail) > 0)
+                        {
+                            if (detail.RequestorId == userId)
+                            {
+                                // Self
+                                // Send mail
+                                // TODO
+                            }
+                            else if (detail.RecipientId == userId)
+                            {
+                                // Other
+                                // Send mail
+                                // TODO
+                            }
+                            else
+                                _Setting.Message.SetMessage("Không tìm thấy thông tin nhắc nợ!");
+                        }
+                        else
+                            _Setting.Message.SetMessage("Không tìm thấy thông tin nhắc nợ!");
+                    }
+                    catch(Exception ex)
+                    {
+                        throw ex;
+                    }
+                }
+            }
+            else
+                _Setting.Message.SetMessage("Không tìm thấy thông tin nhắc nợ!");
+
+            return res;
+        }
     }
 }

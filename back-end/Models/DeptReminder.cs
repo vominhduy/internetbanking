@@ -17,5 +17,7 @@ namespace InternetBanking.Models
         public string Desciption { get; set; }
         public decimal Money { get; set; }
         public bool IsPaid { get; set; }
+        public bool IsCanceled { get; set; }
+        public string CanceledNotes { get; set; }
     }
 }
