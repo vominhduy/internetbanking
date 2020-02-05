@@ -10,6 +10,7 @@ namespace InternetBanking.DataCollections
         void Create(User userInfo);
         IEnumerable<User> Get(UserFilter userFilter);
         User GetById(Guid id);
+        User GetByAccountNumber(string accountNumber);
         void CreateTransaction(User userInfo);
         long Replace(User userInfo);
         long Update(User userInfo);

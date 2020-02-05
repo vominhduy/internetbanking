@@ -129,7 +129,7 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult InternalTransfer([FromBody] Transfer transfer)
         {
-            transfer.IsInternal = true;
+            transfer.DestinationLinkingBankId = Guid.Empty;
             var res = _Service.Transfer(UserId, transfer);
 
             if (res != null)
@@ -143,7 +143,16 @@ namespace InternetBanking.Controllers
         [Authorize(Roles = "User")]
         public IActionResult ExternalTransfer([FromBody] Transfer transfer)
         {
-            transfer.IsInternal = false;
+            if (transfer.DestinationLinkingBankId == Guid.Empty)
+            {
+                return BadRequest("Chưa chọn ngân hàng!");
+            }
+
+            if (string.IsNullOrEmpty(transfer.DestinationAccountNumber))
+            {
+                return BadRequest("Chưa chọn số tài khoản nhận!");
+            }
+
             var res = _Service.Transfer(UserId, transfer);
 
             if (res != null)
@@ -162,6 +171,18 @@ namespace InternetBanking.Controllers
                 return Ok(res);
             else
                 return Conflict(_Setting.Message.GetMessage());
+        }
+
+        // Xem lịch sử giao dịch của 1 tài khoản
+
+        // Giao dịch nhận tiền
+        // POST: api/Users/Histories/In
+        [HttpGet("Histories/In")]
+        [Authorize(Roles = "User")]
+        public IActionResult HistoryIn()
+        {
+            var res = _Service.HistoryIn(UserId);
+            return Ok(res);
         }
     }
 }

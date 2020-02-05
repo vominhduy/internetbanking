@@ -30,17 +30,18 @@ namespace InternetBanking.DataCollections.Implementations
             if (!transferFilter.Id.Equals(Guid.Empty))
                 ops.Add(Builders<Transfer>.Filter.Eq(x => x.Id, transferFilter.Id));
 
-            if (!string.IsNullOrEmpty(transferFilter.AccountNumber))
-                ops.Add(Builders<Transfer>.Filter.Eq(x => x.AccountNumber, transferFilter.AccountNumber));
+            if (!string.IsNullOrEmpty(transferFilter.DestinationAccountNumber))
+                ops.Add(Builders<Transfer>.Filter.Eq(x => x.DestinationAccountNumber, transferFilter.DestinationAccountNumber));
 
-            if (!transferFilter.InternalUserId.Equals(Guid.Empty))
-                ops.Add(Builders<Transfer>.Filter.Eq(x => x.InternalUserId, transferFilter.InternalUserId));
+            if (transferFilter.DestinationLinkingBankId != Guid.Empty)
+                ops.Add(Builders<Transfer>.Filter.Eq(x => x.DestinationLinkingBankId, transferFilter.DestinationLinkingBankId));
 
-            if (!transferFilter.LinkingBankId.Equals(Guid.Empty))
-                ops.Add(Builders<Transfer>.Filter.Eq(x => x.LinkingBankId, transferFilter.LinkingBankId));
+            if (!string.IsNullOrEmpty(transferFilter.SourceAccountNumber))
+                ops.Add(Builders<Transfer>.Filter.Eq(x => x.SourceAccountNumber, transferFilter.SourceAccountNumber));
 
-            if (!string.IsNullOrEmpty(transferFilter.Otp))
-                ops.Add(Builders<Transfer>.Filter.Eq(x => x.Otp, transferFilter.Otp));
+            if (transferFilter.SourceLinkingBankId != Guid.Empty)
+                ops.Add(Builders<Transfer>.Filter.Eq(x => x.SourceLinkingBankId, transferFilter.SourceLinkingBankId));
+
 
             if (ops.Count > 0)
                 filter = Builders<Transfer>.Filter.And(ops);

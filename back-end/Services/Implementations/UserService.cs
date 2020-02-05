@@ -118,17 +118,19 @@ namespace InternetBanking.Services.Implementations
                                 {
                                     // Get chi tiết chuyển tiền
                                     var transfer = _TransferCollection.GetById(transaction.ReferenceId);
-
-                                    if (transfer != null)
+                                    // Check user hiện tại có tạo yêu cầu chuyển tiền
+                                    if (transfer != null 
+                                        && transfer.SourceLinkingBankId == Guid.Empty 
+                                        && transfer.SourceAccountNumber == userDetail.AcccountNumber)
                                     {
                                         // Tru so du
                                         userDetail.CheckingAccount.AccountBalance -= transfer.Money;
-                                        var fee = _Context.TransactionCost(transfer.Money);
+                                        transfer.Fee = _Context.TransactionCost(transfer.Money);
 
                                         // Tru phi
                                         if (transfer.IsSenderPay)
                                         {
-                                            userDetail.CheckingAccount.AccountBalance -= fee;
+                                            userDetail.CheckingAccount.AccountBalance -= transfer.Fee;
                                         }
 
                                         if (userDetail.CheckingAccount.AccountBalance >= 0)
@@ -140,10 +142,10 @@ namespace InternetBanking.Services.Implementations
                                             {
                                                 // Cong tien nguoi nhan
                                                 var success = false;
-                                                if (transfer.IsInternal)
+                                                if (transfer.DestinationLinkingBankId == Guid.Empty)
                                                 {
                                                     // noi bo
-                                                    var detailRecepients = _UserCollection.Get(new UserFilter() { AccountNumber = transfer.AccountNumber });
+                                                    var detailRecepients = _UserCollection.Get(new UserFilter() { AccountNumber = transfer.DestinationAccountNumber });
                                                     if (detailRecepients.Any())
                                                     {
                                                         var detailRecepient = detailRecepients.FirstOrDefault();
@@ -151,7 +153,7 @@ namespace InternetBanking.Services.Implementations
                                                         // Tru phi
                                                         if (!transfer.IsSenderPay)
                                                         {
-                                                            detailRecepient.CheckingAccount.AccountBalance -= fee;
+                                                            detailRecepient.CheckingAccount.AccountBalance -= transfer.Fee;
                                                         }
 
                                                         payOut = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = detailRecepient.Id }, detailRecepient.CheckingAccount);
@@ -174,14 +176,20 @@ namespace InternetBanking.Services.Implementations
 
                                                 if (success)
                                                 {
-                                                    // Update trang thai giao dich
-                                                    transfer.ConfirmTime = DateTime.Now;
+                                                    // Update trạng thái chuyển tiền
+                                                    transfer.IsConfirmed = true;
                                                     var updateTransfer = _TransferCollection.Replace(transfer);
                                                     if (updateTransfer > 0)
                                                     {
-                                                        // Send mail
-                                                        // TODO
-                                                        res = true;
+                                                        // Update trạng thái giao dịch
+                                                        transaction.ConfirmTime = DateTime.Now;
+                                                        var updateTransaction = _TransactionCollection.Replace(transaction);
+                                                        if (updateTransaction > 0)
+                                                        {
+                                                            // Send mail
+                                                            // TODO
+                                                            res = true;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -314,22 +322,90 @@ namespace InternetBanking.Services.Implementations
             return _UserCollection.Get(employeeFilter);
         }
 
+        public IEnumerable<HistoryTransaction> HistoryDept(Guid userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<HistoryTransaction> HistoryIn(Guid userId)
+        {
+            var res = new List<HistoryTransaction>();
+
+            var userDetail = _UserCollection.GetById(userId);
+            if (userDetail != null)
+            {
+                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { DestinationAccountNumber = userDetail.AcccountNumber });
+                userTransfers = userTransfers.Where(x => x.DestinationLinkingBankId == Guid.Empty);
+                if (userTransfers.Any())
+                {
+                    foreach (var transfer in userTransfers)
+                    {
+                        var hisTransaction = new HistoryTransaction();
+                        // Nội bộ
+                        if (transfer.SourceLinkingBankId == Guid.Empty)
+                        {
+                            // Get chi tiết người gửi
+                            var source = _UserCollection.GetByAccountNumber(transfer.SourceAccountNumber);
+                            if (source != null)
+                            {
+                                hisTransaction.AccountName = source.Name;
+                                hisTransaction.AccountNumber = source.AcccountNumber;
+                                hisTransaction.Description = transfer.Description;
+
+                                if (transfer.IsSenderPay)
+                                {
+                                    hisTransaction.Money = transfer.Money;
+                                }
+                                else
+                                {
+                                    hisTransaction.Money = transfer.Money - transfer.Fee;
+                                }
+
+                                var linkingBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+                                if (linkingBank != null)
+                                {
+                                    hisTransaction.BankName = linkingBank.Name;
+                                }
+                                else
+                                    continue;
+                            }
+                            else
+                                continue;
+                        }
+                        // Linking bank
+                        else
+                        {
+                            // TODO
+                        }
+
+                        res.Add(hisTransaction);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public IEnumerable<HistoryTransaction> HistoryOut(Guid userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Transaction Transfer(Guid userId, Transfer transfer)
         {
             Transaction res = null;
 
             var userDetail = _UserCollection.GetById(userId);
-            transfer.InternalUserId = userId;
+            transfer.SourceAccountNumber = userDetail.AcccountNumber;
+            transfer.SourceLinkingBankId = Guid.Empty;
 
             if (userDetail != null)
             {
                 User recepient = null;
 
-                if (transfer.IsInternal)
+                if (transfer.DestinationLinkingBankId == Guid.Empty)
                 {
-                    var recepients = _UserCollection.Get(new UserFilter() { AccountNumber = transfer.AccountNumber });
-                    if (recepients.Any())
-                        recepient = recepients.FirstOrDefault();
+                    recepient = _UserCollection.GetByAccountNumber(transfer.DestinationAccountNumber);
                 }
                 else
                 {
@@ -346,27 +422,25 @@ namespace InternetBanking.Services.Implementations
                         session.StartTransaction();
                         try
                         {
-
                             // Create OTP
                             while (true)
                             {
                                 otp = _Context.MakeOTP(6);
-                                if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = userId, Otp = otp }).Any())
+                                if (!_TransactionCollection.GetMany(new TransactionFilter() { Otp = otp }).Any())
                                     break;
                             }
-
-                            // expire
-                            transfer.CreateTime = DateTime.Now;
-                            transfer.ExpireTime = transfer.CreateTime.AddMinutes(_Setting.TransferExpiration);
 
                             _TransferCollection.Create(transfer);
 
                             if (!transfer.Id.Equals(Guid.Empty))
                             {
+                                // Lưu thông tin giao dịch
                                 var transaction = new Transaction();
                                 transaction.Id = Guid.Empty;
                                 transaction.ReferenceId = transfer.Id;
                                 transaction.Otp = otp;
+                                transaction.CreateTime = DateTime.Now;
+                                transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
 
                                 _TransactionCollection.Create(transaction);
 

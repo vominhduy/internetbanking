@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,19 @@ namespace InternetBanking.Models
     {
         [BsonId]
         public Guid Id { get; set; }
-        public Guid InternalUserId { get; set; }
-        public string AccountNumber { get; set; }
-        public Guid LinkingBankId { get; set; }
+        public string SourceAccountNumber { get; set; }
+        [JsonIgnore]
+        public Guid SourceLinkingBankId { get; set; }
+        public string DestinationAccountNumber { get; set; }
+        public Guid DestinationLinkingBankId { get; set; }
         public decimal Money { get; set; }
+        [JsonIgnore]
+        public decimal Fee { get; set; }
         public bool IsSenderPay { get; set; }
+        [JsonIgnore]
         public bool IsInternal { get; set; }
-        public DateTime CreateTime { get; set; }
-        public DateTime ExpireTime { get; set; }
-        public DateTime? ConfirmTime { get; set; }
-        public string Otp { get; set; }
-        public byte Type { get; set; } // 0: Transfer; 1: DeptReminder
+        [JsonIgnore]
+        public bool IsConfirmed { get; set; }
+        public string Description { get; set; }
     }
 }

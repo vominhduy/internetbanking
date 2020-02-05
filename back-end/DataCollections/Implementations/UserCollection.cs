@@ -241,5 +241,18 @@ namespace InternetBanking.DataCollections.Implementations
 
             return res != null ? res.Result.ModifiedCount : 0;
         }
+
+        public User GetByAccountNumber(string accountNumber)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.AcccountNumber, accountNumber);
+
+            SortDefinition<User> sort = null;
+            ProjectionDefinition<User> projection = null;
+            FindOptions<User, User> options = null;
+
+            options = new FindOptions<User, User>() { Projection = projection, Sort = sort };
+
+            return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
+        }
     }
 }
