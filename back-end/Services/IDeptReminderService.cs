@@ -13,7 +13,8 @@ namespace InternetBanking.Services
         public DeptReminder AddDeptReminder(Guid userId, DeptReminder deptReminder);
         public bool UpdateDeptReminder(Guid userId, DeptReminder deptReminder);
         public bool DeleteDeptReminder(Guid userId, Guid deptReminderId);
-        public bool CheckoutDeptReminder(Guid userId, Guid deptReminderId);
+        public Transaction CheckoutDeptReminder(Guid userId, Guid deptReminderId);
+        public bool ConfirmDeptReminder(Guid userId, Guid transactionId, string otp);
         #endregion
     }
 }

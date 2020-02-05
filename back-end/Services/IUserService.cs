@@ -18,7 +18,7 @@ namespace InternetBanking.Services
         public Payee AddPayee(Guid userId, Payee payee);
         public bool UpdatePayee(Guid userId, Payee payee);
         public bool DeletePayee(Guid userId, Guid payeeId);
-        public Transfer Transfer(Guid userId, Transfer transfer);
-        public bool ConfirmTransfer(Guid userId, Guid transferId, string otp);
+        public Transaction Transfer(Guid userId, Transfer transfer);
+        public bool ConfirmTransfer(Guid userId, Guid transactionId, string otp);
     }
 }

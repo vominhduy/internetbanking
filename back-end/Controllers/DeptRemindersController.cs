@@ -60,14 +60,32 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // POST: api/Deptreminder
+        // Thanh toán nhắc nợ
+        // POST: api/Deptreminders/Checkout/dfduaf1731728378192389
         [HttpPost("Checkout/{id}")]
         [Authorize(Roles = "User")]
         public IActionResult CheckoutDeptreminder([FromQuery] Guid id)
         {
             var res = _Service.CheckoutDeptReminder(UserId, id);
 
-            return Ok(res);
+            if (res != null)
+                return Ok(res.Id);
+            else
+                return Conflict(_Setting.Message.GetMessage());
+        }
+
+        // Thanh toán nhắc nợ - confirm
+        // POST: api/Deptreminders/Checkout/dfduaf1731728378192389
+        [HttpPost("Cnfirm")]
+        [Authorize(Roles = "User")]
+        public IActionResult ConfirmDeptreminder([FromQuery] Transaction transaction)
+        {
+            var res = _Service.ConfirmDeptReminder(UserId, transaction.Id, transaction.Otp);
+
+            if (res)
+                return Ok(res);
+            else
+                return Conflict(_Setting.Message.GetMessage());
         }
         #endregion
     }

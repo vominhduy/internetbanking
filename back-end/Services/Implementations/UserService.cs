@@ -18,9 +18,12 @@ namespace InternetBanking.Services.Implementations
         private ISetting _Setting;
         private IContext _Context;
         private ITransferCollection _TransferCollection;
+        private ITransactionCollection _TransactionCollection;
+        private IDeptReminderCollection _DeptReminderCollection;
         private MongoDBClient _MongoDBClient;
         public UserService(ISetting setting, IUserCollection userCollection, ILinkingBankCollection linkingBankCollection, IContext context
-            , ITransferCollection transferCollection, MongoDBClient mongoDBClient)
+            , ITransferCollection transferCollection, MongoDBClient mongoDBClient, IDeptReminderCollection deptReminderCollection
+            , ITransactionCollection transactionCollection)
         {
             _UserCollection = userCollection;
             _Setting = setting;
@@ -28,6 +31,8 @@ namespace InternetBanking.Services.Implementations
             _Context = context;
             _TransferCollection = transferCollection;
             _MongoDBClient = mongoDBClient;
+            _DeptReminderCollection = deptReminderCollection;
+            _TransactionCollection = transactionCollection;
         }
 
         public Payee AddPayee(Guid userId, Payee payee)
@@ -85,7 +90,9 @@ namespace InternetBanking.Services.Implementations
             return user;
         }
 
-        public bool ConfirmTransfer(Guid userId, Guid transferId, string otp)
+
+
+        public bool ConfirmTransfer(Guid userId, Guid transactionId, string otp)
         {
             var res = false;
             using (var sessionTask = _MongoDBClient.StartSessionAsync())
@@ -99,86 +106,94 @@ namespace InternetBanking.Services.Implementations
 
                     if (userDetail != null)
                     {
-                        // Get transfer detail
-                        var transfers = _TransferCollection.GetMany(new TransferFilter() { InternalUserId = userId, Id = transferId });
-                        if (transfers.Any())
+                        // Get Get chi tiết giao dịch
+                        var transaction = _TransactionCollection.GetById(transactionId);
+                        if (transaction != null)
                         {
-                            var transfer = transfers.FirstOrDefault();
-
                             // Check OTP
-                            if (transfer.Otp == otp)
+                            if (transaction.Otp == otp)
                             {
-                                // Kiem tra het han
-                                if (transfer.ExpireTime >= DateTime.Now)
+                                // Check hết hạn
+                                if (transaction.ExpireTime >= DateTime.Now)
                                 {
-                                    // Tru so du
-                                    userDetail.CheckingAccount.AccountBalance -= transfer.Money;
-                                    var fee = _Context.TransactionCost(transfer.Money);
+                                    // Get chi tiết chuyển tiền
+                                    var transfer = _TransferCollection.GetById(transaction.ReferenceId);
 
-                                    // Tru phi
-                                    if (transfer.IsSenderPay)
+                                    if (transfer != null)
                                     {
-                                        userDetail.CheckingAccount.AccountBalance -= fee;
-                                    }
+                                        // Tru so du
+                                        userDetail.CheckingAccount.AccountBalance -= transfer.Money;
+                                        var fee = _Context.TransactionCost(transfer.Money);
 
-                                    if (userDetail.CheckingAccount.AccountBalance >= 0)
-                                    {
-                                        // Luu thong tin nguoi gui
-                                        var payOut = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = userId }, userDetail.CheckingAccount);
-
-                                        if (payOut > 0)
+                                        // Tru phi
+                                        if (transfer.IsSenderPay)
                                         {
-                                            // Cong tien nguoi nhan
-                                            var success = false;
-                                            if (transfer.IsInternal)
+                                            userDetail.CheckingAccount.AccountBalance -= fee;
+                                        }
+
+                                        if (userDetail.CheckingAccount.AccountBalance >= 0)
+                                        {
+                                            // Luu thong tin nguoi gui
+                                            var payOut = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = userId }, userDetail.CheckingAccount);
+
+                                            if (payOut > 0)
                                             {
-                                                // noi bo
-                                                var detailRecepients = _UserCollection.Get(new UserFilter() { AccountNumber = transfer.AccountNumber });
-                                                if (detailRecepients.Any())
+                                                // Cong tien nguoi nhan
+                                                var success = false;
+                                                if (transfer.IsInternal)
                                                 {
-                                                    var detailRecepient = detailRecepients.FirstOrDefault();
-                                                    detailRecepient.CheckingAccount.AccountBalance += transfer.Money;
-                                                    // Tru phi
-                                                    if (!transfer.IsSenderPay)
+                                                    // noi bo
+                                                    var detailRecepients = _UserCollection.Get(new UserFilter() { AccountNumber = transfer.AccountNumber });
+                                                    if (detailRecepients.Any())
                                                     {
-                                                        detailRecepient.CheckingAccount.AccountBalance -= fee;
+                                                        var detailRecepient = detailRecepients.FirstOrDefault();
+                                                        detailRecepient.CheckingAccount.AccountBalance += transfer.Money;
+                                                        // Tru phi
+                                                        if (!transfer.IsSenderPay)
+                                                        {
+                                                            detailRecepient.CheckingAccount.AccountBalance -= fee;
+                                                        }
+
+                                                        payOut = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = detailRecepient.Id }, detailRecepient.CheckingAccount);
+
+                                                        if (payOut > 0)
+                                                        {
+                                                            success = true;
+                                                        }
                                                     }
-
-                                                    payOut = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = detailRecepient.Id }, detailRecepient.CheckingAccount);
-
-                                                    if (payOut > 0)
+                                                    else
                                                     {
-                                                        success = true;
+                                                        _Setting.Message.SetMessage("Không tìm thấy thông tin người nhận!");
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    _Setting.Message.SetMessage("Không tìm thấy thông tin người nhận!");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // lien ngan hang
-                                                // TODO
-                                            }
-
-                                            if (success)
-                                            {
-                                                // Update trang thai giao dich
-                                                transfer.ConfirmTime = DateTime.Now;
-                                                var updateTransfer = _TransferCollection.Replace(transfer);
-                                                if (updateTransfer > 0)
-                                                {
-                                                    // Send mail
+                                                    // lien ngan hang
                                                     // TODO
-                                                    res = true;
+                                                }
+
+                                                if (success)
+                                                {
+                                                    // Update trang thai giao dich
+                                                    transfer.ConfirmTime = DateTime.Now;
+                                                    var updateTransfer = _TransferCollection.Replace(transfer);
+                                                    if (updateTransfer > 0)
+                                                    {
+                                                        // Send mail
+                                                        // TODO
+                                                        res = true;
+                                                    }
                                                 }
                                             }
+                                        }
+                                        else
+                                        {
+                                            _Setting.Message.SetMessage("Số dư không đủ!");
                                         }
                                     }
                                     else
                                     {
-                                        _Setting.Message.SetMessage("Số dư không đủ!");
+                                        _Setting.Message.SetMessage("Không tìm thấy thông tin chuyển tiền!");
                                     }
                                 }
                                 else
@@ -203,11 +218,11 @@ namespace InternetBanking.Services.Implementations
 
                     if (res)
                     {
-                        session.CommitTransactionAsync().Wait();
+                        session.CommitTransactionAsync();
                     }
                     else
                     {
-                        session.AbortTransactionAsync().Wait();
+                        session.AbortTransactionAsync();
                     }
                 }
                 catch (Exception)
@@ -299,9 +314,9 @@ namespace InternetBanking.Services.Implementations
             return _UserCollection.Get(employeeFilter);
         }
 
-        public Transfer Transfer(Guid userId, Transfer transfer)
+        public Transaction Transfer(Guid userId, Transfer transfer)
         {
-            Transfer res = null;
+            Transaction res = null;
 
             var userDetail = _UserCollection.GetById(userId);
             transfer.InternalUserId = userId;
@@ -324,48 +339,51 @@ namespace InternetBanking.Services.Implementations
 
                 if (recepient != null)
                 {
-                    // Kiem tra so du
-                    if (transfer.IsSenderPay && transfer.Money + _Context.TransactionCost(transfer.Money) > userDetail.CheckingAccount.AccountBalance)
+                    string otp = null;
+                    using (var sessionTask = _MongoDBClient.StartSessionAsync())
                     {
-                        _Setting.Message.SetMessage("Tài khoản không đủ số dư!");
-                    }
-                    else
-                    {
-                        string otp = null;
-                        using (var sessionTask = _MongoDBClient.StartSessionAsync())
+                        var session = sessionTask.Result;
+                        session.StartTransaction();
+                        try
                         {
-                            var session = sessionTask.Result;
-                            session.StartTransaction();
-                            try
+
+                            // Create OTP
+                            while (true)
                             {
+                                otp = _Context.MakeOTP(6);
+                                if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = userId, Otp = otp }).Any())
+                                    break;
+                            }
 
-                                // Create OTP
-                                while (true)
-                                {
-                                    otp = _Context.MakeOTP(6);
-                                    if (!_TransferCollection.GetMany(new TransferFilter() { InternalUserId = userId, Otp = otp }).Any())
-                                        break;
-                                }
+                            // expire
+                            transfer.CreateTime = DateTime.Now;
+                            transfer.ExpireTime = transfer.CreateTime.AddMinutes(_Setting.TransferExpiration);
 
-                                // expire
-                                transfer.CreateTime = DateTime.Now;
-                                transfer.ExpireTime = transfer.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                            _TransferCollection.Create(transfer);
 
-                                _TransferCollection.Create(transfer);
+                            if (!transfer.Id.Equals(Guid.Empty))
+                            {
+                                var transaction = new Transaction();
+                                transaction.Id = Guid.Empty;
+                                transaction.ReferenceId = transfer.Id;
+                                transaction.Otp = otp;
 
-                                if (!transfer.Id.Equals(Guid.Empty))
+                                _TransactionCollection.Create(transaction);
+
+                                if (transaction.Id != Guid.Empty)
                                 {
                                     // Send mail
                                     // TODO
-                                    res = transfer;
+
+
+                                    res = transaction;
                                 }
-                                session.CommitTransactionAsync().Wait();
                             }
-                            catch (Exception)
-                            {
-                                session.AbortTransactionAsync().Wait();
-                                throw;
-                            }
+                            session.CommitTransactionAsync();
+                        }
+                        catch (Exception)
+                        {
+                            session.AbortTransactionAsync();
                         }
                     }
                 }

@@ -154,10 +154,9 @@ namespace InternetBanking.Controllers
         // POST: api/User/ConfirmTransfer
         [HttpPost("ConfirmTransfer")]
         [Authorize(Roles = "User")]
-        public IActionResult ConfirmTransfer([FromBody] Transfer transfer)
+        public IActionResult ConfirmTransfer([FromBody] Transaction transaction)
         {
-            transfer.IsInternal = false;
-            var res = _Service.ConfirmTransfer(UserId, transfer.Id, transfer.Otp);
+            var res = _Service.ConfirmTransfer(UserId, transaction.Id, transaction.Otp);
 
             if (res)
                 return Ok(res);
