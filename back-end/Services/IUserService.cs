@@ -24,5 +24,8 @@ namespace InternetBanking.Services
         public IEnumerable<HistoryTransaction> HistoryOut(Guid userId);
         public IEnumerable<HistoryTransaction> HistoryDeptIn(Guid userId);
         public IEnumerable<HistoryTransaction> HistoryDeptOut(Guid userId);
+        public ExternalAccount GetDetailUserByPartner(string accountNumber);
+        public bool PayInByPartner(Transfer transfer);
+        public bool PayOutByPartner(Transfer transfer);
     }
 }

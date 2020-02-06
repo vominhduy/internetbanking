@@ -21,8 +21,6 @@ namespace InternetBanking.Models
         public decimal Fee { get; set; }
         public bool IsSenderPay { get; set; }
         [JsonIgnore]
-        public bool IsInternal { get; set; }
-        [JsonIgnore]
         public bool IsConfirmed { get; set; }
         public string Description { get; set; }
     }

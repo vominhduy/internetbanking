@@ -317,6 +317,32 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
+        public ExternalAccount GetDetailUserByPartner(string accountNumber)
+        {
+            ExternalAccount res = null;
+            var detail = _UserCollection.GetByAccountNumber(accountNumber);
+            if (detail != null)
+            {
+                if (detail.Role == 1)
+                {
+                    res = new ExternalAccount();
+                    res.AccountNumber = detail.AcccountNumber;
+                    res.Address = detail.Address;
+                    res.Email = detail.Email;
+                    if (detail.Gender == 0)
+                        res.Gender = "Nam";
+                    else if (detail.Gender == 1)
+                        res.Gender = "Nữ";
+                    else
+                        res.Gender = "Khác";
+                    res.Name = detail.Name;
+                    res.Phone = detail.Phone;
+                }
+            }
+
+            return res;
+        }
+
         public IEnumerable<User> GetUsers(UserFilter employeeFilter)
         {
             return _UserCollection.Get(employeeFilter);
@@ -516,6 +542,162 @@ namespace InternetBanking.Services.Implementations
                         }
 
                         res.Add(hisTransaction);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public bool PayInByPartner(Transfer transfer)
+        {
+            var res = false;
+            var linkBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+            if (linkBank != null)
+            {
+                // get chi tiết người nhận
+                using (var sessionTask = _MongoDBClient.StartSessionAsync())
+                {
+                    var session = sessionTask.Result;
+                    session.StartTransaction();
+                    try
+                    {
+                        var userDetail = _UserCollection.GetByAccountNumber(transfer.DestinationAccountNumber);
+                        if (userDetail != null)
+                        {
+                            transfer.Id = Guid.Empty;
+                            transfer.Fee = _Context.TransactionCost(transfer.Money);
+                            transfer.IsConfirmed = true;
+                            transfer.DestinationLinkingBankId = Guid.Empty;
+                            // Update số dư
+                            userDetail.CheckingAccount.AccountBalance += transfer.Money;
+                            if (!transfer.IsSenderPay)
+                            {
+                                userDetail.CheckingAccount.AccountBalance -= transfer.Fee;
+                            }
+
+                            // Create chuyển tiền
+                            _TransferCollection.Create(transfer);
+
+                            if (transfer.Id != Guid.Empty)
+                            {
+                                // Update người nhận
+                                var updateUser = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = userDetail.Id }, userDetail.CheckingAccount);
+
+                                if (updateUser > 0)
+                                {
+                                    // Create giao dịch
+                                    var transaction = new Transaction();
+                                    transaction.Id = Guid.Empty;
+                                    transaction.CreateTime = DateTime.Now;
+                                    transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                                    transaction.ConfirmTime = transaction.CreateTime;
+                                    transaction.ReferenceId = transfer.Id;
+
+                                    _TransactionCollection.Create(transaction);
+
+                                    if (transaction.Id != Guid.Empty)
+                                    {
+                                        res = true;
+                                    }
+                                    else
+                                        _Setting.Message.SetMessage("Không thể lưu thông tin giao dịch!");
+                                }
+                                else
+                                    _Setting.Message.SetMessage("Không thể lưu thông tin người nhận!");
+                            }
+                            else
+                                _Setting.Message.SetMessage("Không thể lưu thông tin chuyển tiền!");
+                        }
+                        else
+                            _Setting.Message.SetMessage("Không tìm thấy thông tin người nhận!");
+
+                        if (res)
+                            session.CommitTransactionAsync();
+                        else
+                            session.AbortTransactionAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        session.AbortTransactionAsync();
+                        throw ex;
+                    }
+                }
+            }
+            return res;
+        }
+
+        public bool PayOutByPartner(Transfer transfer)
+        {
+            var res = false;
+            var linkBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+            if (linkBank != null)
+            {
+                // get chi tiết người nhận
+                using (var sessionTask = _MongoDBClient.StartSessionAsync())
+                {
+                    var session = sessionTask.Result;
+                    session.StartTransaction();
+                    try
+                    {
+                        var userDetail = _UserCollection.GetByAccountNumber(transfer.SourceAccountNumber);
+                        if (userDetail != null)
+                        {
+                            transfer.Id = Guid.Empty;
+                            transfer.Fee = _Context.TransactionCost(transfer.Money);
+                            transfer.IsConfirmed = true;
+                            transfer.SourceLinkingBankId = Guid.Empty;
+                            // Update số dư
+                            userDetail.CheckingAccount.AccountBalance -= transfer.Money;
+                            if (transfer.IsSenderPay)
+                            {
+                                userDetail.CheckingAccount.AccountBalance -= transfer.Fee;
+                            }
+
+                            // Create chuyển tiền
+                            _TransferCollection.Create(transfer);
+
+                            if (transfer.Id != Guid.Empty)
+                            {
+                                // Update gửi
+                                var updateUser = _UserCollection.UpdateCheckingAccount(new UserFilter() { Id = userDetail.Id }, userDetail.CheckingAccount);
+
+                                if (updateUser > 0)
+                                {
+                                    // Create giao dịch
+                                    var transaction = new Transaction();
+                                    transaction.Id = Guid.Empty;
+                                    transaction.CreateTime = DateTime.Now;
+                                    transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                                    transaction.ConfirmTime = transaction.CreateTime;
+                                    transaction.ReferenceId = transfer.Id;
+
+                                    _TransactionCollection.Create(transaction);
+
+                                    if (transaction.Id != Guid.Empty)
+                                    {
+                                        res = true;
+                                    }
+                                    else
+                                        _Setting.Message.SetMessage("Không thể lưu thông tin giao dịch!");
+                                }
+                                else
+                                    _Setting.Message.SetMessage("Không thể lưu thông tin người người chuyển tiền!");
+                            }
+                            else
+                                _Setting.Message.SetMessage("Không thể lưu thông tin chuyển tiền!");
+                        }
+                        else
+                            _Setting.Message.SetMessage("Không tìm thấy thông tin người chuyển tiền!");
+
+                        if (res)
+                            session.CommitTransactionAsync();
+                        else
+                            session.AbortTransactionAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        session.AbortTransactionAsync();
+                        throw ex;
                     }
                 }
             }

@@ -8,7 +8,7 @@ namespace InternetBanking.Models
         [BsonId]
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public byte Gender { get; set; }
+        public byte Gender { get; set; } // 0: Nam; 1: Nu; 2: Khac
         public string Password { get; set; }
         public string Username { get; set; }
         public string Address { get; set; }
