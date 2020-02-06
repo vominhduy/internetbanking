@@ -28,8 +28,13 @@ namespace InternetBanking.Services.Implementations
 
         public Employee Add(Employee employee)
         {
+            Employee res = null;
             _EmployeeCollection.Create(employee);
-            return employee;
+            if (employee.Id != Guid.Empty)
+            {
+                res = employee;
+            }
+            return res;
         }
 
         public User AddUser(Account account)
@@ -81,6 +86,29 @@ namespace InternetBanking.Services.Implementations
                 }
             }
             return res;
+        }
+
+        public IEnumerable<HistoryTransaction> CrossCheckingIn(DateTime? From, DateTime? To, Guid? bankId)
+        {
+            var res = new List<HistoryTransaction>();
+
+
+
+            return res;
+        }
+
+        public IEnumerable<HistoryTransaction> CrossCheckingOut(DateTime? From, DateTime? To, Guid? bankId)
+        {
+            var res = new List<HistoryTransaction>();
+
+
+
+            return res;
+        }
+
+        public bool Delete(Guid id)
+        {
+            return _EmployeeCollection.Delete(id) > 0;
         }
 
         public IEnumerable<Employee> GetEmployees(EmployeeFilter employeeFilter)
