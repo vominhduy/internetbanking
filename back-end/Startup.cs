@@ -40,7 +40,11 @@ namespace InternetBanking
         {
             services.AddCors();
 
-            AppSetting appSettings = new AppSetting(new Message());
+            services.AddScoped<IMessage, Message>();
+
+            var builder = services.BuildServiceProvider();
+
+            AppSetting appSettings = new AppSetting((IMessage)builder.GetRequiredService(typeof(IMessage)));
             var appSettingsSection = Configuration.GetSection("Settings");
 
             appSettingsSection.Bind(appSettings);
@@ -81,6 +85,8 @@ namespace InternetBanking
             services.AddSingleton<IUserCollection, MongoUserCollection>();
             services.AddSingleton<IDeptReminderCollection, MongoDeptReminderCollection>();
             services.AddSingleton<ITransferCollection, MongoTransferCollection>();
+            services.AddSingleton<ITransactionCollection, MongoTransactionCollection>();
+            services.AddSingleton<ILinkingBankCollection, MongoLinkingBankCollection>();
             ///
             /// Add services
             services.AddSingleton<IContext, Context>();

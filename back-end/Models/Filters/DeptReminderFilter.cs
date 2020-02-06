@@ -8,5 +8,6 @@ namespace InternetBanking.Models.Filters
         public string RequestorAccountNumber { get; set; }
         public string RecipientAccountNumber { get; set; }
         public bool IsCanceled { get; set; }
+        public bool IsPaid { get; set; }
     }
 }

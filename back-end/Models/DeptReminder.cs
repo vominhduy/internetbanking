@@ -14,7 +14,7 @@ namespace InternetBanking.Models
         public string RecipientAccountNumber { get; set; }
         [JsonIgnore]
         public Guid RecipientId { get; set; }
-        public string Desciption { get; set; }
+        public string Description { get; set; }
         public decimal Money { get; set; }
         public bool IsPaid { get; set; }
         public bool IsCanceled { get; set; }

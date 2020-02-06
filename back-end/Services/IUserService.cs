@@ -22,6 +22,7 @@ namespace InternetBanking.Services
         public bool ConfirmTransfer(Guid userId, Guid transactionId, string otp);
         public IEnumerable<HistoryTransaction> HistoryIn(Guid userId);
         public IEnumerable<HistoryTransaction> HistoryOut(Guid userId);
-        public IEnumerable<HistoryTransaction> HistoryDept(Guid userId);
+        public IEnumerable<HistoryTransaction> HistoryDeptIn(Guid userId);
+        public IEnumerable<HistoryTransaction> HistoryDeptOut(Guid userId);
     }
 }

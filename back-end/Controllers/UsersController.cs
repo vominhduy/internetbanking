@@ -184,5 +184,34 @@ namespace InternetBanking.Controllers
             var res = _Service.HistoryIn(UserId);
             return Ok(res);
         }
+
+        // Giao dịch chuyển tiền
+        // POST: api/Users/Histories/Out
+        [HttpGet("Histories/Out")]
+        [Authorize(Roles = "User")]
+        public IActionResult HistoryOut()
+        {
+            var res = _Service.HistoryOut(UserId);
+            return Ok(res);
+        }
+
+        // Giao dịch thanh toán nhắc nợ - được trả
+        // POST: api/Users/Histories/DeptIn
+        [HttpGet("Histories/Dept/In")]
+        [Authorize(Roles = "User")]
+        public IActionResult HistoryDeptIn()
+        {
+            var res = _Service.HistoryDeptIn(UserId);
+            return Ok(res);
+        }
+        // Giao dịch thanh toán nhắc nợ - trả
+        // POST: api/Users/Histories/DeptOut
+        [HttpGet("Histories/Dept/Out")]
+        [Authorize(Roles = "User")]
+        public IActionResult HistoryDeptOut()
+        {
+            var res = _Service.HistoryDeptOut(UserId);
+            return Ok(res);
+        }
     }
 }
