@@ -22,41 +22,46 @@ namespace InternetBanking.Controllers
             _Service = service;
         }
 
-        // GET: api/User
-        [HttpGet()]
-        [Authorize(Roles = "Admin")]
-        public IActionResult GetAll()
-        {
-            var records = _Service.GetUsers(new UserFilter() { Id = Guid.Empty, Name = "" });
+        //// GET: api/User
+        //[HttpGet()]
+        //[Authorize(Roles = "Admin")]
+        //public IActionResult GetAll()
+        //{
+        //    var records = _Service.GetUsers(new UserFilter() { Id = Guid.Empty, Name = "" });
 
-            return Ok(records);
-        }
+        //    return Ok(records);
+        //}
 
-        // GET: api/User/31231123
-        [HttpGet("{id}")]
-        [Authorize(Roles = "User")]
-        public IActionResult GetDetailUser([FromQuery] Guid id)
-        {
-            var records = _Service.GetUsers(new UserFilter() { Id = id, Name = "" });
+        //// GET: api/User/31231123
+        //[HttpGet("{id}")]
+        //[Authorize(Roles = "User")]
+        //public IActionResult GetDetailUser([FromQuery] Guid id)
+        //{
+        //    var records = _Service.GetUsers(new UserFilter() { Id = id, Name = "" });
 
-            if (records.Any())
-                return Ok(records.FirstOrDefault());
-            else
-                return NotFound();
-        }
+        //    if (records.Any())
+        //        return Ok(records.FirstOrDefault());
+        //    else
+        //        return NotFound();
+        //}
 
-        // PUT: api/User
-        [HttpPut()]
-        [Authorize(Roles = "User")]
-        public IActionResult Update([FromBody] User user)
-        {
-            var res = _Service.UpdateUser(user);
+        //// PUT: api/User
+        //[HttpPut()]
+        //[Authorize(Roles = "User")]
+        //public IActionResult Update([FromBody] User user)
+        //{
+        //    var res = _Service.UpdateUser(user);
 
-            return Ok(res);
-        }
+        //    return Ok(res);
+        //}
 
-        // POST: api/User/SavingsAccount
-        [HttpPost("SavingsAccount")]
+        /// <summary>
+        /// Tạo tài khoản tiết kiệm
+        /// </summary>
+        /// <param name="bankAccount"></param>
+        /// <returns>BankAccount</returns>
+        // POST: api/Users/SavingsAccounts
+        [HttpPost("SavingsAccounts")]
         [Authorize(Roles = "User")]
         public IActionResult CreateSavingsAccount([FromBody] BankAccount bankAccount)
         {
@@ -65,8 +70,14 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // PUT: api/User/BankAccount?type=0
-        [HttpPut("BankAccount")]
+        /// <summary>
+        /// Update tài khoản tiết kiệm / thanh toán
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="bankAccount">{ "Id": 00000000-0000-0000-0000-000000000000, "Name": "", "Description": "" }</param>
+        /// <returns>bool</returns>
+        // PUT: api/Users/BankAccounts?type=0
+        [HttpPut("BankAccounts")]
         [Authorize(Roles = "User")]
         public IActionResult UpdateBankAccount([FromQuery] BankAccountType type, [FromBody] BankAccount bankAccount)
         {
@@ -75,27 +86,38 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // DELETE: api/User/SavingsAccount/24839489f79sd7
-        [HttpDelete("SavingsAccount/{id}")]
+        /// <summary>
+        /// Xóa tài khoản tiết kiệm
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        // DELETE: api/Users/SavingsAccounts/00000000-0000-0000-0000-000000000000
+        [HttpDelete("SavingsAccounts/{id}")]
         [Authorize(Roles = "User")]
-        public IActionResult DeleteSavingsAccount([FromQuery] Guid id)
+        public IActionResult DeleteSavingsAccount(Guid id)
         {
             var res = _Service.DeleteSavingsAccount(UserId, id);
 
             return Ok(res);
         }
 
-        // PUT: api/User/Deposit
-        [HttpPost("Deposit")]
-        [Authorize(Roles = "User")]
-        public IActionResult Deposit([FromBody] Deposit depositInfo)
-        {
-            var res = _Service.Deposit(UserId, depositInfo.Type, depositInfo.Id, depositInfo.Money);
+        //// PUT: api/User/Deposit
+        //[HttpPost("Deposit")]
+        //[Authorize(Roles = "User")]
+        //public IActionResult Deposit([FromBody] Deposit depositInfo)
+        //{
+        //    var res = _Service.Deposit(UserId, depositInfo.Type, depositInfo.Id, depositInfo.Money);
 
-            return Ok(res);
-        }
-        // Post: api/User/Payee
-        [HttpPost("Payee")]
+        //    return Ok(res);
+        //}
+
+        /// <summary>
+        /// Thêm thông tin người nhận
+        /// </summary>
+        /// <param name="payee"></param>
+        /// <returns>Payee</returns>
+        // Post: api/Users/Payees
+        [HttpPost("Payees")]
         [Authorize(Roles = "User")]
         public IActionResult AddPayee([FromBody] Payee payee)
         {
@@ -104,27 +126,43 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // PUT: api/User/Payee
-        [HttpPut("Payee")]
+        /// <summary>
+        /// Update thông tin người nhận
+        /// </summary>
+        /// <param name="payee"></param>
+        /// <returns>bool</returns>
+        // PUT: api/Users/Payees/00000000-0000-0000-0000-000000000000
+        [HttpPut("Payees/{id}")]
         [Authorize(Roles = "User")]
-        public IActionResult UpdatePayee([FromBody] Payee payee)
+        public IActionResult UpdatePayee(Guid id, [FromBody] Payee payee)
         {
+            payee.Id = id;
             var res = _Service.UpdatePayee(UserId, payee);
 
             return Ok(res);
         }
 
-        // DELETE: api/User/Payee/2348ffgo834
-        [HttpDelete("Payee/{id}")]
+        /// <summary>
+        /// Delete người nhận
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>bool</returns>
+        // DELETE: api/Users/Payees/00000000-0000-0000-0000-000000000000
+        [HttpDelete("Payees/{id}")]
         [Authorize(Roles = "User")]
-        public IActionResult DeletePayee([FromQuery] Guid id)
+        public IActionResult DeletePayee(Guid id)
         {
             var res = _Service.DeletePayee(UserId, id);
 
             return Ok(res);
         }
 
-        // POST: api/User/InternalTransfer
+        /// <summary>
+        /// Chuyển tiền nội bộ
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns>Guid</returns>
+        // POST: api/Users/InternalTransfer
         [HttpPost("InternalTransfer")]
         [Authorize(Roles = "User")]
         public IActionResult InternalTransfer([FromBody] Transfer transfer)
@@ -133,11 +171,16 @@ namespace InternetBanking.Controllers
             var res = _Service.Transfer(UserId, transfer);
 
             if (res != null)
-                return Ok(res);
+                return Ok(res.Id);
             else
                 return Conflict(_Setting.Message.GetMessage());
         }
 
+        /// <summary>
+        /// Chuyển tiền liên ngân hàng
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns>Guid</returns>
         // POST: api/User/ExternalTransfer
         [HttpPost("ExternalTransfer")]
         [Authorize(Roles = "User")]
@@ -156,16 +199,22 @@ namespace InternetBanking.Controllers
             var res = _Service.Transfer(UserId, transfer);
 
             if (res != null)
-                return Ok(res);
+                return Ok(res.Id);
             else
                 return Conflict(_Setting.Message.GetMessage());
         }
-        // POST: api/User/ConfirmTransfer
+
+        /// <summary>
+        /// Xác nhận chuyển tiền
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns>bool</returns>
+        // POST: api/Users/ConfirmTransfer?id=00000000-0000-0000-0000-000000000000&otp=123456
         [HttpPost("ConfirmTransfer")]
         [Authorize(Roles = "User")]
-        public IActionResult ConfirmTransfer([FromBody] Transaction transaction)
+        public IActionResult ConfirmTransfer(Guid id, string otp)
         {
-            var res = _Service.ConfirmTransfer(UserId, transaction.Id, transaction.Otp);
+            var res = _Service.ConfirmTransfer(UserId, id, otp);
 
             if (res)
                 return Ok(res);
@@ -175,8 +224,11 @@ namespace InternetBanking.Controllers
 
         // Xem lịch sử giao dịch của 1 tài khoản
 
-        // Giao dịch nhận tiền
-        // POST: api/Users/Histories/In
+        /// <summary>
+        /// Danh sách giao dịch nhận tiền
+        /// </summary>
+        /// <returns>IEnumerable<TransactionHistory></returns>
+        // GET: api/Users/Histories/In
         [HttpGet("Histories/In")]
         [Authorize(Roles = "User")]
         public IActionResult HistoryIn()
@@ -185,8 +237,11 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // Giao dịch chuyển tiền
-        // POST: api/Users/Histories/Out
+        /// <summary>
+        /// Giao dịch chuyển tiền
+        /// </summary>
+        /// <returns>IEnumerable<TransactionHistory></returns>
+        // GET: api/Users/Histories/Out
         [HttpGet("Histories/Out")]
         [Authorize(Roles = "User")]
         public IActionResult HistoryOut()
@@ -195,18 +250,25 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // Giao dịch thanh toán nhắc nợ - được trả
-        // POST: api/Users/Histories/DeptIn
-        [HttpGet("Histories/Dept/In")]
+        /// <summary>
+        /// Giao dịch thanh toán nhắc nợ - được trả
+        /// </summary>
+        /// <returns>IEnumerable<TransactionHistory></returns>
+        // POST: api/Users/Histories/Depts/In
+        [HttpGet("Histories/Depts/In")]
         [Authorize(Roles = "User")]
         public IActionResult HistoryDeptIn()
         {
             var res = _Service.HistoryDeptIn(UserId);
             return Ok(res);
         }
-        // Giao dịch thanh toán nhắc nợ - trả
-        // POST: api/Users/Histories/DeptOut
-        [HttpGet("Histories/Dept/Out")]
+
+        /// <summary>
+        /// Giao dịch thanh toán nhắc nợ - trả
+        /// </summary>
+        /// <returns>IEnumerable<TransactionHistory></returns>
+        // POST: api/Users/Histories/Depts/Out
+        [HttpGet("Histories/Depts/Out")]
         [Authorize(Roles = "User")]
         public IActionResult HistoryDeptOut()
         {

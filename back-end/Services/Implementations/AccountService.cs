@@ -145,22 +145,23 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public bool ForgetPassword(Guid userId)
+        public bool ForgetPassword(string email)
         {
             var res = false;
 
-            var detail = _UserCollection.GetById(userId);
-            if (detail != null)
+            var details = _UserCollection.Get(new UserFilter() { Email = email });
+            if (details.Any())
             {
+                var detail = details.FirstOrDefault();
                 var transaction = new Transaction();
-                transaction.ReferenceId = userId;
+                transaction.ReferenceId = detail.Id;
                 transaction.CreateTime = DateTime.Now;
                 transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
                 transaction.Type = 2;
                 while (true)
                 {
                     transaction.Otp = _Context.MakeOTP(6);
-                    if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = userId, Type = 2 }).Any())
+                    if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = detail.Id, Type = 2 }).Any())
                         break;
                 }
 
@@ -254,9 +255,11 @@ namespace InternetBanking.Services.Implementations
 
                 accessToken = _Context.GenerateAccessToken(new Claim[]
                         {
+                            new Claim(ClaimTypes.PrimarySid, principal.FindFirst(ClaimTypes.PrimarySid).Value),
                             new Claim(ClaimTypes.NameIdentifier, principal.FindFirst(ClaimTypes.NameIdentifier).Value),
                             new Claim(ClaimTypes.Name, principal.FindFirst(ClaimTypes.Name).Value),
-                            new Claim(ClaimTypes.Gender, principal.FindFirst(ClaimTypes.Gender).Value)
+                            new Claim(ClaimTypes.Gender, principal.FindFirst(ClaimTypes.Gender).Value),
+                            new Claim(ClaimTypes.Role, principal.FindFirst(ClaimTypes.Role).Value),
                         });
                 refreshToken = _Context.GenerateRefreshToken();
 

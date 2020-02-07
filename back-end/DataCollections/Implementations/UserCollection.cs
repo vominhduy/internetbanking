@@ -53,6 +53,15 @@ namespace InternetBanking.DataCollections.Implementations
             if (!string.IsNullOrEmpty(userFilter.Name))
                 ops.Add(Builders<User>.Filter.Eq(x => x.Name, userFilter.Name));
 
+            if (!string.IsNullOrEmpty(userFilter.Email))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Email, userFilter.Email));
+
+            if (!string.IsNullOrEmpty(userFilter.Username))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Username, userFilter.Username));
+
+            if (!string.IsNullOrEmpty(userFilter.AccountNumber))
+                ops.Add(Builders<User>.Filter.Eq(x => x.AccountNumber, userFilter.AccountNumber));
+
             if (ops.Count > 0)
                 filter = Builders<User>.Filter.And(ops);
 

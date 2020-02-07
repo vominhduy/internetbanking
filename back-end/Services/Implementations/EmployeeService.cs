@@ -13,7 +13,6 @@ namespace InternetBanking.Services.Implementations
 {
     public class EmployeeService : IEmployeeService
     {
-        private IEmployeeCollection _EmployeeCollection;
         private IUserCollection _UserCollection;
         private ISetting _Setting;
         private IContext _Context;
@@ -22,10 +21,9 @@ namespace InternetBanking.Services.Implementations
         private ITransactionCollection _TransactionCollection;
         private ILinkingBankCollection _LinkingBankCollection;
 
-        public EmployeeService(ISetting setting, IEmployeeCollection employeeCollection, IUserCollection userCollection, IContext context, MongoDBClient mongoDBClient
+        public EmployeeService(ISetting setting, IUserCollection userCollection, IContext context, MongoDBClient mongoDBClient
             , ITransactionCollection transactionCollection, ITransferCollection transferCollection, ILinkingBankCollection linkingBankCollection)
         {
-            _EmployeeCollection = employeeCollection;
             _Setting = setting;
             _UserCollection = userCollection;
             _Context = context;
@@ -37,10 +35,29 @@ namespace InternetBanking.Services.Implementations
 
         public Employee Add(Employee employee)
         {
+            employee.Password = _Context.MakeOTP(8);
             Employee res = null;
-            _EmployeeCollection.Create(employee);
-            if (employee.Id != Guid.Empty)
+            while (true)
             {
+                employee.Code = _Context.MakeOTP(10);
+                if (!_UserCollection.Get(new UserFilter() { AccountNumber = employee.Code }).Any())
+                    break;
+            }
+            var user = new User();
+
+            user.AccountNumber = employee.Code;
+            user.Address = employee.Code;
+            user.Email = employee.Email;
+            user.Gender = employee.Gender;
+            user.Name = employee.Name;
+            user.Phone = employee.Phone;
+            user.Password = Encrypting.Bcrypt(employee.Password);
+            user.Role = 2;
+
+            _UserCollection.Create(user);
+            if (user.Id != Guid.Empty)
+            {
+                employee.Id = user.Id;
                 res = employee;
             }
             return res;
@@ -229,12 +246,37 @@ namespace InternetBanking.Services.Implementations
 
         public bool Delete(Guid id)
         {
-            return _EmployeeCollection.Delete(id) > 0;
+            return _UserCollection.Delete(id) > 0;
         }
 
-        public IEnumerable<Employee> GetEmployees(EmployeeFilter employeeFilter)
+        public IEnumerable<Employee> GetEmployees(UserFilter employeeFilter)
         {
-            return _EmployeeCollection.Get(employeeFilter);
+            var res = new List<Employee>();
+
+            var users = _UserCollection.Get(new UserFilter()
+            {
+                AccountNumber = employeeFilter.AccountNumber,
+                Id = employeeFilter.Id,
+                Email = employeeFilter.Email,
+                Name = employeeFilter.Name,
+                Username = employeeFilter.Username
+            });
+
+            foreach (var user in users)
+            {
+                var employee = new Employee();
+                employee.Username = user.Username;
+                employee.Address = user.Address;
+                employee.Id = user.Id;
+                employee.Gender = user.Gender;
+                employee.Phone = user.Phone;
+                employee.Code = user.AccountNumber;
+                employee.Email = user.Email;
+                employee.Name = user.Name;
+                res.Add(employee);
+            }
+
+            return res;
         }
 
         public bool PayIn(PayInfo payInfo)
@@ -260,7 +302,41 @@ namespace InternetBanking.Services.Implementations
 
         public bool Update(Employee employee)
         {
-            return _EmployeeCollection.Replace(employee) >= 0;
+            var res = false;
+            // Get chi tiết nhân viên
+            using (var sessionTask = _MongoDBClient.StartSessionAsync())
+            {
+                var session = sessionTask.Result;
+                session.StartTransaction();
+                try
+                {
+                    var detail = _UserCollection.GetById(employee.Id);
+                    if (detail != null)
+                    {
+                        detail.Name = employee.Name;
+                        detail.Phone = employee.Phone;
+                        detail.Address = employee.Address;
+                        //detail.Email = employee.Email;
+                        detail.Gender = employee.Gender;
+
+                        res = _UserCollection.Replace(detail) > 0;
+                    }
+                    else
+                        _Setting.Message.SetMessage("Không tìm thấy thông tin nhân viên!");
+
+                    if (res)
+                        session.CommitTransactionAsync();
+                    else
+                        session.AbortTransactionAsync();
+                }
+                catch(Exception ex)
+                {
+                    session.AbortTransactionAsync();
+                    throw ex;
+                }
+            }
+            
+            return res;
         }
     }
 }

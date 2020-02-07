@@ -81,7 +81,6 @@ namespace InternetBanking
 
 
             /// Add collections
-            services.AddSingleton<IEmployeeCollection, MongoEmployeeCollection>();
             services.AddSingleton<IUserCollection, MongoUserCollection>();
             services.AddSingleton<IDeptReminderCollection, MongoDeptReminderCollection>();
             services.AddSingleton<ITransferCollection, MongoTransferCollection>();

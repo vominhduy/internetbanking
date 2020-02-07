@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using InternetBanking.Models;
-using InternetBanking.Models.Filters;
 using InternetBanking.Services;
 using InternetBanking.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -23,44 +21,11 @@ namespace InternetBanking.Controllers
             _Service = employeeService;
         }
 
-        // GET: api/Employees
-        [HttpGet()]
-        public IActionResult GetAll()
-        {
-            var records = _Service.GetEmployees(new EmployeeFilter() { Id = Guid.Empty, Name = "" });
-
-            return Ok(records);
-        }
-
-        // GET: api/Employees/31231123
-        [HttpGet("{id}")]
-        public IActionResult GetDetailEmployee([FromQuery] Guid id)
-        {
-            var records = _Service.GetEmployees(new EmployeeFilter() { Id = id, Name = "" });
-
-            if (records.Any())
-                return Ok(records.FirstOrDefault());
-            else
-                return NotFound();
-        }
-
-        // PUT: api/Employees
-        [HttpPut()]
-        public IActionResult UpdateEmployee([FromBody] Employee employee)
-        {
-            var res = _Service.Update(employee);
-
-            return Ok(res);
-        }
-        // PUT: api/Employees
-        [HttpPost()]
-        public IActionResult AddEmployee([FromBody] Employee employee)
-        {
-            var res = _Service.Update(employee);
-
-            return Ok(res);
-        }
-
+        /// <summary>
+        /// Tạo tài khoản khách hàng
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>Account</returns>
         // POST: api/Employees/Users
         [HttpPost()]
         public IActionResult AddUser([FromBody] Account user)
@@ -70,6 +35,11 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
+        /// <summary>
+        /// Nộp tiền vào tài khoản khách hàng
+        /// </summary>
+        /// <param name="payInfo"></param>
+        /// <returns>bool</returns>
         // POST: api/Employees/Users/PayIn
         [HttpPost("Users/PayIn")]
         public IActionResult PayIn([FromBody] PayInfo payInfo)
@@ -81,7 +51,11 @@ namespace InternetBanking.Controllers
 
         // Xem lịch sử giao dịch của 1 tài khoản
 
-        // Giao dịch nhận tiền
+        /// <summary>
+        /// Giao dịch nhận tiền
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/In
         [HttpGet("Histories/{userId}/In")]
         [Authorize(Roles = "User")]
@@ -91,7 +65,11 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // Giao dịch chuyển tiền
+        /// <summary>
+        /// Giao dịch chuyển tiền
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Out
         [HttpGet("Histories/{userId}/Out")]
         [Authorize(Roles = "User")]
@@ -101,7 +79,11 @@ namespace InternetBanking.Controllers
             return Ok(res);
         }
 
-        // Giao dịch thanh toán nhắc nợ - được trả
+        /// <summary>
+        /// Giao dịch thanh toán nhắc nợ - được trả
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Dept/In
         [HttpGet("Histories/{userId}/Dept/In")]
         [Authorize(Roles = "User")]
@@ -110,7 +92,12 @@ namespace InternetBanking.Controllers
             var res = _UserService.HistoryDeptIn(userId);
             return Ok(res);
         }
-        // Giao dịch thanh toán nhắc nợ - trả
+
+        /// <summary>
+        /// Giao dịch thanh toán nhắc nợ - trả
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Dept/Out
         [HttpGet("Histories/{userId}/Dept/Out")]
         [Authorize(Roles = "User")]

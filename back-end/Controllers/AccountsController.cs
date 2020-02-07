@@ -1,6 +1,7 @@
 ﻿using InternetBanking.Models;
 using InternetBanking.Services;
 using InternetBanking.Settings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
@@ -16,9 +17,14 @@ namespace InternetBanking.Controllers
             _Service = service;
         }
 
-        // GET: api/Employee
+        /// <summary>
+        /// Đăng nhập
+        /// </summary>
+        /// <param name="account">{ "Username": "", "Password": ""}</param>
+        /// <returns>AccountRespone</returns>
+        // POST: api/Accounts/Login
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] Account account)
+        public IActionResult Login([FromBody] RAccount account)
         {
             var record = _Service.Login(account.Username, account.Password);
 
@@ -28,7 +34,11 @@ namespace InternetBanking.Controllers
                 return Conflict("Wrong username or password!");
         }
 
-        // GET: api/Employee/31231123
+        /// <summary>
+        /// Đăng xuất
+        /// </summary>
+        /// <returns>bool</returns>
+        // POST: api/Accounts/Logout
         [HttpPost("Logout")]
         public IActionResult Logout()
         {
@@ -36,18 +46,28 @@ namespace InternetBanking.Controllers
             return Ok();
         }
 
-        // GET: api/Accounts/Passwords/Forget
-        [HttpPost("Passwords/Forget")]
-        public IActionResult ForgetPassword()
+        /// <summary>
+        /// Quên mật khẩu
+        /// </summary>
+        /// <returns>bool</returns>
+        // POST: api/Accounts/Passwords/Forget
+        [AllowAnonymous]
+        [HttpPost("Passwords/Forget/{email}")]
+        public IActionResult ForgetPassword(string email)
         {
-            var res = _Service.ForgetPassword(UserId);
+            var res = _Service.ForgetPassword(email);
             if (res)
                 return Ok(res);
             else
                 return Conflict(_Setting.Message.GetMessage());
         }
 
-        // GET: api/Accounts/Passwords/ConfirmForgetting
+        /// <summary>
+        /// Quên mật khẩu - confỉm
+        /// </summary>
+        /// <param name="otp"></param>
+        /// <returns>bool</returns>
+        // POST: api/Accounts/Passwords/ConfirmForgetting/787823
         [HttpPost("Passwords/ConfirmForgetting/{otp}")]
         public IActionResult ConfirmForgetting([FromQuery] string otp)
         {
@@ -59,7 +79,11 @@ namespace InternetBanking.Controllers
                 return Conflict(_Setting.Message.GetMessage());
         }
 
-
+        /// <summary>
+        /// Đổi mật khẩu
+        /// </summary>
+        /// <param name="password">{ "OldPassword": "", "NewPassword": "" }</param>
+        /// <returns>bool</returns>
         // POST: api/Accounts/Passwords/Change
         [HttpPost("Passwords/Change")]
         public IActionResult ChangePassword([FromBody] RPassword password)
@@ -72,8 +96,13 @@ namespace InternetBanking.Controllers
                 return Conflict(_Setting.Message.GetMessage());
         }
 
-        // POST: api/Account/31231123
-        [HttpPost("Refresh")]
+        /// <summary>
+        /// Refresh token
+        /// </summary>
+        /// <param name="dataToken">{ AccessToken: "", RefreshToken: "" }</param>
+        /// <returns>AccountRespone</returns>
+        // POST: api/Accounts/Tokens/Refresh
+        [HttpPost("Tokens/Refresh")]
         public IActionResult Refresh([FromBody] AccountRespone dataToken)
         {
             var res = _Service.RefreshToken(dataToken.AccessToken, dataToken.RefreshToken);
@@ -83,8 +112,12 @@ namespace InternetBanking.Controllers
                 return Unauthorized();
         }
 
-        // GET: api/Account/LinkingBank
-        [HttpGet("LinkingBank")]
+        /// <summary>
+        /// Danh sách ngân hàng liên kết
+        /// </summary>
+        /// <returns>IEnumerable<LinkingBank></returns>
+        // GET: api/Accounts/LinkingBanks
+        [HttpGet("LinkingBanks")]
         public IActionResult GetLinkingBank()
         {
             var res = _Service.GetLinkingBank();

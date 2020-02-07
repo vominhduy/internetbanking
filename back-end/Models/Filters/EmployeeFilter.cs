@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace InternetBanking.Models.Filters
 {
-    public class EmployeeFilter
+    public class EmployeeFilterd
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string UserName { get; set; }
+        public string Code { get; set; }
     }
 }

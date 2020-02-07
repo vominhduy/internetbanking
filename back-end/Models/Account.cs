@@ -22,4 +22,9 @@ namespace InternetBanking.Models
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
     }
+    public class RAccount
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
 }
