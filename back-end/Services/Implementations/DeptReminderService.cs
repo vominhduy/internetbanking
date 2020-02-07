@@ -7,6 +7,7 @@ using InternetBanking.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace InternetBanking.Services.Implementations
 {
@@ -51,11 +52,33 @@ namespace InternetBanking.Services.Implementations
 
                 if (recipientUsers.Any())
                 {
-                    deptReminder.RecipientId = recipientUsers.FirstOrDefault().Id;
+                    var recipientUser = recipientUsers.FirstOrDefault();
+                    deptReminder.RecipientId = recipientUser.Id;
+
+                    while (true)
+                    {
+                        deptReminder.Code = _Context.MakeOTP(15);
+                        if (!_DeptReminderCollection.GetMany(new DeptReminderFilter()
+                        {
+                            Code = deptReminder.Code
+                        }).Any())
+                            break;
+                    }
+
                     _DeptReminderCollection.Create(deptReminder);
                     if (deptReminder.Id != Guid.Empty)
                     {
-                        res = deptReminder;
+                        // Send mail
+                        var sb = new StringBuilder();
+                        sb.AppendFormat($"Dear {recipientUser.Name},");
+                        sb.AppendFormat($"<br /><br /><b>Bạn đang được nhắc nợ từ số tài khoản {userDetail.AccountNumber} - {userDetail.Name}.</b>");
+                        sb.AppendFormat($"<br /><br /><b>Vui lòng đăng nhập vào hệ thống để xem chi tiết.</b>");
+                        sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
+
+                        if (_Context.SendMail("Thông báo nhắc nợ", sb.ToString(), recipientUser.Email, recipientUser.Name))
+                        {
+                            res = deptReminder;
+                        }
                     }
                 }
 
@@ -151,14 +174,14 @@ namespace InternetBanking.Services.Implementations
                     {
                         // Get chi tiết nhắc nợ
                         var dept = _DeptReminderCollection.GetById(deptReminderId);
-                        if (dept != null)
+                        if (dept != null && dept.RecipientId == userId)
                         {
                             // Create OTP
                             string otp = null;
                             while (true)
                             {
                                 otp = _Context.MakeOTP(6);
-                                if (!_TransactionCollection.GetMany(new TransactionFilter() { Otp = otp }).Any())
+                                if (!_TransactionCollection.GetMany(new TransactionFilter() { Otp = otp, Type = 1 }).Any())
                                     break;
                             }
 
@@ -169,15 +192,24 @@ namespace InternetBanking.Services.Implementations
                             transaction.Otp = otp;
                             transaction.CreateTime = DateTime.Now;
                             transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                            transaction.Type = 1;
 
                             _TransactionCollection.Create(transaction);
 
                             if (transaction.Id != Guid.Empty)
                             {
                                 // Send mail
-                                // TODO
+                                var sb = new StringBuilder();
+                                sb.AppendFormat($"Dear {userDetail.Name},");
+                                sb.AppendFormat("<br /><br /><b>Bạn đang yêu cầu thanh toán nhắc nợ, mã xác thực của bạn là:</b>");
+                                sb.AppendFormat($"<br /><br /><b>{transaction.Otp}</b>");
+                                sb.AppendFormat($"<br /><br /><b>Mã xác thực này sẽ hết hạn lúc {transaction.ExpireTime.ToLongTimeString()}.</b>");
+                                sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
 
-                                res = transaction;
+                                if (_Context.SendMail("Xác thực thanh toán nhắc nợ", sb.ToString(), userDetail.Email, userDetail.Name))
+                                {
+                                    res = transaction;
+                                }
                             }
                             else
                             {
@@ -292,9 +324,18 @@ namespace InternetBanking.Services.Implementations
                                                             if (_TransactionCollection.Replace(transaction) > 0)
                                                             {
                                                                 // Send mail
-                                                                // TODO
+                                                                var sb = new StringBuilder();
+                                                                sb.AppendFormat($"Dear {detailRecepient.Name},");
+                                                                sb.AppendFormat("<br /><br /><b>Nhắc nợ của bạn đã được thanh toán.:</b>");
+                                                                sb.AppendFormat($"<br /><br /><b>Mã: {dept.Code}</b>");
+                                                                sb.AppendFormat($"<br /><br /><b>Người thanh toán: {userDetail.AccountNumber} - {userDetail.Name }</b>");
+                                                                sb.AppendFormat($"<br /><br /><b>Vui lòng đăng nhập vào hệ thống để xem chi tiết.</b>");
+                                                                sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
 
-                                                                res = true;
+                                                                if (_Context.SendMail("Thanh toán nhắc nợ", sb.ToString(), detailRecepient.Email, detailRecepient.Name))
+                                                                {
+                                                                    res = true;
+                                                                }
                                                             }
                                                             else
                                                             {
@@ -392,20 +433,52 @@ namespace InternetBanking.Services.Implementations
                     {
                         if (_DeptReminderCollection.Replace(detail) > 0)
                         {
-                            if (detail.RequestorId == userId)
+                            // Get chi tiết người nhắc nợ
+                            var request = _UserCollection.GetById(detail.RequestorId);
+
+                            if(request != null)
                             {
-                                // Self
-                                // Send mail
-                                // TODO
+                                // Get chi tiết người được nhắc nợ
+                                var recept = _UserCollection.GetById(detail.RecipientId);
+
+                                if (recept != null)
+                                {
+                                    if (detail.RequestorId == userId)
+                                    {
+                                        // Self
+                                        // Send mail
+                                        var sb = new StringBuilder();
+                                        sb.AppendFormat($"Dear {recept.Name},");
+                                        sb.AppendFormat($"<br /><br /><b>Nhắc nợ đã bị hủy, mã: {detail.Code}.</b>");
+                                        sb.AppendFormat($"<br /><br /><b>Người hủy: {request.AccountNumber} - {request.Name}.</b>");
+                                        sb.AppendFormat($"<br /><br /><b>Vui lòng đăng nhập vào hệ thống để xem chi tiết.</b>");
+                                        sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
+
+                                        if (_Context.SendMail("Hủy nhắc nợ", sb.ToString(), recept.Email, recept.Name))
+                                        {
+                                            res = true;
+                                        }
+                                    }
+                                    else if (detail.RecipientId == userId)
+                                    {
+                                        // Other
+                                        // Send mail
+                                        var sb = new StringBuilder();
+                                        sb.AppendFormat($"Dear {request.Name},");
+                                        sb.AppendFormat($"<br /><br /><b>Nhắc nợ đã bị hủy, mã: {detail.Code}.</b>");
+                                        sb.AppendFormat($"<br /><br /><b>Người hủy: {recept.AccountNumber} - {recept.Name}.</b>");
+                                        sb.AppendFormat($"<br /><br /><b>Vui lòng đăng nhập vào hệ thống để xem chi tiết.</b>");
+                                        sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
+
+                                        if (_Context.SendMail("Hủy nhắc nợ", sb.ToString(), request.Email, request.Name))
+                                        {
+                                            res = true;
+                                        }
+                                    }
+                                    else
+                                        _Setting.Message.SetMessage("Không tìm thấy thông tin nhắc nợ!");
+                                }
                             }
-                            else if (detail.RecipientId == userId)
-                            {
-                                // Other
-                                // Send mail
-                                // TODO
-                            }
-                            else
-                                _Setting.Message.SetMessage("Không tìm thấy thông tin nhắc nợ!");
                         }
                         else
                             _Setting.Message.SetMessage("Không tìm thấy thông tin nhắc nợ!");

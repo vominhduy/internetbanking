@@ -20,5 +20,6 @@ namespace InternetBanking.DataCollections
         long UpdatePayee(Guid userId, Payee payee);
         long UpdateSavingsAccount(UserFilter userFilter, BankAccount bankAccount);
         long UpdateCheckingAccount(UserFilter userFilter, BankAccount bankAccount);
+        long ChangePassword(UserFilter userFilter, string password);
     }
 }

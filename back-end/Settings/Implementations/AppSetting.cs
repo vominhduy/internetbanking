@@ -22,5 +22,11 @@
         public uint TransferExpiration { get; set; }
         public IMessage Message { get; set; }
         public string BankCode { get; set; }
+        public string MailEmail { get; set; }
+        public string MailPassword { get; set; }
+        public string MailName { get; set; }
+        public int MailPort { get; set; }
+        public string MailHost { get; set; }
+        public bool MailIsSSL { get; set; }
     }
 }

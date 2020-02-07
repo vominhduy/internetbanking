@@ -8,6 +8,7 @@ using InternetBanking.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace InternetBanking.Services.Implementations
 {
@@ -592,6 +593,7 @@ namespace InternetBanking.Services.Implementations
                                     transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
                                     transaction.ConfirmTime = transaction.CreateTime;
                                     transaction.ReferenceId = transfer.Id;
+                                    transaction.Type = 0;
 
                                     _TransactionCollection.Create(transaction);
 
@@ -670,6 +672,7 @@ namespace InternetBanking.Services.Implementations
                                     transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
                                     transaction.ConfirmTime = transaction.CreateTime;
                                     transaction.ReferenceId = transfer.Id;
+                                    transaction.Type = 0;
 
                                     _TransactionCollection.Create(transaction);
 
@@ -739,7 +742,7 @@ namespace InternetBanking.Services.Implementations
                             while (true)
                             {
                                 otp = _Context.MakeOTP(6);
-                                if (!_TransactionCollection.GetMany(new TransactionFilter() { Otp = otp }).Any())
+                                if (!_TransactionCollection.GetMany(new TransactionFilter() { Otp = otp, Type = 0 }).Any())
                                     break;
                             }
 
@@ -754,16 +757,24 @@ namespace InternetBanking.Services.Implementations
                                 transaction.Otp = otp;
                                 transaction.CreateTime = DateTime.Now;
                                 transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                                transaction.Type = 0;
 
                                 _TransactionCollection.Create(transaction);
 
                                 if (transaction.Id != Guid.Empty)
                                 {
                                     // Send mail
-                                    // TODO
+                                    var sb = new StringBuilder();
+                                    sb.AppendFormat($"Dear {userDetail.Name},");
+                                    sb.AppendFormat("<br /><br /><b>Bạn đang yêu cầu chuyển tiền từ hệ thống của chúng tôi, mã xác thực của bạn là:</b>");
+                                    sb.AppendFormat($"<br /><br /><b>{transaction.Otp}</b>");
+                                    sb.AppendFormat($"<br /><br /><b>Mã xác thực này sẽ hết hạn lúc {transaction.ExpireTime.ToLongTimeString()}.</b>");
+                                    sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
 
-
-                                    res = transaction;
+                                    if (_Context.SendMail("Xác thực yêu cầu chuyển tiền", sb.ToString(), userDetail.Email, userDetail.Name))
+                                    {
+                                        res = transaction;
+                                    }
                                 }
                             }
                             session.CommitTransactionAsync();

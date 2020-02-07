@@ -254,5 +254,27 @@ namespace InternetBanking.DataCollections.Implementations
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }
+
+        public long ChangePassword(UserFilter userFilter, string password)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Empty;
+            List<FilterDefinition<User>> ops = new List<FilterDefinition<User>>(10);
+            if (!userFilter.Id.Equals(Guid.Empty))
+                ops.Add(Builders<User>.Filter.Eq(x => x.Id, userFilter.Id));
+
+            if (!string.IsNullOrEmpty(userFilter.AccountNumber))
+                ops.Add(Builders<User>.Filter.Eq(x => x.AccountNumber, userFilter.AccountNumber));
+
+            if (ops.Count > 0)
+                filter = Builders<User>.Filter.And(ops);
+
+
+            var data = Builders<User>.Update
+                .Set(f => f.Password, password);
+
+            var res = _Collection.UpdateOneAsync(filter, data);
+
+            return res != null ? res.Result.ModifiedCount : 0;
+        }
     }
 }

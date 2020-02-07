@@ -102,5 +102,15 @@ namespace InternetBanking.Utils
                 }
             }
         }
+
+        public static string Bcrypt(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword("password");
+        }
+
+        public static bool BcryptVerify(string password, string hashPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashPassword);
+        }
     }
 }

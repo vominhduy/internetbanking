@@ -19,5 +19,6 @@ namespace InternetBanking.Models
         public bool IsPaid { get; set; }
         public bool IsCanceled { get; set; }
         public string CanceledNotes { get; set; }
+        public string Code { get; set; }
     }
 }

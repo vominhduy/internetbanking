@@ -7,7 +7,8 @@ namespace InternetBanking.Models.Filters
         public Guid Id { get; set; }
         public string RequestorAccountNumber { get; set; }
         public string RecipientAccountNumber { get; set; }
-        public bool IsCanceled { get; set; }
-        public bool IsPaid { get; set; }
+        public bool? IsCanceled { get; set; }
+        public bool? IsPaid { get; set; }
+        public string Code { get; set; }
     }
 }

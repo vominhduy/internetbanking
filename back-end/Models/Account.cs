@@ -16,4 +16,10 @@ namespace InternetBanking.Models
         public string Email { get; set; }
         public string Phone { get; set; }
     }
+
+    public class RPassword
+    {
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+    }
 }

@@ -7,6 +7,7 @@ using InternetBanking.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace InternetBanking.Services.Implementations
 {
@@ -54,6 +55,7 @@ namespace InternetBanking.Services.Implementations
                 session.StartTransaction();
                 try
                 {
+                    //var passDecrypt = Encrypting.AesDecrypt(account.Password, Encoding.UTF8.GetBytes(_Setting.AesKey), Encoding.UTF8.GetBytes(_Setting.AesIv), Encoding.UTF8);
                     var lstUser = _UserCollection.Get(new UserFilter() { Username = account.Username });
                     if (!lstUser.Any())
                     {
@@ -63,7 +65,8 @@ namespace InternetBanking.Services.Implementations
                         res.Gender = account.Gender;
                         res.Email = account.Email;
                         res.Phone = account.Phone;
-                        res.Password = account.Password;
+                        //res.Password = Encrypting.Bcrypt(passDecrypt);
+                        res.Password = Encrypting.Bcrypt(account.Password);
                         res.Address = account.Address;
                         res.Role = 1;
                         
@@ -96,12 +99,16 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public IEnumerable<CrossChecking> CrossCheckingIn(DateTime? From, DateTime? To, Guid? bankId)
+        public IEnumerable<CrossChecking> CrossCheckingIn(DateTime? from, DateTime? to, Guid? bankId)
         {
             var res = new List<CrossChecking>();
 
             var transfers = _TransferCollection.GetMany(new TransferFilter() { IsConfirmed = true});
             transfers = transfers.Where(x => x.DestinationLinkingBankId == Guid.Empty);
+            if (bankId.HasValue)
+            {
+                transfers = transfers.Where(x => x.SourceLinkingBankId == bankId.Value);
+            }
             foreach (var transfer in transfers)
             {
                 var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
@@ -110,7 +117,16 @@ namespace InternetBanking.Services.Implementations
                 if (linkBank != null)
                 {
                     // Get thông tin giao dịch
-                    var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = transfer.Id });
+                    var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = transfer.Id, Type = 0 });
+                    if (from.HasValue)
+                    {
+                        transactions = transactions.Where(x => x.ConfirmTime.Value.Date >= from.Value.Date);
+                    }
+                    if (to.HasValue)
+                    {
+                        transactions = transactions.Where(x => x.ConfirmTime.Value.Date <= to.Value.Date);
+                    }
+
                     if (transactions.Any())
                     {
                         var transaction = transactions.FirstOrDefault();
@@ -147,12 +163,16 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public IEnumerable<CrossChecking> CrossCheckingOut(DateTime? From, DateTime? To, Guid? bankId)
+        public IEnumerable<CrossChecking> CrossCheckingOut(DateTime? from, DateTime? to, Guid? bankId)
         {
             var res = new List<CrossChecking>();
 
             var transfers = _TransferCollection.GetMany(new TransferFilter() { IsConfirmed = true });
             transfers = transfers.Where(x => x.SourceLinkingBankId == Guid.Empty);
+            if (bankId.HasValue)
+            {
+                transfers = transfers.Where(x => x.DestinationLinkingBankId == bankId.Value);
+            }
             foreach (var transfer in transfers)
             {
                 var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
@@ -161,7 +181,16 @@ namespace InternetBanking.Services.Implementations
                 if (linkBank != null)
                 {
                     // Get thông tin giao dịch
-                    var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = transfer.Id });
+                    var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = transfer.Id, Type = 0 });
+                    if (from.HasValue)
+                    {
+                        transactions = transactions.Where(x => x.ConfirmTime.Value.Date >= from.Value.Date);
+                    }
+                    if (to.HasValue)
+                    {
+                        transactions = transactions.Where(x => x.ConfirmTime.Value.Date <= to.Value.Date);
+                    }
+
                     if (transactions.Any())
                     {
                         var transaction = transactions.FirstOrDefault();

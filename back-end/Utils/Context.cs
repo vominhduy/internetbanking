@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -28,6 +31,7 @@ namespace InternetBanking.Utils
         Transfer GetTransfer(Guid userId, string code);
         public string MakeOTP(int length);
         public decimal TransactionCost(decimal money);
+        public bool SendMail(string subject, string body, string toEmail, string toName);
     }
 
     public class Context : IContext
@@ -199,6 +203,52 @@ namespace InternetBanking.Utils
         public decimal TransactionCost(decimal money)
         {
             return money/1000;
+        }
+
+        public bool SendMail(string subject, string body, string toEmail, string toName)
+        {
+            var res = false;
+            // Message
+            var from = new MailAddress(_Setting.MailEmail, _Setting.MailName);
+            var to = new MailAddress(toEmail, toName);
+
+            var message = new MailMessage(from, to)
+            {
+                Subject = (subject.Length < 1 ? "No Subject" : subject),
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            // Create client
+            var client = new SmtpClient(_Setting.MailHost, _Setting.MailPort)
+            {
+                EnableSsl = _Setting.MailIsSSL,
+                Credentials = new NetworkCredential
+                {
+                    UserName = _Setting.MailEmail,
+                    Password = _Setting.MailPassword,
+                }
+            };
+
+            // Try to send
+            using (client)
+            {
+                try
+                {
+                    client.Send(message);
+                    res = true;
+                }
+                catch (AuthenticationException ex)
+                {
+                    res = false;
+                }
+                catch (SmtpException ex)
+                {
+                    res = false;
+                }
+            }
+
+            return res;
         }
     }
 }

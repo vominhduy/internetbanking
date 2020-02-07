@@ -36,6 +36,9 @@ namespace InternetBanking.DataCollections.Implementations
             if (!string.IsNullOrEmpty(transactionFilter.Otp))
                 ops.Add(Builders<Transaction>.Filter.Eq(x => x.Otp, transactionFilter.Otp));
 
+            if (transactionFilter.Type.HasValue)
+                    ops.Add(Builders<Transaction>.Filter.Eq(x => x.Type, transactionFilter.Type.Value));
+
             if (ops.Count > 0)
                 filter = Builders<Transaction>.Filter.And(ops);
 

@@ -1,4 +1,5 @@
-﻿using InternetBanking.DataCollections;
+﻿using InternetBanking.Daos;
+using InternetBanking.DataCollections;
 using InternetBanking.Models;
 using InternetBanking.Models.Filters;
 using InternetBanking.Settings;
@@ -18,12 +19,170 @@ namespace InternetBanking.Services.Implementations
         private ILinkingBankCollection _LinkingBankCollection;
         private ISetting _Setting;
         private IContext _Context;
-        public AccountService(ISetting setting, IUserCollection userCollection, IContext context, ILinkingBankCollection linkingBankCollection)
+        private ITransactionCollection _TransactionCollection;
+        private MongoDBClient _MongoDBClient;
+
+        public AccountService(ISetting setting, IUserCollection userCollection, IContext context, ILinkingBankCollection linkingBankCollection,
+            ITransactionCollection transactionCollection, MongoDBClient mongoDBClient)
         {
             _UserCollection = userCollection;
             _Setting = setting;
             _Context = context;
             _LinkingBankCollection = linkingBankCollection;
+            _TransactionCollection = transactionCollection;
+            _MongoDBClient = mongoDBClient;
+        }
+
+        public bool ChangePassword(Guid userId, string oldPassword, string newPassword)
+        {
+            var res = false;
+
+            var detail = _UserCollection.GetById(userId);
+            if (detail != null)
+            {
+                if (Encrypting.BcryptVerify(oldPassword, detail.Password))
+                {
+                    // Change mật khẩu
+                    if (_UserCollection.ChangePassword(new UserFilter() { Id = userId }, Encrypting.Bcrypt(newPassword)) > 0)
+                    {
+                        res = true;
+                    }
+                    else
+                        _Setting.Message.SetMessage("Không thể cập nhật thông tin mật khẩu!"); ;
+                }
+                else
+                    _Setting.Message.SetMessage("Mật khẩu hiện tại không đúng!");
+            }
+            else
+                _Setting.Message.SetMessage("Không tìm thấy thông tin người dùng!");
+
+            return res;
+        }
+
+        public bool ConfirmForgetting(Guid userId, string otp)
+        {
+            var res = false;
+
+            var detail = _UserCollection.GetById(userId);
+
+            if (detail != null)
+            {
+                // Get chi tiết giao dịch
+                var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = userId, Type = 2 });
+                if (transactions.Any())
+                {
+                    var transaction = transactions.FirstOrDefault();
+                    // Check Otp
+                    if (transaction.Otp == otp)
+                    {
+                        // Check hết hạn
+                        var now = DateTime.Now;
+                        if (now <= transaction.ExpireTime && now >= transaction.CreateTime)
+                        {
+                            // Update mật khẩu
+                            using (var sessionTask = _MongoDBClient.StartSessionAsync())
+                            {
+                                var session = sessionTask.Result;
+                                session.StartTransaction();
+                                try
+                                {
+                                    // Create mật khẩu mới
+                                    string pass = _Context.MakeOTP(8);
+
+                                    if (_UserCollection.ChangePassword(new UserFilter() { Id = userId }, Encrypting.Bcrypt(pass)) > 0)
+                                    {
+                                        // Update giao dịch
+                                        transaction.ConfirmTime = DateTime.Now;
+
+                                        if (_TransactionCollection.Replace(transaction) > 0)
+                                        {
+                                            // Send mail
+                                            var sb = new StringBuilder();
+                                            sb.AppendFormat($"Dear {detail.Name},");
+                                            sb.AppendFormat("<br /><br /><b>Yêu cầu quên mật khẩu của bạn đã thực hiện thành công, mật khẩu mới của bạn là:</b>");
+                                            sb.AppendFormat($"<br /><br /><b>{pass}</b>");
+                                            sb.AppendFormat($"<br /><br /><b>Vui lòng đăng nhập vào hệ thống để kiểm tra.</b>");
+                                            sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
+
+                                            if (_Context.SendMail("Yêu cầu quên mật khẩu", sb.ToString(), detail.Email, detail.Name))
+                                            {
+                                                res = true;
+                                            }
+                                            else
+                                               _Setting.Message.SetMessage("Gửi mail thất bại!");
+                                        }
+                                        else
+                                            _Setting.Message.SetMessage("Không thể cập nhật thông tin giao dịch!");
+                                    }
+                                    else
+                                        _Setting.Message.SetMessage("Không thể cập nhật thông tin mật khẩu!");
+
+                                    if (res)
+                                        session.CommitTransactionAsync();
+                                    else
+                                        session.AbortTransactionAsync();
+                                }
+                                catch (Exception ex)
+                                {
+                                    session.AbortTransactionAsync();
+                                    throw ex;
+                                    throw;
+                                }
+                            }
+                        }
+                        else
+                            _Setting.Message.SetMessage("Phiên giao dịch đã hết hạn!");
+                    }
+                    else
+                        _Setting.Message.SetMessage("Mã OTP không đúng!");
+                }
+                else
+                    _Setting.Message.SetMessage("Không tìm thấy thông tin giao dịch!");
+            }
+            else
+                _Setting.Message.SetMessage("Không tìm thấy thông tin người dùng!");
+
+            return res;
+        }
+
+        public bool ForgetPassword(Guid userId)
+        {
+            var res = false;
+
+            var detail = _UserCollection.GetById(userId);
+            if (detail != null)
+            {
+                var transaction = new Transaction();
+                transaction.ReferenceId = userId;
+                transaction.CreateTime = DateTime.Now;
+                transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                transaction.Type = 2;
+                while (true)
+                {
+                    transaction.Otp = _Context.MakeOTP(6);
+                    if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = userId, Type = 2 }).Any())
+                        break;
+                }
+
+                _TransactionCollection.Create(transaction);
+                if (transaction.Id == Guid.Empty)
+                {
+                    // Send mail
+                    var sb = new StringBuilder();
+                    sb.AppendFormat($"Dear {detail.Name},");
+                    sb.AppendFormat("<br /><br /><b>Bạn đang yêu cầu quên mật khẩu, mã xác thực của bạn là:</b>");
+                    sb.AppendFormat($"<br /><br /><b>{transaction.Otp}</b>");
+                    sb.AppendFormat($"<br /><br /><b>Mã xác thực này sẽ hết hạn lúc {transaction.ExpireTime.ToLongTimeString()}.</b>");
+                    sb.AppendFormat($"<br /><br /><b>Nếu yêu cầu không phải của bạn, vui lòng bỏ qua mail này.</b>");
+
+                    if (_Context.SendMail("Xác thực yêu cầu quên mật khẩu", sb.ToString(), detail.Email, detail.Name))
+                    {
+                        res = true;
+                    }
+                }
+            }
+
+            return res;
         }
 
         public IEnumerable<LinkingBank> GetLinkingBank()
@@ -38,11 +197,13 @@ namespace InternetBanking.Services.Implementations
 
             if (details.Any())
             {
-                var passDecrypt = Encrypting.AesDecrypt(password, Encoding.UTF8.GetBytes(_Setting.AesKey), Encoding.UTF8.GetBytes(_Setting.AesIv), Encoding.UTF8);
+                //var passDecrypt = Encrypting.AesDecrypt(password, Encoding.UTF8.GetBytes(_Setting.AesKey), Encoding.UTF8.GetBytes(_Setting.AesIv), Encoding.UTF8);
 
                 var detail = details.FirstOrDefault();
 
-                var compare = Encrypting.MD5Verify(passDecrypt, detail.Password);
+                //var compare = Encrypting.BcryptVerify(passDecrypt, detail.Password);
+                var compare = Encrypting.BcryptVerify(password, detail.Password);
+
 
                 if (compare)
                 {
@@ -51,7 +212,8 @@ namespace InternetBanking.Services.Implementations
                             new Claim(ClaimTypes.PrimarySid, detail.Id.ToString()),
                             new Claim(ClaimTypes.NameIdentifier, detail.Username),
                             new Claim(ClaimTypes.Name, detail.Name),
-                            new Claim(ClaimTypes.Gender, detail.Gender.ToString())
+                            new Claim(ClaimTypes.Gender, detail.Gender.ToString()),
+                            new Claim(ClaimTypes.Role, _Context.GetRole(detail.Role))
                         });
                     var refreshToken = _Context.GenerateRefreshToken();
 
