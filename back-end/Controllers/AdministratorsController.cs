@@ -83,7 +83,7 @@ namespace InternetBanking.Controllers
         // Get đối soát - in
         // GET: api/Administrators/CrossCheckings/In
         [HttpGet("CrossCheckings/In")]
-        public IActionResult GetCrossCheckingIn([FromBody] CrossChecking crossChecking)
+        public IActionResult GetCrossCheckingIn([FromBody] RCrossChecking crossChecking)
         {
             var records = _Service.CrossCheckingIn(crossChecking.From, crossChecking.To, crossChecking.BankId);
 
@@ -93,7 +93,7 @@ namespace InternetBanking.Controllers
         // Get đối soát - Out
         // GET: api/Administrators/CrossCheckings/Out
         [HttpGet("CrossCheckings/Out")]
-        public IActionResult GetCrossCheckingOut([FromBody] CrossChecking crossChecking)
+        public IActionResult GetCrossCheckingOut([FromBody] RCrossChecking crossChecking)
         {
             var records = _Service.CrossCheckingOut(crossChecking.From, crossChecking.To, crossChecking.BankId);
 

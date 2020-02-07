@@ -20,10 +20,10 @@ namespace InternetBanking.Services
         public bool DeletePayee(Guid userId, Guid payeeId);
         public Transaction Transfer(Guid userId, Transfer transfer);
         public bool ConfirmTransfer(Guid userId, Guid transactionId, string otp);
-        public IEnumerable<HistoryTransaction> HistoryIn(Guid userId);
-        public IEnumerable<HistoryTransaction> HistoryOut(Guid userId);
-        public IEnumerable<HistoryTransaction> HistoryDeptIn(Guid userId);
-        public IEnumerable<HistoryTransaction> HistoryDeptOut(Guid userId);
+        public IEnumerable<TransactionHistory> HistoryIn(Guid userId);
+        public IEnumerable<TransactionHistory> HistoryOut(Guid userId);
+        public IEnumerable<TransactionHistory> HistoryDeptIn(Guid userId);
+        public IEnumerable<TransactionHistory> HistoryDeptOut(Guid userId);
         public ExternalAccount GetDetailUserByPartner(string accountNumber);
         public bool PayInByPartner(Transfer transfer);
         public bool PayOutByPartner(Transfer transfer);

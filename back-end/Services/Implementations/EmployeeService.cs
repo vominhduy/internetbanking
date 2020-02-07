@@ -17,13 +17,21 @@ namespace InternetBanking.Services.Implementations
         private ISetting _Setting;
         private IContext _Context;
         private MongoDBClient _MongoDBClient;
-        public EmployeeService(ISetting setting, IEmployeeCollection employeeCollection, IUserCollection userCollection, IContext context, MongoDBClient mongoDBClient)
+        private ITransferCollection _TransferCollection;
+        private ITransactionCollection _TransactionCollection;
+        private ILinkingBankCollection _LinkingBankCollection;
+
+        public EmployeeService(ISetting setting, IEmployeeCollection employeeCollection, IUserCollection userCollection, IContext context, MongoDBClient mongoDBClient
+            , ITransactionCollection transactionCollection, ITransferCollection transferCollection, ILinkingBankCollection linkingBankCollection)
         {
             _EmployeeCollection = employeeCollection;
             _Setting = setting;
             _UserCollection = userCollection;
             _Context = context;
             _MongoDBClient = mongoDBClient;
+            _TransferCollection = transferCollection;
+            _TransactionCollection = transactionCollection;
+            _LinkingBankCollection = linkingBankCollection;
         }
 
         public Employee Add(Employee employee)
@@ -62,8 +70,8 @@ namespace InternetBanking.Services.Implementations
                         // Tao so tai khoan
                         while (true)
                         {
-                            res.AcccountNumber = _Context.MakeOTP(10);
-                            if (!_UserCollection.Get(new UserFilter() { AccountNumber = res.AcccountNumber }).Any())
+                            res.AccountNumber = _Context.MakeOTP(10);
+                            if (!_UserCollection.Get(new UserFilter() { AccountNumber = res.AccountNumber }).Any())
                                 break;
                         }
 
@@ -88,20 +96,104 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public IEnumerable<HistoryTransaction> CrossCheckingIn(DateTime? From, DateTime? To, Guid? bankId)
+        public IEnumerable<CrossChecking> CrossCheckingIn(DateTime? From, DateTime? To, Guid? bankId)
         {
-            var res = new List<HistoryTransaction>();
+            var res = new List<CrossChecking>();
 
+            var transfers = _TransferCollection.GetMany(new TransferFilter() { IsConfirmed = true});
+            transfers = transfers.Where(x => x.DestinationLinkingBankId == Guid.Empty);
+            foreach (var transfer in transfers)
+            {
+                var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
+                // Get ngân hàng liên kết
+                var linkBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+                if (linkBank != null)
+                {
+                    // Get thông tin giao dịch
+                    var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = transfer.Id });
+                    if (transactions.Any())
+                    {
+                        var transaction = transactions.FirstOrDefault();
 
+                        // Get thông tin tài khoản nguồn
+                        // TODO
+                        var sourceAccount = new ExternalAccount();
+                        if (sourceAccount != null)
+                        {
+                            // Get thông tin tài khoản đích
+                            var destAccount = _UserCollection.GetByAccountNumber(transfer.DestinationAccountNumber);
+                            if (destAccount != null)
+                            {
+                                var history = new CrossChecking();
+                                history.SourceAccountName = sourceAccount.Name;
+                                history.SourceAccountNumber = sourceAccount.AccountNumber;
+                                history.SourceBankName = linkBank.Name;
+                                history.DestinationAccountName = destAccount.Name;
+                                history.DestinationAccountNumber = destAccount.AccountNumber;
+                                history.DestinationBankName = bank.Name;
+                                history.Description = transfer.Description;
+                                history.Money = transfer.Money;
+                                if (!transfer.IsSenderPay)
+                                    history.Money -= transfer.Fee;
+                                history.ConfirmTime = transaction.ConfirmTime.Value;
+
+                                res.Add(history);
+                            }
+                        }
+                    }
+                }
+            }
 
             return res;
         }
 
-        public IEnumerable<HistoryTransaction> CrossCheckingOut(DateTime? From, DateTime? To, Guid? bankId)
+        public IEnumerable<CrossChecking> CrossCheckingOut(DateTime? From, DateTime? To, Guid? bankId)
         {
-            var res = new List<HistoryTransaction>();
+            var res = new List<CrossChecking>();
 
+            var transfers = _TransferCollection.GetMany(new TransferFilter() { IsConfirmed = true });
+            transfers = transfers.Where(x => x.SourceLinkingBankId == Guid.Empty);
+            foreach (var transfer in transfers)
+            {
+                var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
+                // Get ngân hàng liên kết
+                var linkBank = _LinkingBankCollection.GetById(transfer.DestinationLinkingBankId);
+                if (linkBank != null)
+                {
+                    // Get thông tin giao dịch
+                    var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = transfer.Id });
+                    if (transactions.Any())
+                    {
+                        var transaction = transactions.FirstOrDefault();
 
+                        // Get thông tin tài khoản nguồn
+                        var sourceAccount = _UserCollection.GetByAccountNumber(transfer.SourceAccountNumber);
+                        if (sourceAccount != null)
+                        {
+                            // Get thông tin tài khoản đích
+                            // TODO
+                            var destAccount = new ExternalAccount();
+                            if (destAccount != null)
+                            {
+                                var history = new CrossChecking();
+                                history.SourceAccountName = sourceAccount.Name;
+                                history.SourceAccountNumber = sourceAccount.AccountNumber;
+                                history.SourceBankName = linkBank.Name;
+                                history.DestinationAccountName = destAccount.Name;
+                                history.DestinationAccountNumber = destAccount.AccountNumber;
+                                history.DestinationBankName = bank.Name;
+                                history.Description = transfer.Description;
+                                history.Money = transfer.Money;
+                                if (transfer.IsSenderPay)
+                                    history.Money += transfer.Fee;
+                                history.ConfirmTime = transaction.ConfirmTime.Value;
+
+                                res.Add(history);
+                            }
+                        }
+                    }
+                }
+            }
 
             return res;
         }

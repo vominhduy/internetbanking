@@ -42,6 +42,7 @@ namespace InternetBanking.DataCollections.Implementations
             if (transferFilter.SourceLinkingBankId != Guid.Empty)
                 ops.Add(Builders<Transfer>.Filter.Eq(x => x.SourceLinkingBankId, transferFilter.SourceLinkingBankId));
 
+            ops.Add(Builders<Transfer>.Filter.Eq(x => x.IsConfirmed, transferFilter.IsConfirmed));
 
             if (ops.Count > 0)
                 filter = Builders<Transfer>.Filter.And(ops);

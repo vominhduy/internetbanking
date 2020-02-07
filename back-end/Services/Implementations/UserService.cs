@@ -121,7 +121,7 @@ namespace InternetBanking.Services.Implementations
                                     // Check user hiện tại có tạo yêu cầu chuyển tiền
                                     if (transfer != null
                                         && transfer.SourceLinkingBankId == Guid.Empty
-                                        && transfer.SourceAccountNumber == userDetail.AcccountNumber)
+                                        && transfer.SourceAccountNumber == userDetail.AccountNumber)
                                     {
                                         // Tru so du
                                         userDetail.CheckingAccount.AccountBalance -= transfer.Money;
@@ -326,7 +326,7 @@ namespace InternetBanking.Services.Implementations
                 if (detail.Role == 1)
                 {
                     res = new ExternalAccount();
-                    res.AccountNumber = detail.AcccountNumber;
+                    res.AccountNumber = detail.AccountNumber;
                     res.Address = detail.Address;
                     res.Email = detail.Email;
                     if (detail.Gender == 0)
@@ -348,27 +348,27 @@ namespace InternetBanking.Services.Implementations
             return _UserCollection.Get(employeeFilter);
         }
 
-        public IEnumerable<HistoryTransaction> HistoryDeptIn(Guid userId)
+        public IEnumerable<TransactionHistory> HistoryDeptIn(Guid userId)
         {
-            var res = new List<HistoryTransaction>();
+            var res = new List<TransactionHistory>();
 
             var userDetail = _UserCollection.GetById(userId);
             if (userDetail != null)
             {
-                var userDepts = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AcccountNumber, IsCanceled = false, IsPaid = true });
+                var userDepts = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AccountNumber, IsCanceled = false, IsPaid = true });
 
                 if (userDepts.Any())
                 {
                     foreach (var userDept in userDepts)
                     {
-                        var hisTransaction = new HistoryTransaction();
+                        var hisTransaction = new TransactionHistory();
 
                         // Get chi tiết người trả nợ
                         var dest = _UserCollection.GetByAccountNumber(userDept.RecipientAccountNumber);
                         if (dest != null)
                         {
                             hisTransaction.AccountName = dest.Name;
-                            hisTransaction.AccountNumber = dest.AcccountNumber;
+                            hisTransaction.AccountNumber = dest.AccountNumber;
                             hisTransaction.Description = userDept.Description;
                             hisTransaction.Money = userDept.Money;
 
@@ -389,27 +389,27 @@ namespace InternetBanking.Services.Implementations
             }
             return res;
         }
-        public IEnumerable<HistoryTransaction> HistoryDeptOut(Guid userId)
+        public IEnumerable<TransactionHistory> HistoryDeptOut(Guid userId)
         {
-            var res = new List<HistoryTransaction>();
+            var res = new List<TransactionHistory>();
 
             var userDetail = _UserCollection.GetById(userId);
             if (userDetail != null)
             {
-                var userDepts = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AcccountNumber, IsCanceled = false, IsPaid = true });
+                var userDepts = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AccountNumber, IsCanceled = false, IsPaid = true });
 
                 if (userDepts.Any())
                 {
                     foreach (var userDept in userDepts)
                     {
-                        var hisTransaction = new HistoryTransaction();
+                        var hisTransaction = new TransactionHistory();
 
                         // Get chi tiết người được trả nợ
                         var source = _UserCollection.GetByAccountNumber(userDept.RequestorAccountNumber);
                         if (source != null)
                         {
                             hisTransaction.AccountName = source.Name;
-                            hisTransaction.AccountNumber = source.AcccountNumber;
+                            hisTransaction.AccountNumber = source.AccountNumber;
                             hisTransaction.Description = userDept.Description;
                             hisTransaction.Money = userDept.Money;
 
@@ -431,20 +431,20 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public IEnumerable<HistoryTransaction> HistoryIn(Guid userId)
+        public IEnumerable<TransactionHistory> HistoryIn(Guid userId)
         {
-            var res = new List<HistoryTransaction>();
+            var res = new List<TransactionHistory>();
 
             var userDetail = _UserCollection.GetById(userId);
             if (userDetail != null)
             {
-                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { DestinationAccountNumber = userDetail.AcccountNumber });
+                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { DestinationAccountNumber = userDetail.AccountNumber });
                 userTransfers = userTransfers.Where(x => x.DestinationLinkingBankId == Guid.Empty);
                 if (userTransfers.Any())
                 {
                     foreach (var transfer in userTransfers)
                     {
-                        var hisTransaction = new HistoryTransaction();
+                        var hisTransaction = new TransactionHistory();
                         // Nội bộ
                         if (transfer.SourceLinkingBankId == Guid.Empty)
                         {
@@ -453,7 +453,7 @@ namespace InternetBanking.Services.Implementations
                             if (source != null)
                             {
                                 hisTransaction.AccountName = source.Name;
-                                hisTransaction.AccountNumber = source.AcccountNumber;
+                                hisTransaction.AccountNumber = source.AccountNumber;
                                 hisTransaction.Description = transfer.Description;
 
                                 if (transfer.IsSenderPay)
@@ -490,20 +490,20 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public IEnumerable<HistoryTransaction> HistoryOut(Guid userId)
+        public IEnumerable<TransactionHistory> HistoryOut(Guid userId)
         {
-            var res = new List<HistoryTransaction>();
+            var res = new List<TransactionHistory>();
 
             var userDetail = _UserCollection.GetById(userId);
             if (userDetail != null)
             {
-                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { SourceAccountNumber = userDetail.AcccountNumber });
+                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { SourceAccountNumber = userDetail.AccountNumber });
                 userTransfers = userTransfers.Where(x => x.SourceLinkingBankId == Guid.Empty);
                 if (userTransfers.Any())
                 {
                     foreach (var transfer in userTransfers)
                     {
-                        var hisTransaction = new HistoryTransaction();
+                        var hisTransaction = new TransactionHistory();
                         // Nội bộ
                         if (transfer.DestinationLinkingBankId == Guid.Empty)
                         {
@@ -512,7 +512,7 @@ namespace InternetBanking.Services.Implementations
                             if (dest != null)
                             {
                                 hisTransaction.AccountName = dest.Name;
-                                hisTransaction.AccountNumber = dest.AcccountNumber;
+                                hisTransaction.AccountNumber = dest.AccountNumber;
                                 hisTransaction.Description = transfer.Description;
 
                                 if (!transfer.IsSenderPay)
@@ -709,7 +709,7 @@ namespace InternetBanking.Services.Implementations
             Transaction res = null;
 
             var userDetail = _UserCollection.GetById(userId);
-            transfer.SourceAccountNumber = userDetail.AcccountNumber;
+            transfer.SourceAccountNumber = userDetail.AccountNumber;
             transfer.SourceLinkingBankId = Guid.Empty;
 
             if (userDetail != null)

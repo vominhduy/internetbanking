@@ -43,7 +43,7 @@ namespace InternetBanking.Services.Implementations
             if (userDetail != null)
             {
                 // requestor
-                deptReminder.RequestorAccountNumber = userDetail.AcccountNumber;
+                deptReminder.RequestorAccountNumber = userDetail.AccountNumber;
                 deptReminder.RequestorId = userDetail.Id;
 
 
@@ -221,8 +221,8 @@ namespace InternetBanking.Services.Implementations
 
             if (userDetail != null)
             {
-                var lstRecipient = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AcccountNumber }).ToList();
-                var lstRequestor = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AcccountNumber }).ToList();
+                var lstRecipient = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AccountNumber }).ToList();
+                var lstRequestor = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AccountNumber }).ToList();
 
                 lstRecipient.AddRange(lstRequestor);
 

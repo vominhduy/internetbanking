@@ -244,7 +244,7 @@ namespace InternetBanking.DataCollections.Implementations
 
         public User GetByAccountNumber(string accountNumber)
         {
-            FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.AcccountNumber, accountNumber);
+            FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.AccountNumber, accountNumber);
 
             SortDefinition<User> sort = null;
             ProjectionDefinition<User> projection = null;

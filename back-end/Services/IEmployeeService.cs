@@ -13,7 +13,7 @@ namespace InternetBanking.Services
         public User AddUser(Account account);
         public bool PayIn(PayInfo payInfo);
         public bool Delete(Guid id);
-        public IEnumerable<HistoryTransaction> CrossCheckingIn(DateTime? From, DateTime? To, Guid? bankId);
-        public IEnumerable<HistoryTransaction> CrossCheckingOut(DateTime? From, DateTime? To, Guid? bankId);
+        public IEnumerable<CrossChecking> CrossCheckingIn(DateTime? From, DateTime? To, Guid? bankId);
+        public IEnumerable<CrossChecking> CrossCheckingOut(DateTime? From, DateTime? To, Guid? bankId);
     }
 }

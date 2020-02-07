@@ -10,6 +10,6 @@ namespace InternetBanking.Models.Filters
         public string SourceAccountNumber { get; set; }
         public Guid SourceLinkingBankId { get; set; }
         public string Otp { get; set; }
-        public bool IsInternal { get; set; }
+        public bool IsConfirmed { get; set; }
     }
 }
