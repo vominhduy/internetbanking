@@ -84,7 +84,7 @@ namespace InternetBanking.DataCollections.Implementations
             ProjectionDefinition<LinkingBank> projection = null;
             FindOptions<LinkingBank, LinkingBank> options = null;
 
-            options = new FindOptions<LinkingBank, LinkingBank>() { Projection = projection, Sort = sort };
+            options = new FindOptions<LinkingBank, LinkingBank>() {  Sort = sort };
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }

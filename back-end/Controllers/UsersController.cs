@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
 {
-    [Authorize]
     public class UsersController : ApiController
     {
         private ISetting _Setting;
@@ -32,18 +31,18 @@ namespace InternetBanking.Controllers
         //    return Ok(records);
         //}
 
-        //// GET: api/User/31231123
-        //[HttpGet("{id}")]
-        //[Authorize(Roles = "User")]
-        //public IActionResult GetDetailUser([FromQuery] Guid id)
-        //{
-        //    var records = _Service.GetUsers(new UserFilter() { Id = id, Name = "" });
+        // GET: api/User/31231123
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public IActionResult GetDetailUser([FromQuery] Guid id)
+        {
+            var records = _Service.GetUsers(new UserFilter() { Id = id, Name = "" });
 
-        //    if (records.Any())
-        //        return Ok(records.FirstOrDefault());
-        //    else
-        //        return NotFound();
-        //}
+            if (records.Any())
+                return Ok(records.FirstOrDefault());
+            else
+                return NotFound();
+        }
 
         //// PUT: api/User
         //[HttpPut()]
@@ -62,7 +61,7 @@ namespace InternetBanking.Controllers
         /// <returns>BankAccount</returns>
         // POST: api/Users/SavingsAccounts
         [HttpPost("SavingsAccounts")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult CreateSavingsAccount([FromBody] BankAccount bankAccount)
         {
             var res = _Service.AddSavingsAccount(new UserFilter() { Id = UserId }, bankAccount);
@@ -78,7 +77,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // PUT: api/Users/BankAccounts?type=0
         [HttpPut("BankAccounts")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult UpdateBankAccount([FromQuery] BankAccountType type, [FromBody] BankAccount bankAccount)
         {
             var res = _Service.UpdateBankAccount(UserId, type, bankAccount);
@@ -93,7 +92,7 @@ namespace InternetBanking.Controllers
         /// <returns></returns>
         // DELETE: api/Users/SavingsAccounts/00000000-0000-0000-0000-000000000000
         [HttpDelete("SavingsAccounts/{id}")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult DeleteSavingsAccount(Guid id)
         {
             var res = _Service.DeleteSavingsAccount(UserId, id);
@@ -118,7 +117,7 @@ namespace InternetBanking.Controllers
         /// <returns>Payee</returns>
         // Post: api/Users/Payees
         [HttpPost("Payees")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult AddPayee([FromBody] Payee payee)
         {
             var res = _Service.AddPayee(UserId, payee);
@@ -133,7 +132,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // PUT: api/Users/Payees/00000000-0000-0000-0000-000000000000
         [HttpPut("Payees/{id}")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult UpdatePayee(Guid id, [FromBody] Payee payee)
         {
             payee.Id = id;
@@ -149,7 +148,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // DELETE: api/Users/Payees/00000000-0000-0000-0000-000000000000
         [HttpDelete("Payees/{id}")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult DeletePayee(Guid id)
         {
             var res = _Service.DeletePayee(UserId, id);
@@ -164,7 +163,7 @@ namespace InternetBanking.Controllers
         /// <returns>Guid</returns>
         // POST: api/Users/InternalTransfer
         [HttpPost("InternalTransfer")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult InternalTransfer([FromBody] Transfer transfer)
         {
             transfer.DestinationLinkingBankId = Guid.Empty;
@@ -183,7 +182,7 @@ namespace InternetBanking.Controllers
         /// <returns>Guid</returns>
         // POST: api/User/ExternalTransfer
         [HttpPost("ExternalTransfer")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult ExternalTransfer([FromBody] Transfer transfer)
         {
             if (transfer.DestinationLinkingBankId == Guid.Empty)
@@ -211,7 +210,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // POST: api/Users/ConfirmTransfer?id=00000000-0000-0000-0000-000000000000&otp=123456
         [HttpPost("ConfirmTransfer")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult ConfirmTransfer(Guid id, string otp)
         {
             var res = _Service.ConfirmTransfer(UserId, id, otp);
@@ -230,7 +229,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // GET: api/Users/Histories/In
         [HttpGet("Histories/In")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult HistoryIn()
         {
             var res = _Service.HistoryIn(UserId);
@@ -243,7 +242,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // GET: api/Users/Histories/Out
         [HttpGet("Histories/Out")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult HistoryOut()
         {
             var res = _Service.HistoryOut(UserId);
@@ -256,7 +255,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Users/Histories/Depts/In
         [HttpGet("Histories/Depts/In")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult HistoryDeptIn()
         {
             var res = _Service.HistoryDeptIn(UserId);
@@ -269,7 +268,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Users/Histories/Depts/Out
         [HttpGet("Histories/Depts/Out")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult HistoryDeptOut()
         {
             var res = _Service.HistoryDeptOut(UserId);

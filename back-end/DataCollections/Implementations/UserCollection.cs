@@ -232,7 +232,7 @@ namespace InternetBanking.DataCollections.Implementations
             ProjectionDefinition<User> projection = null;
             FindOptions<User, User> options = null;
 
-            options = new FindOptions<User, User>() { Projection = projection, Sort = sort };
+            options = new FindOptions<User, User>() {  Sort = sort };
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }
@@ -259,7 +259,7 @@ namespace InternetBanking.DataCollections.Implementations
             ProjectionDefinition<User> projection = null;
             FindOptions<User, User> options = null;
 
-            options = new FindOptions<User, User>() { Projection = projection, Sort = sort };
+            options = new FindOptions<User, User>() {  Sort = sort };
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }

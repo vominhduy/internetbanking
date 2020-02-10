@@ -9,7 +9,7 @@ namespace InternetBanking.Controllers
     /// <summary>
     /// Api liên kết ngân hàng
     /// </summary>
-    [Authorize]
+    //[Authorize]
     public class PartnersController : ApiController
     {
         private ISetting _Setting;

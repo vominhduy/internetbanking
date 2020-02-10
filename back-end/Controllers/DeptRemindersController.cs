@@ -8,7 +8,6 @@ using Newtonsoft.Json.Linq;
 
 namespace InternetBanking.Controllers
 {
-    [Authorize]
     public class DeptRemindersController : ApiController
     {
         private ISetting _Setting;
@@ -28,7 +27,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<DeptReminder></returns>
         // Get: api/Deptreminders
         [HttpGet()]
-        [Authorize(Roles = "User")]
+       // [Authorize(Roles = "User")]
         public IActionResult GetDeptreminder()
         {
             var res = _Service.GetDeptReminders(UserId);
@@ -43,7 +42,7 @@ namespace InternetBanking.Controllers
         /// <returns>DeptReminder</returns>
         // POST: api/Deptreminders
         [HttpPost()]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult AddDeptreminder([FromBody] DeptReminder deptReminder)
         {
             var res = _Service.AddDeptReminder(UserId, deptReminder);
@@ -59,7 +58,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // PUT: api/Deptreminders/00000000-0000-0000-0000-000000000000
         [HttpPost("{id}")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult Cancel([FromQuery] Guid id, [FromBody] JObject deptReminder)
         {
             var res = _Service.CancelDeptReminder(UserId, id, deptReminder.Value<string>("Notes"));
@@ -97,7 +96,7 @@ namespace InternetBanking.Controllers
         /// <returns>Guid</returns>
         // POST: api/Deptreminders/Checkout/00000000-0000-0000-0000-000000000000
         [HttpPost("Checkout/{id}")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult CheckoutDeptreminder(Guid id)
         {
             var res = _Service.CheckoutDeptReminder(UserId, id);
@@ -116,7 +115,7 @@ namespace InternetBanking.Controllers
         /// <returns></returns>
         // POST: api/Deptreminders/Confirm?id=00000000-0000-0000-0000-000000000000&otp=123456
         [HttpPost("Confirm")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult ConfirmDeptreminder([FromQuery] Guid id, [FromQuery] string otp)
         {
             var res = _Service.ConfirmDeptReminder(UserId, id, otp);

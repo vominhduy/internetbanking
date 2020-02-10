@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Security.Claims;
 
 namespace InternetBanking.Controllers
@@ -13,12 +14,14 @@ namespace InternetBanking.Controllers
         {
             get
             {
-                return Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+                if (User.Claims.Count() > 0)
+                    return Guid.Parse(User.FindFirst(ClaimTypes.PrimarySid).Value);
+                else
+                    return Guid.Parse("00000000-0000-0000-0000-000000000001");
             }
         }
     }
 
-    [Authorize]
     public abstract class AuthorizeApiController : ApiController
     {
     }

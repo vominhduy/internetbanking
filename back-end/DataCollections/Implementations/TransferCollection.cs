@@ -72,7 +72,7 @@ namespace InternetBanking.DataCollections.Implementations
             ProjectionDefinition<Transfer> projection = null;
             FindOptions<Transfer, Transfer> options = null;
 
-            options = new FindOptions<Transfer, Transfer>() { Projection = projection, Sort = sort };
+            options = new FindOptions<Transfer, Transfer>() {  Sort = sort };
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }

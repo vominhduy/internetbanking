@@ -67,7 +67,7 @@ namespace InternetBanking.DataCollections.Implementations
             ProjectionDefinition<Transaction> projection = null;
             FindOptions<Transaction, Transaction> options = null;
 
-            options = new FindOptions<Transaction, Transaction>() { Projection = projection, Sort = sort };
+            options = new FindOptions<Transaction, Transaction>() {  Sort = sort };
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }

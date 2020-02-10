@@ -73,7 +73,7 @@ namespace InternetBanking.DataCollections.Implementations
             ProjectionDefinition<DeptReminder> projection = null;
             FindOptions<DeptReminder, DeptReminder> options = null;
 
-            options = new FindOptions<DeptReminder, DeptReminder>() { Projection = projection, Sort = sort };
+            options = new FindOptions<DeptReminder, DeptReminder>() {  Sort = sort };
 
             return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
         }
