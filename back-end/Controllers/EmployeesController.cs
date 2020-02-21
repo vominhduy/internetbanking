@@ -58,8 +58,8 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/In
         [HttpGet("Histories/{userId}/In")]
-        [Authorize(Roles = "User")]
-        public IActionResult HistoryIn([FromQuery] Guid userId)
+       // [Authorize(Roles = "User")]
+        public IActionResult HistoryIn(Guid userId)
         {
             var res = _UserService.HistoryIn(userId);
             return Ok(res);
@@ -72,8 +72,8 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Out
         [HttpGet("Histories/{userId}/Out")]
-        [Authorize(Roles = "User")]
-        public IActionResult HistoryOut([FromQuery] Guid userId)
+        //[Authorize(Roles = "User")]
+        public IActionResult HistoryOut(Guid userId)
         {
             var res = _UserService.HistoryOut(userId);
             return Ok(res);
@@ -86,7 +86,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Dept/In
         [HttpGet("Histories/{userId}/Dept/In")]
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         public IActionResult HistoryDeptIn([FromQuery] Guid userId)
         {
             var res = _UserService.HistoryDeptIn(userId);
@@ -100,7 +100,7 @@ namespace InternetBanking.Controllers
         /// <returns>IEnumerable<TransactionHistory></returns>
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Dept/Out
         [HttpGet("Histories/{userId}/Dept/Out")]
-        [Authorize(Roles = "User")]
+       // [Authorize(Roles = "User")]
         public IActionResult HistoryDeptOut([FromQuery] Guid userId)
         {
             var res = _UserService.HistoryDeptOut(userId);

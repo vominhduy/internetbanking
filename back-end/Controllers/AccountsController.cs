@@ -3,6 +3,7 @@ using InternetBanking.Services;
 using InternetBanking.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace InternetBanking.Controllers
 {
@@ -51,11 +52,10 @@ namespace InternetBanking.Controllers
         /// </summary>
         /// <returns>bool</returns>
         // POST: api/Accounts/Passwords/Forget
-        [AllowAnonymous]
-        [HttpPost("Passwords/Forget/{email}")]
-        public IActionResult ForgetPassword(string email)
+        [HttpPost("Passwords/Forget")]
+        public IActionResult ForgetPassword([FromBody] Newtonsoft.Json.Linq.JObject email)
         {
-            var res = _Service.ForgetPassword(email);
+            var res = _Service.ForgetPassword(email.Value<string>("Email"));
             if (res)
                 return Ok(res);
             else
@@ -67,11 +67,11 @@ namespace InternetBanking.Controllers
         /// </summary>
         /// <param name="otp"></param>
         /// <returns>bool</returns>
-        // POST: api/Accounts/Passwords/ConfirmForgetting/787823
-        [HttpPost("Passwords/ConfirmForgetting/{otp}")]
-        public IActionResult ConfirmForgetting([FromQuery] string otp)
+        // POST: api/Accounts/Passwords/ConfirmForgetting
+        [HttpPost("Passwords/ConfirmForgetting")]
+        public IActionResult ConfirmForgetting([FromBody] JObject otp)
         {
-            var res = _Service.ConfirmForgetting(UserId, otp);
+            var res = _Service.ConfirmForgetting(UserId, otp.Value<string>("Otp"));
 
             if (res)
                 return Ok(res);
@@ -103,6 +103,7 @@ namespace InternetBanking.Controllers
         /// <returns>AccountRespone</returns>
         // POST: api/Accounts/Tokens/Refresh
         [HttpPost("Tokens/Refresh")]
+        [AllowAnonymous]
         public IActionResult Refresh([FromBody] AccountRespone dataToken)
         {
             var res = _Service.RefreshToken(dataToken.AccessToken, dataToken.RefreshToken);

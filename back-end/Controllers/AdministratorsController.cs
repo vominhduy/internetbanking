@@ -45,7 +45,7 @@ namespace InternetBanking.Controllers
         /// <returns>Employee</returns>
         // GET: api/Administrators/Employees/962c3538-65f9-40c3-98b4-0ce277c3f559
         [HttpGet("Employees/{id}")]
-        public IActionResult GetDetailEmployee([FromQuery] Guid id)
+        public IActionResult GetDetailEmployee(Guid id)
         {
             var records = _Service.GetEmployees(new UserFilter() { Id = id });
 
@@ -63,7 +63,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // PUT: api/Administrators/Employees/962c3538-65f9-40c3-98b4-0ce277c3f559
         [HttpPut("Employees/{employeeId}")]
-        public IActionResult UpdateEmployee([FromQuery] Guid employeeId, [FromBody] Employee employee)
+        public IActionResult UpdateEmployee(Guid employeeId, [FromBody] Employee employee)
         {
             employee.Id = employeeId;
             var res = _Service.Update(employee);
@@ -92,7 +92,7 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // DELETE: api/Administrators/Employees/962c3538-65f9-40c3-98b4-0ce277c3f559
         [HttpDelete("Employees/{employeeId}")]
-        public IActionResult DeleteEmployee([FromQuery] Guid employeeId)
+        public IActionResult DeleteEmployee(Guid employeeId)
         {
             var res = _Service.Delete(employeeId);
 
@@ -106,9 +106,9 @@ namespace InternetBanking.Controllers
         /// <returns></returns>
         // GET: api/Administrators/CrossCheckings/In
         [HttpGet("CrossCheckings/In")]
-        public IActionResult GetCrossCheckingIn([FromBody] RCrossChecking crossChecking)
+        public IActionResult GetCrossCheckingIn([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? bankId)
         {
-            var records = _Service.CrossCheckingIn(crossChecking.From, crossChecking.To, crossChecking.BankId);
+            var records = _Service.CrossCheckingIn(from, to, bankId);
 
             return Ok(records);
         }
@@ -120,9 +120,9 @@ namespace InternetBanking.Controllers
         /// <returns></returns>
         // GET: api/Administrators/CrossCheckings/Out
         [HttpGet("CrossCheckings/Out")]
-        public IActionResult GetCrossCheckingOut([FromBody] RCrossChecking crossChecking)
+        public IActionResult GetCrossCheckingOut([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? bankId)
         {
-            var records = _Service.CrossCheckingOut(crossChecking.From, crossChecking.To, crossChecking.BankId);
+            var records = _Service.CrossCheckingOut(from, to, bankId);
 
             return Ok(records);
         }

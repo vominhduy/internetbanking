@@ -31,10 +31,10 @@ namespace InternetBanking.Controllers
         //    return Ok(records);
         //}
 
-        // GET: api/User/31231123
+        // GET: api/Users/31231123
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public IActionResult GetDetailUser([FromQuery] Guid id)
+        public IActionResult GetDetailUser(Guid id)
         {
             var records = _Service.GetUsers(new UserFilter() { Id = id, Name = "" });
 
@@ -208,10 +208,10 @@ namespace InternetBanking.Controllers
         /// </summary>
         /// <param name="transaction"></param>
         /// <returns>bool</returns>
-        // POST: api/Users/ConfirmTransfer?id=00000000-0000-0000-0000-000000000000&otp=123456
-        [HttpPost("ConfirmTransfer")]
+        // POST: api/Users/ConfirmTransfer/00000000-0000-0000-0000-000000000000?otp=123456
+        [HttpPost("ConfirmTransfer/{id}")]
         //[Authorize(Roles = "User")]
-        public IActionResult ConfirmTransfer(Guid id, string otp)
+        public IActionResult ConfirmTransfer(Guid id, [FromQuery] string otp)
         {
             var res = _Service.ConfirmTransfer(UserId, id, otp);
 

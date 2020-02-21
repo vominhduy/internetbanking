@@ -59,7 +59,7 @@ namespace InternetBanking.Controllers
         // PUT: api/Deptreminders/00000000-0000-0000-0000-000000000000
         [HttpPost("{id}")]
         //[Authorize(Roles = "User")]
-        public IActionResult Cancel([FromQuery] Guid id, [FromBody] JObject deptReminder)
+        public IActionResult Cancel(Guid id, [FromBody] JObject deptReminder)
         {
             var res = _Service.CancelDeptReminder(UserId, id, deptReminder.Value<string>("Notes"));
 
@@ -113,10 +113,10 @@ namespace InternetBanking.Controllers
         /// <param name="id">Id của transaction được trả về từ api CheckoutDeptreminder</param>
         /// <param name="otp"></param>
         /// <returns></returns>
-        // POST: api/Deptreminders/Confirm?id=00000000-0000-0000-0000-000000000000&otp=123456
+        // POST: api/Deptreminders/Confirm/00000000-0000-0000-0000-000000000000?otp=123456
         [HttpPost("Confirm")]
         //[Authorize(Roles = "User")]
-        public IActionResult ConfirmDeptreminder([FromQuery] Guid id, [FromQuery] string otp)
+        public IActionResult ConfirmDeptreminder(Guid id, [FromQuery] string otp)
         {
             var res = _Service.ConfirmDeptReminder(UserId, id, otp);
 

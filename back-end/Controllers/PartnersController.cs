@@ -28,7 +28,7 @@ namespace InternetBanking.Controllers
         /// <returns>ExternalAccount</returns>
         // GET: api/Partners/31231123
         [HttpGet("{accountNumber}")]
-        public IActionResult GetDetailUser([FromQuery] string accountNumber)
+        public IActionResult GetDetailUser(string accountNumber)
         {
             var record = _Service.GetDetailUserByPartner(accountNumber);
 
