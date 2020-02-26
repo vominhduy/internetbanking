@@ -68,9 +68,11 @@ namespace InternetBanking.DataCollections.Implementations
             SortDefinition<User> sort = null;
             FindOptions<User, User> options = null;
 
-            options = new FindOptions<User, User>() { Projection = null, Sort = sort };
+            options = new FindOptions<User, User>() { Sort = sort };
 
-            return _Collection.FindSync(filter, options).ToEnumerable();
+            var task = _Collection.FindAsync(filter, options);
+            task.Wait();
+            return task.Result.ToEnumerable();
         }
 
         public long Replace(User user)
@@ -234,7 +236,9 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<User, User>() {  Sort = sort };
 
-            return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
+            var task = _Collection.FindAsync(filter, options);
+            task.Wait();
+            return task.Result.FirstOrDefault();
         }
 
         public long PayIn(Guid userId, BankAccount bankAccount)
@@ -261,7 +265,9 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<User, User>() {  Sort = sort };
 
-            return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
+            var task = _Collection.FindAsync(filter, options);
+            task.Wait();
+            return task.Result.FirstOrDefault();
         }
 
         public long ChangePassword(UserFilter userFilter, string password)
