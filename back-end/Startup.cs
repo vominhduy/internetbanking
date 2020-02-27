@@ -105,17 +105,15 @@ namespace InternetBanking
             }
 
             app.UseCors(builder => builder.SetIsOriginAllowed(_ => true)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
-
-            //app.UseHttpsRedirection();
+                                .AllowAnyMethod()
+                                .AllowAnyHeader()
+                                .AllowCredentials());
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
             System.Reflection.Assembly ass = System.Reflection.Assembly.GetEntryAssembly();
             string serviceName = ass.GetName().Name;
             var _logger = loggerFactory.CreateLogger(serviceName);
@@ -128,7 +126,6 @@ namespace InternetBanking
             });
         }
     }
-
     public static class ExceptionMiddlewareExtensions
     {
         public static void ConfigureExceptionHandler(this IApplicationBuilder app, ILogger logger)

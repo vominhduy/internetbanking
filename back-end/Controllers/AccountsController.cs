@@ -4,10 +4,13 @@ using InternetBanking.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace InternetBanking.Controllers
 {
-    public class AccountsController : ApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AccountsController : ControllerBase
     {
         private ISetting _Setting;
         private IAccountService _Service;
@@ -71,7 +74,7 @@ namespace InternetBanking.Controllers
         [HttpPost("Passwords/ConfirmForgetting")]
         public IActionResult ConfirmForgetting([FromBody] JObject otp)
         {
-            var res = _Service.ConfirmForgetting(UserId, otp.Value<string>("Otp"));
+            var res = _Service.ConfirmForgetting(Guid.NewGuid(), otp.Value<string>("Otp"));
 
             if (res)
                 return Ok(res);
@@ -88,7 +91,7 @@ namespace InternetBanking.Controllers
         [HttpPost("Passwords/Change")]
         public IActionResult ChangePassword([FromBody] RPassword password)
         {
-            var res = _Service.ChangePassword(UserId, password.OldPassword, password.NewPassword);
+            var res = _Service.ChangePassword(Guid.NewGuid(), password.OldPassword, password.NewPassword);
 
             if (res)
                 return Ok(res);
