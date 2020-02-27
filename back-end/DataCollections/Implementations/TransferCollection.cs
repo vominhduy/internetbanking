@@ -52,9 +52,8 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<Transfer, Transfer>() { Sort = sort };
 
-            var task = _Collection.FindAsync(filter, options);
-            task.Wait();
-            return task.Result.ToEnumerable();
+            var task = _Collection.Find(filter);
+            return task.ToEnumerable();
         }
 
         public long Replace(Transfer Transfer)
@@ -76,9 +75,8 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<Transfer, Transfer>() {  Sort = sort };
 
-            var task = _Collection.FindAsync(filter, options);
-            task.Wait();
-            return task.Result.FirstOrDefault();
+            var task = _Collection.Find(filter);
+            return task.FirstOrDefault();
         }
 
 

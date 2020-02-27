@@ -64,9 +64,8 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<LinkingBank, LinkingBank>() { Sort = sort };
 
-            var task = _Collection.FindAsync(filter, options);
-            task.Wait();
-            return task.Result.ToEnumerable();
+            var task = _Collection.Find(filter);
+            return task.ToEnumerable();
         }
 
         public long Replace(LinkingBank employee)
@@ -88,9 +87,8 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<LinkingBank, LinkingBank>() {  Sort = sort };
 
-            var task = _Collection.FindAsync(filter, options);
-            task.Wait();
-            return task.Result.FirstOrDefault();
+            var task = _Collection.Find(filter);
+            return task.FirstOrDefault();
         }
 
         public long Update(LinkingBank employee)
