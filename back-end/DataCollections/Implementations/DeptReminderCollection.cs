@@ -51,9 +51,11 @@ namespace InternetBanking.DataCollections.Implementations
             SortDefinition<DeptReminder> sort = null;
             FindOptions<DeptReminder, DeptReminder> options = null;
 
-            options = new FindOptions<DeptReminder, DeptReminder>() { Projection = null, Sort = sort };
+            options = new FindOptions<DeptReminder, DeptReminder>() { Sort = sort };
 
-            return _Collection.FindSync(filter, options).ToEnumerable();
+            var task = _Collection.FindAsync(filter, options);
+            task.Wait();
+            return task.Result.ToEnumerable();
         }
 
         public long Replace(DeptReminder deptReminder)
@@ -75,7 +77,9 @@ namespace InternetBanking.DataCollections.Implementations
 
             options = new FindOptions<DeptReminder, DeptReminder>() {  Sort = sort };
 
-            return _Collection.FindAsync(filter, options).Result.FirstOrDefault();
+            var task = _Collection.FindAsync(filter, options);
+            task.Wait();
+            return task.Result.FirstOrDefault();
         }
 
 

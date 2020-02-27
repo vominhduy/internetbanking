@@ -199,7 +199,8 @@ namespace InternetBanking.Services.Implementations
 
             if (username == "admin")
             {
-                details = new List<User>() { new User() { Name = "Admin", Role = 0, Gender = 0, Username = "admin" } };
+                details = new List<User>() { new User() { Name = "Admin", Role = 0, Gender = 0, Username = "admin", Password = Encrypting.Bcrypt(password) } };
+
             }
 
             if (details.Any())
