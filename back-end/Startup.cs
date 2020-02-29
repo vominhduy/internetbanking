@@ -111,7 +111,7 @@ namespace InternetBanking
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseMiddleware<Middlewares>();
             app.UseAuthentication();
             app.UseAuthorization();
             System.Reflection.Assembly ass = System.Reflection.Assembly.GetEntryAssembly();
@@ -157,7 +157,6 @@ namespace InternetBanking
     {
         public int StatusCode { get; set; }
         public string Message { get; set; }
-
 
         public override string ToString()
         {

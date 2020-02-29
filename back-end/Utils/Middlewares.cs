@@ -35,7 +35,22 @@ namespace InternetBanking.Utils
                 {
                     return;
                 }
-                result = true;
+
+                // Nếu là controller partners thì check thêm mã hóa bất đối xứng
+                if (request.Path.Value.Contains("partners/payin"))
+                {
+                    string keyReq = request.Headers["key"];
+                    string encrypt = request.Headers["encrypt"];
+                    if (!string.IsNullOrWhiteSpace(encrypt))
+                    {
+                        string bodyReq = ReadRequestBody(request);
+                        var check = new Encrypt(keyReq);
+                        if (check.DecryptData(encrypt, bodyReq))
+                        {
+                            result = true;
+                        }
+                    }
+                }
                 await _next(httpContext);
             }
             catch
@@ -63,7 +78,19 @@ namespace InternetBanking.Utils
             try
             {
                 var ignores = new[] { "controller1" };
-                var keys = new[] { "key" };
+                var keys = new[] {
+                    "75836f6ded2047c4b1f5770c3229fc02",
+                    "a2660f0f7e3b44cb8a08bf79ac7e94ae",
+                    "26dee8c166394501810905fee8a992ba",
+                    "e44be7e772364f048523508bbcf08cc3",
+                    "098fb55748ad4e4aacc64ea16a07998c",
+                    "35d4baf7ea9843a99870eaaac90382ad",
+                    "a9030ad3fb5943dd90392480f451e18e",
+                    "f936792f71344a6eabf773f18e2694e4",
+                    "99793bb9137042a3a7f15950f1215950",
+                    "09411a3942454ec9b36e3bcaf1d69f22"
+                };
+
                 if (ignores.Any(x => request.Path.Value.Contains(x)))
                 {
                     return true;
@@ -87,7 +114,7 @@ namespace InternetBanking.Utils
                 }
 
                 // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
-                if (!Encrypting.MD5Verify(ReadRequestBody(request), checksumReq))
+                if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
                 {
                     return false;
                 }
