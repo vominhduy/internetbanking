@@ -86,7 +86,8 @@ namespace InternetBanking.Services.Implementations
                         res.Password = Encrypting.Bcrypt(account.Password);
                         res.Address = account.Address;
                         res.Role = 1;
-                        
+                        res.Username = account.Email;
+
                         // Tao so tai khoan
                         while (true)
                         {
