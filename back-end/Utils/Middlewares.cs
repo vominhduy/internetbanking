@@ -31,7 +31,6 @@ namespace InternetBanking.Utils
         public async Task Invoke(HttpContext httpContext, IEncrypt iencrypt, IContext context)
         {
             _encrypt = iencrypt;
-            _context = context;
             bool result = false;
             try
             {
