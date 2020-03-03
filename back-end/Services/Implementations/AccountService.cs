@@ -145,6 +145,20 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
+        public LinkingBank CreateLinkingBank(LinkingBank bank)
+        {
+            bank.Id = Guid.Empty;
+            _LinkingBankCollection.Create(bank);
+            if (bank.Id.Equals(Guid.Empty))
+            {
+                return null;
+            }
+            else
+            {
+                return bank;
+            }
+        }
+
         public bool ForgetPassword(string email)
         {
             var res = false;

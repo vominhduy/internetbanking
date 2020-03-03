@@ -39,14 +39,14 @@ namespace InternetBanking.Services.Implementations
             Employee res = null;
             while (true)
             {
-                employee.Code = _Context.MakeOTP(10);
+                employee.Code = _Context.MakeOTP(10, isAllDigits: true);
                 if (!_UserCollection.Get(new UserFilter() { AccountNumber = employee.Code }).Any())
                     break;
             }
             var user = new User();
 
             user.AccountNumber = employee.Code;
-            user.Address = employee.Code;
+            user.Address = employee.Address;
             user.Email = employee.Email;
             user.Gender = employee.Gender;
             user.Name = employee.Name;
@@ -86,15 +86,15 @@ namespace InternetBanking.Services.Implementations
                         res.Password = Encrypting.Bcrypt(account.Password);
                         res.Address = account.Address;
                         res.Role = 1;
-                        res.Username = account.Email;
 
                         // Tao so tai khoan
                         while (true)
                         {
-                            res.AccountNumber = _Context.MakeOTP(10);
+                            res.AccountNumber = _Context.MakeOTP(10, isAllDigits: true);
                             if (!_UserCollection.Get(new UserFilter() { AccountNumber = res.AccountNumber }).Any())
                                 break;
                         }
+                        res.Username = string.Concat(account.Name.Split(' ').Last(), res.AccountNumber);
 
                         _UserCollection.Create(res);
 

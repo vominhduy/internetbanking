@@ -1,6 +1,9 @@
 ﻿using DidiSoft.Pgp;
+using InternetBanking.DataCollections;
 using InternetBanking.Settings;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -117,35 +120,44 @@ namespace InternetBanking.Utils
         }
     }
 
-    public class Encrypt
+    public interface IEncrypt
+    {
+        public string EncryptData(string msg);
+        public bool DecryptData(string signed, string msg = "");
+        public void SetKey(string key);
+    }
+
+    public class Encrypt : IEncrypt
     {
         private RedisCache _cache = null;
 
         // key dùng để phân biệt các ngân hàng 
-        private readonly string _key;
+        private static string _key;
         // RSA: 1, PGP: 2
         private static int _type;
         private string _publicKey;
         private string _privateKey;
         private string _pgpKeyPassword;
 
-        public Encrypt(string key)
+        private ILinkingBankCollection _LinkingBankCollection;
+
+        public Encrypt( ILinkingBankCollection linkingBankCollection)
         {
-            _key = key;
+            _LinkingBankCollection = linkingBankCollection;
         }
 
         private bool Init()
         {
             try
             {
-                _cache = new RedisCache("", "");
-                if (_cache.StringTryGet(_key, out string valuetype))
+                var info = _LinkingBankCollection.Get(new Models.Filters.LinkingBankFilter() { Code = _key }).FirstOrDefault();
+                if (info != null)
                 {
-                    _type = int.Parse(valuetype.Split('_')[0]);
-                    _pgpKeyPassword = valuetype.Split('_')[1];
+                    _type = (int)info.Type;
+                    _pgpKeyPassword = info.Password;
 
                     string pattern = _type == 1 ? "rsa" : "pgp";
-                    var files = Directory.GetFiles(@"./LocalData", $"{pattern}_{_key}.*").ToList();
+                    var files = Directory.GetFiles(@"./LocalData", $"{pattern}_{_key}_*.*").ToList();
                     if (!files.Any())
                     {
                         return false;
@@ -233,6 +245,11 @@ namespace InternetBanking.Utils
             {
                 return false;
             }
+        }
+
+        public void SetKey(string key)
+        {
+            _key = key;
         }
     }
 }

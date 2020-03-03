@@ -33,9 +33,23 @@ namespace InternetBanking.Controllers
             var record = _Service.GetDetailUserByPartner(accountNumber);
 
             if (record != null)
-                return Ok(record);
+            {
+                return Ok(new
+                {
+                    code = 1,
+                    message = "Successful",
+                    data = record
+                });
+            }
             else
-                return NotFound();
+            {
+                return Ok(new
+                {
+                    code = -1,
+                    message = "Fail",
+                    data = (string)null
+                });
+            }
         }
 
         /// <summary>
@@ -45,14 +59,32 @@ namespace InternetBanking.Controllers
         /// <returns>bool</returns>
         // GET: api/Partners/PayIn
         [HttpPost("PayIn")]
-        public IActionResult PayIn([FromQuery] Transfer transfer)
+        public IActionResult PayIn([FromBody] Transfer transfer)
         {
             var record = _Service.PayInByPartner(transfer);
 
             if (record)
-                return Ok(record);
+            {
+                return Ok(new
+                {
+                    code = 1,
+                    message = "Successful",
+                    data = new
+                    {
+                        account_number = transfer.DestinationAccountNumber,
+                        money_transfer = transfer.Money
+                    }
+                });
+            }   
             else
-                return Conflict(_Setting.Message.GetMessage());
+            {
+                return Ok(new
+                {
+                    code = -1,
+                    message = _Setting.Message.GetMessage() ?? "Fail",
+                    data = (string)null
+                });
+            }
         }
 
         /// <summary>

@@ -11,5 +11,6 @@ namespace InternetBanking.Models
         public string Name { get; set; }
         public string Code { get; set; }
         public LinkingBankType Type { get; set; }
+        public string Password { get; set; }
     }
 }

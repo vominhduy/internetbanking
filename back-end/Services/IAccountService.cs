@@ -16,5 +16,6 @@ namespace InternetBanking.Services
         public bool ForgetPassword(string email);
         public bool ConfirmForgetting(Guid userId, string otp);
         public bool ChangePassword(Guid userId, string oldPassword, string newPassword);
+        public LinkingBank CreateLinkingBank(LinkingBank bank);
     }
 }

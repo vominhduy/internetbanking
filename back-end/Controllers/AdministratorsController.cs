@@ -15,12 +15,14 @@ namespace InternetBanking.Controllers
         private ISetting _Setting;
         private IEmployeeService _Service;
         private IUserService _UserService;
+        private IAccountService _AccountService;
 
-        public AdministratorsController(ISetting setting, IEmployeeService employeeService, IUserService userService)
+        public AdministratorsController(ISetting setting, IEmployeeService employeeService, IUserService userService, IAccountService accountService )
         {
             _Setting = setting;
             _UserService = userService;
             _Service = employeeService;
+            _AccountService = accountService;
         }
 
         // Quản lý danh sách nhân viên
@@ -125,6 +127,20 @@ namespace InternetBanking.Controllers
             var records = _Service.CrossCheckingOut(from, to, bankId);
 
             return Ok(records);
+        }
+
+        [HttpPost("LinkBank/Add")]
+        public IActionResult AddLinkBank([FromBody] LinkingBank bank)
+        {
+            var record = _AccountService.CreateLinkingBank(bank);
+            if(record != null)
+            {
+                return Ok(record);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }

@@ -4,12 +4,15 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace InternetBanking.Utils
 {
     public class Middlewares
     {
         private readonly RequestDelegate _next;
+        private static IEncrypt _encrypt;
 
         /// <summary>
         /// 
@@ -25,30 +28,54 @@ namespace InternetBanking.Utils
         /// </summary>
         /// <param name="httpContext"></param>
         /// <returns></returns>
-        public async Task Invoke(HttpContext httpContext)
+        public async Task Invoke(HttpContext httpContext, IEncrypt iencrypt, IContext context)
         {
+            _encrypt = iencrypt;
+            _context = context;
             bool result = false;
             try
             {
                 var request = httpContext.Request;
+
+                // Test only
+                string admin = request.Headers["admin_key"];
+                if (!string.IsNullOrWhiteSpace(admin)
+                    && admin.ToLower().Equals("09411a3942454ec9b36e3bcaf1d69f22".ToLower()))
+                {
+                    result = true;
+                    await _next(httpContext);
+                    return;
+                }
+                // End Test only
+
                 if (!CheckBasicAuthen(request))
                 {
                     return;
                 }
 
                 // Nếu là controller partners thì check thêm mã hóa bất đối xứng
-                if (request.Path.Value.Contains("partners/payin"))
+                if (request.Path.Value.ToLower().Contains("partners/payin".ToLower()))
                 {
                     string keyReq = request.Headers["key"];
                     string encrypt = request.Headers["encrypt"];
                     if (!string.IsNullOrWhiteSpace(encrypt))
                     {
                         string bodyReq = ReadRequestBody(request);
-                        var check = new Encrypt(keyReq);
-                        if (check.DecryptData(encrypt, bodyReq))
+                        //var check = new Encrypt(keyReq);
+                        _encrypt.SetKey(keyReq);
+                        if (_encrypt.DecryptData(encrypt, bodyReq))
                         {
                             result = true;
+                            return;
                         }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
                 await _next(httpContext);
@@ -77,7 +104,7 @@ namespace InternetBanking.Utils
         {
             try
             {
-                var ignores = new[] { "controller1" };
+                var ignores = new[] { "WeatherForecast" };
                 var keys = new[] {
                     "75836f6ded2047c4b1f5770c3229fc02",
                     "a2660f0f7e3b44cb8a08bf79ac7e94ae",
@@ -88,10 +115,10 @@ namespace InternetBanking.Utils
                     "a9030ad3fb5943dd90392480f451e18e",
                     "f936792f71344a6eabf773f18e2694e4",
                     "99793bb9137042a3a7f15950f1215950",
-                    "09411a3942454ec9b36e3bcaf1d69f22"
+                    "09411a3942454ec9b36e3bcaf1d69f22" // Da dung
                 };
 
-                if (ignores.Any(x => request.Path.Value.Contains(x)))
+                if (ignores.Any(x => request.Path.Value.ToLower().Contains(x.ToLower())))
                 {
                     return true;
                 }
@@ -107,7 +134,7 @@ namespace InternetBanking.Utils
                 }
 
                 // A kiểm tra xem lời gọi này là mới hay là thông tin cũ đã quá hạn
-                long timestamp = ((DateTimeOffset)DateTime.UtcNow.AddMinutes(-5)).ToUnixTimeSeconds();
+                long timestamp = ((DateTimeOffset)DateTime.UtcNow.AddMinutes(-50)).ToUnixTimeSeconds();
                 if (timestamp > timestampReq)
                 {
                     return false;
@@ -119,7 +146,7 @@ namespace InternetBanking.Utils
                     return false;
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 return false;
             }
@@ -135,9 +162,12 @@ namespace InternetBanking.Utils
         {
             request.EnableBuffering();
             var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-            request.Body.Read(buffer, 0, buffer.Length);
+            request.Body.ReadAsync(buffer, 0, buffer.Length);
             var bodyAsText = Encoding.UTF8.GetString(buffer);
             request.Body.Seek(0, SeekOrigin.Begin);
+
+            var temp = JsonConvert.DeserializeObject(bodyAsText);
+            bodyAsText = JsonConvert.SerializeObject(temp);
             return bodyAsText;
         }
     }

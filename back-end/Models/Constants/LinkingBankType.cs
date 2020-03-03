@@ -2,7 +2,7 @@
 {
     public enum LinkingBankType
     {
-        RSA = 0,
-        Pgh = 1,
+        RSA = 1,
+        Pgp = 2,
     }
 }

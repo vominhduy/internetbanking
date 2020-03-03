@@ -29,7 +29,7 @@ namespace InternetBanking.Utils
         string GenerateRefreshToken();
         void SetTransfer(Guid userId, string code, Transfer transfer);
         Transfer GetTransfer(Guid userId, string code);
-        public string MakeOTP(int length);
+        public string MakeOTP(int length, bool isAllDigits = false);
         public decimal TransactionCost(decimal money);
         public bool SendMail(string subject, string body, string toEmail, string toName);
     }
@@ -176,12 +176,12 @@ namespace InternetBanking.Utils
             return principal;
         }
 
-        public string MakeOTP(int length)
+        public string MakeOTP(int length, bool isAllDigit = false)
         {
             string UpperCase = "QWERTYUIOPASDFGHJKLZXCVBNM";
             string LowerCase = "qwertyuiopasdfghjklzxcvbnm";
             string Digits = "1234567890";
-            string allCharacters = UpperCase + LowerCase + Digits;
+            string allCharacters = !isAllDigit ? UpperCase + LowerCase + Digits : Digits;
             //Random will give random charactors for given length  
             Random r = new Random();
             String password = "";
@@ -190,14 +190,21 @@ namespace InternetBanking.Utils
                 double rand = r.NextDouble();
                 if (i == 0)
                 {
-                    password += UpperCase.ToCharArray()[(int)Math.Floor(rand * UpperCase.Length)];
+                    if (isAllDigit)
+                    {
+                        password += Digits.ToCharArray()[(int)Math.Floor(rand * Digits.Length)];
+                    }
+                    else
+                    {
+                        password += UpperCase.ToCharArray()[(int)Math.Floor(rand * UpperCase.Length)];
+                    }
                 }
                 else
                 {
                     password += allCharacters.ToCharArray()[(int)Math.Floor(rand * allCharacters.Length)];
                 }
             }
-            return password;
+            return !isAllDigit ? password : password.ToLower();
         }
 
         public decimal TransactionCost(decimal money)
