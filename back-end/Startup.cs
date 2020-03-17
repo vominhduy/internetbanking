@@ -113,7 +113,7 @@ namespace InternetBanking
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseMiddleware<Middlewares>();
+            //app.UseMiddleware<Middlewares>();
             app.UseAuthentication();
             app.UseAuthorization();
             System.Reflection.Assembly ass = System.Reflection.Assembly.GetEntryAssembly();

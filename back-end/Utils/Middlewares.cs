@@ -28,7 +28,7 @@ namespace InternetBanking.Utils
         /// </summary>
         /// <param name="httpContext"></param>
         /// <returns></returns>
-        public async Task Invoke(HttpContext httpContext, IEncrypt iencrypt, IContext context)
+        public async Task Invoke(HttpContext httpContext, IEncrypt iencrypt)
         {
             _encrypt = iencrypt;
             bool result = false;
@@ -60,7 +60,6 @@ namespace InternetBanking.Utils
                     if (!string.IsNullOrWhiteSpace(encrypt))
                     {
                         string bodyReq = ReadRequestBody(request);
-                        //var check = new Encrypt(keyReq);
                         _encrypt.SetKey(keyReq);
                         if (_encrypt.DecryptData(encrypt, bodyReq))
                         {
@@ -105,7 +104,7 @@ namespace InternetBanking.Utils
             {
                 var ignores = new[] { "WeatherForecast" };
                 var keys = new[] {
-                    "75836f6ded2047c4b1f5770c3229fc02",
+                    "75836f6ded2047c4b1f5770c3229fc02", // key for front-end
                     "a2660f0f7e3b44cb8a08bf79ac7e94ae",
                     "26dee8c166394501810905fee8a992ba",
                     "e44be7e772364f048523508bbcf08cc3",
@@ -139,10 +138,15 @@ namespace InternetBanking.Utils
                     return false;
                 }
 
-                // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
-                if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
+                // Không checksum với method GET
+                if (request.Method.Equals("POST")
+                    || request.Method.Equals("PUT"))
                 {
-                    return false;
+                    // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
+                    if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
+                    {
+                        return false;
+                    }
                 }
             }
             catch(Exception ex)

@@ -76,6 +76,9 @@ namespace InternetBanking.Services.Implementations
                     var lstUser = _UserCollection.Get(new UserFilter() { Username = account.Username });
                     if (!lstUser.Any())
                     {
+                        // phát sinh password ngẫu nhiên
+                        string randomPass = _Context.MakeOTP(10);
+
                         res = new User();
                         res.Id = Guid.Empty;
                         res.Name = account.Name;
@@ -83,7 +86,7 @@ namespace InternetBanking.Services.Implementations
                         res.Email = account.Email;
                         res.Phone = account.Phone;
                         //res.Password = Encrypting.Bcrypt(passDecrypt);
-                        res.Password = Encrypting.Bcrypt(account.Password);
+                        res.Password = Encrypting.Bcrypt(randomPass);
                         res.Address = account.Address;
                         res.Role = 1;
 
@@ -96,8 +99,18 @@ namespace InternetBanking.Services.Implementations
                         }
                         res.Username = string.Concat(account.Name.Split(' ').Last(), res.AccountNumber);
 
+                        // Tạo thông tin tài khoản thanh toán
+                        res.CheckingAccount = new BankAccount()
+                        {
+                            AccountBalance = 0,
+                            Description = "Tài khoản thanh toán",
+                            Name = res.AccountNumber
+                        };
+
                         _UserCollection.Create(res);
 
+                        // tạo thành công trả về password
+                        res.Password = randomPass;
                         if (res.Id.Equals(Guid.Empty))
                         {
                             res = null;
