@@ -56,7 +56,7 @@ namespace InternetBanking.Utils
                 if (request.Path.Value.ToLower().Contains("partners/payin".ToLower()))
                 {
                     string keyReq = request.Headers["key"];
-                    string encrypt = request.Headers["encrypt"];
+                    string encrypt = request.Headers["signature"];
                     if (!string.IsNullOrWhiteSpace(encrypt))
                     {
                         string bodyReq = ReadRequestBody(request);
@@ -123,7 +123,7 @@ namespace InternetBanking.Utils
 
                 long timestampReq = long.Parse(request.Headers["timestamp"]);
                 string keyReq = request.Headers["key"];
-                string checksumReq = request.Headers["checksum"];
+                string checksumReq = request.Headers["hash"];
 
                 // A kiểm tra lời gọi api có phải xuất phát từ B (đã đăng ký liên kết từ trước) hay không
                 if (!keys.Any(x => x.Equals(keyReq)))

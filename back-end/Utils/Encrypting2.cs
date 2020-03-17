@@ -129,6 +129,8 @@ namespace InternetBanking.Utils
 
     public class Encrypt : IEncrypt
     {
+        private RedisCache _cache = null;
+
         // key dùng để phân biệt các ngân hàng 
         private static string _key;
         // RSA: 1, PGP: 2
@@ -136,11 +138,10 @@ namespace InternetBanking.Utils
         private string _publicKey;
         private string _privateKey;
         private string _pgpKeyPassword;
-        private int _keySize;
 
         private ILinkingBankCollection _LinkingBankCollection;
 
-        public Encrypt( ILinkingBankCollection linkingBankCollection)
+        public Encrypt(ILinkingBankCollection linkingBankCollection)
         {
             _LinkingBankCollection = linkingBankCollection;
         }
@@ -154,9 +155,27 @@ namespace InternetBanking.Utils
                 {
                     _type = (int)info.Type;
                     _pgpKeyPassword = info.Password;
-                    _privateKey = info.PrivateKey;
-                    _publicKey = info.PublicKey;
-                    _keySize = info.KeySize;
+
+                    string pattern = _type == 1 ? "rsa" : "pgp";
+                    var files = Directory.GetFiles(@"./LocalData", $"{pattern}_{_key}_*.*").ToList();
+                    if (!files.Any())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        // RSA
+                        if (_type == 1)
+                        {
+                            _privateKey = File.ReadAllText(files.First(x => x.Contains("private")));
+                            _publicKey = File.ReadAllText(files.First(x => x.Contains("public")));
+                        }
+                        else
+                        {
+                            _privateKey = files.First(x => x.Contains("private"));
+                            _publicKey = files.First(x => x.Contains("public"));
+                        }
+                    }
                 }
                 else
                 {
@@ -179,24 +198,18 @@ namespace InternetBanking.Utils
                     SHA256 sha256Hash = SHA256.Create();
                     byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(msg));
                     var rsa = RSA.Create();
-                    rsa.KeySize = _keySize;
+                    rsa.KeySize = 1024;
                     rsa.ImportRSAPrivateKey(Convert.FromBase64String(_privateKey), out int byteReads);
-                    var r = rsa.SignData(bytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                    string result = Convert.ToBase64String(r);
+                    var signed = rsa.SignData(bytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                    string result = Convert.ToBase64String(signed);
+
                     return result;
                 }
                 else
                 {
                     PGPLib pgp = new PGPLib();
-                    byte[] bytes = Encoding.UTF8.GetBytes(_privateKey);
-                    var stream = new MemoryStream(bytes);
-                    var signed = pgp.SignString(msg, stream, _pgpKeyPassword);
-
-                    // Xử lý chuỗi lấy ra base64 string
-                    var split = signed.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-                    string result = string.Join("", split.Skip(2).Take(split.Length - 3));
-                    //
-                    return result;
+                    var signed = pgp.SignString(msg, new FileInfo(_privateKey), _pgpKeyPassword);
+                    return signed;
                 }
             }
             else
@@ -215,7 +228,7 @@ namespace InternetBanking.Utils
                     byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(msg));
                     byte[] bsigned = Convert.FromBase64String(signed);
                     var rsa = RSA.Create();
-                    rsa.KeySize = _keySize;
+                    rsa.KeySize = 1024;
                     rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(_publicKey), out int byteReads);
                     var result = rsa.VerifyData(bytes, bsigned, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
                     return result;
@@ -223,9 +236,7 @@ namespace InternetBanking.Utils
                 else
                 {
                     PGPLib pgp = new PGPLib();
-                    byte[] bytes = Encoding.UTF8.GetBytes(_publicKey);
-                    var stream = new MemoryStream(bytes);
-                    SignatureCheckResult signatureCheck = pgp.VerifyString(signed, stream, out string plainText);
+                    SignatureCheckResult signatureCheck = pgp.VerifyString(signed, new FileInfo(_publicKey), out string plainText);
                     var result = signatureCheck == SignatureCheckResult.SignatureVerified;
                     return result;
                 }

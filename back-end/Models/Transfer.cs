@@ -23,5 +23,6 @@ namespace InternetBanking.Models
         [JsonIgnore]
         public bool IsConfirmed { get; set; }
         public string Description { get; set; }
+        public string SignedData { get; set; }
     }
 }

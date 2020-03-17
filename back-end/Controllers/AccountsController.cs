@@ -113,17 +113,5 @@ namespace InternetBanking.Controllers
             else
                 return Unauthorized();
         }
-
-        /// <summary>
-        /// Danh sách ngân hàng liên kết
-        /// </summary>
-        /// <returns>IEnumerable<LinkingBank></returns>
-        // GET: api/Accounts/LinkingBanks
-        [HttpGet("LinkingBanks")]
-        public IActionResult GetLinkingBank()
-        {
-            var res = _Service.GetLinkingBank();
-            return Ok(res);
-        }
     }
 }

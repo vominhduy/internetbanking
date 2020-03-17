@@ -145,20 +145,6 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public LinkingBank CreateLinkingBank(LinkingBank bank)
-        {
-            bank.Id = Guid.Empty;
-            _LinkingBankCollection.Create(bank);
-            if (bank.Id.Equals(Guid.Empty))
-            {
-                return null;
-            }
-            else
-            {
-                return bank;
-            }
-        }
-
         public bool ForgetPassword(string email)
         {
             var res = false;
@@ -200,10 +186,6 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public IEnumerable<LinkingBank> GetLinkingBank()
-        {
-            return _LinkingBankCollection.Get(new LinkingBankFilter());
-        }
 
         public AccountRespone Login(string username, string password)
         {

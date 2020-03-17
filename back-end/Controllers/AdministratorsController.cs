@@ -128,19 +128,5 @@ namespace InternetBanking.Controllers
 
             return Ok(records);
         }
-
-        [HttpPost("LinkBank/Add")]
-        public IActionResult AddLinkBank([FromBody] LinkingBank bank)
-        {
-            var record = _AccountService.CreateLinkingBank(bank);
-            if(record != null)
-            {
-                return Ok(record);
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
     }
 }

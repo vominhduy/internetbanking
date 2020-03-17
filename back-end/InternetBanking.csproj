@@ -11,6 +11,10 @@
     <EmbeddedResource Remove="logs\**" />
     <None Remove="logs\**" />
   </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Utils\Encrypting - Copy.cs" />
+      <Compile Remove="Utils\Encrypting2.cs" />
+    </ItemGroup>
 
 <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="3.2.1" />
@@ -32,9 +36,5 @@
     <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
-
-<ItemGroup>
-  <Folder Include="LocalData\" />
-</ItemGroup>
 
 </Project>
