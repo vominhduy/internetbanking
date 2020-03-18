@@ -569,6 +569,7 @@ namespace InternetBanking.Services.Implementations
                             transfer.Fee = _Context.TransactionCost(transfer.Money);
                             transfer.IsConfirmed = true;
                             transfer.DestinationLinkingBankId = Guid.Empty;
+                            transfer.SignedData = transfer.SignedData;
                             // Update số dư
                             userDetail.CheckingAccount.AccountBalance += transfer.Money;
                             if (!transfer.IsSenderPay)

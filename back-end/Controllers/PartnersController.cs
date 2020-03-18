@@ -88,9 +88,11 @@ namespace InternetBanking.Controllers
         {
             try
             {
-                var partnerCode = Request.Headers["partner_code"];
+                var partnerCode = Request.Headers["key"];
+                var signed = Request.Headers["signature"];
                 var transferDao = new Transfer()
                 {
+                    SignedData = signed,
                     SourceAccountNumber = transfer.from_account_number,
                     DestinationAccountNumber = transfer.to_account_number,
                     Money = transfer.amount,

@@ -35,7 +35,8 @@ namespace InternetBanking.Services.Implementations
 
         public Employee Add(Employee employee)
         {
-            employee.Password = _Context.MakeOTP(8);
+            string randomPass = _Context.MakeOTP(8);
+            employee.Password = randomPass;
             Employee res = null;
             while (true)
             {
@@ -52,12 +53,15 @@ namespace InternetBanking.Services.Implementations
             user.Name = employee.Name;
             user.Phone = employee.Phone;
             user.Password = Encrypting.Bcrypt(employee.Password);
+            employee.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
             user.Role = 2;
+           
 
             _UserCollection.Create(user);
             if (user.Id != Guid.Empty)
             {
                 employee.Id = user.Id;
+                employee.Password = randomPass;
                 res = employee;
             }
             return res;
