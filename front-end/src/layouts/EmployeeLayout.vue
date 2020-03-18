@@ -18,6 +18,7 @@
 <script>
 import NavBar from '@/components/NavBar.vue';
 import SideBar from '@/components/Employee/SideBar.vue';
+
     export default {
         name: "AdminLayout",
         components:{

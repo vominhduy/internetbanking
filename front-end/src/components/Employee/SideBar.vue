@@ -5,7 +5,7 @@
                 <h6 class="mb-0">Categories</h6>
             </template>
             <b-list-group>
-                <b-list-group-item :to="`/employee/`" >
+                <b-list-group-item :to="`/employee/create-user`" >
                     Tạo tài khoản khách hàng
                 </b-list-group-item>
                 <b-list-group-item :to="`/employee/`" >

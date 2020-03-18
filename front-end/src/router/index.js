@@ -15,9 +15,11 @@ import AdminHome from '../views/Admin/Home.vue'
 import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
 
+import CreateUser from '../views/Employee/CreateUser.vue'
+
 Vue.use(VueRouter)
 
-axios.defaults.baseURL = "http://localhost:5005/api/";
+axios.defaults.baseURL = "http://localhost:5000/api/";
 
 const routes = [
   {
@@ -48,7 +50,13 @@ const routes = [
     name: 'AdminHome',
     component: AdminHome,
     meta: { layout: AdminLayout }
-  }
+  },
+  {
+    path: '/employee/create-user',
+    name: 'CreateUser',
+    component: CreateUser,
+    meta: { layout: EmployeeLayout }
+  },
 ]
 
 const router = new VueRouter({
