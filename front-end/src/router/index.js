@@ -16,6 +16,15 @@ import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
 
 import CreateUser from '../views/Employee/CreateUser.vue'
+import PayIn from '../views/Employee/PayIn.vue'
+import HistoryIn from '../views/Employee/HistoryIn.vue'
+import HistoryOut from '../views/Employee/HistoryOut.vue'
+import HistoryDeptIn from '../views/Employee/HistoryDeptIn.vue'
+import HistoryDeptOut from '../views/Employee/HistoryDeptOut.vue'
+
+import { BootstrapVueIcons } from 'bootstrap-vue'
+
+Vue.use(BootstrapVueIcons)
 
 Vue.use(VueRouter)
 
@@ -57,6 +66,40 @@ const routes = [
     component: CreateUser,
     meta: { layout: EmployeeLayout }
   },
+  {
+    path: '/employee/pay-in',
+    name: 'PayIn',
+    component: PayIn,
+    meta: { layout: EmployeeLayout }
+  }
+  ,
+  {
+    path: '/employee/historys/payin',
+    name: 'HistoryIn',
+    component: HistoryIn,
+    meta: { layout: EmployeeLayout }
+  }
+  ,
+  {
+    path: '/employee/historys/payout',
+    name: 'HistoryOut',
+    component: HistoryOut,
+    meta: { layout: EmployeeLayout }
+  }
+  ,
+  {
+    path: '/employee/historys/deptin',
+    name: 'HistoryDeptIn',
+    component: HistoryDeptIn,
+    meta: { layout: EmployeeLayout }
+  }
+  ,
+  {
+    path: '/employee/historys/deptout',
+    name: 'HistoryDeptOut',
+    component: HistoryDeptOut,
+    meta: { layout: EmployeeLayout }
+  }
 ]
 
 const router = new VueRouter({

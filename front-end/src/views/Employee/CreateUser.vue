@@ -1,5 +1,8 @@
 <template>
   <div class="createuser">
+    <h1>
+      Tạo tài khoản khách hàng
+    </h1>
     <b-form @submit.stop.prevent="onSubmit">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
         <b-form-input id="Name" v-model="user.Name"></b-form-input>
