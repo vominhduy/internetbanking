@@ -53,6 +53,9 @@ import axios from "axios";
                 if(userInfo.role === "Employee"){
                   this.$router.push('/employee');
                 }
+                else {
+                  this.$router.push('/user');
+                }
                 
                 console.log(res);
               })

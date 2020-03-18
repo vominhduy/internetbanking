@@ -21,6 +21,8 @@ import HistoryIn from '../views/Employee/HistoryIn.vue'
 import HistoryOut from '../views/Employee/HistoryOut.vue'
 import HistoryDeptIn from '../views/Employee/HistoryDeptIn.vue'
 import HistoryDeptOut from '../views/Employee/HistoryDeptOut.vue'
+import remittance from '../views/User/remittance.vue'
+
 
 import { BootstrapVueIcons } from 'bootstrap-vue'
 
@@ -28,7 +30,7 @@ Vue.use(BootstrapVueIcons)
 
 Vue.use(VueRouter)
 
-axios.defaults.baseURL = "http://localhost:5000/api/";
+axios.defaults.baseURL = "https://localhost:44396/api/";
 
 const routes = [
   {
@@ -100,6 +102,13 @@ const routes = [
     component: HistoryDeptOut,
     meta: { layout: EmployeeLayout }
   }
+  ,
+  {
+    path: '/user/remittance',
+    name: 'remittance',
+    component: remittance,
+    meta: { layout: UserLayout }
+  },
 ]
 
 const router = new VueRouter({

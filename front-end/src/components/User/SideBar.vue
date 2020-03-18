@@ -11,7 +11,7 @@
                 <b-list-group-item :to="`/employee/`" >
                     Thiết lập danh bạ
                 </b-list-group-item>
-                <b-list-group-item :to="`/employee/`" >
+                <b-list-group-item :to="`/user/remittance`" >
                     Chuyển khoản
                 </b-list-group-item>
                 <b-list-group-item :to="`/employee/`" >

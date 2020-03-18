@@ -53,7 +53,7 @@ namespace InternetBanking.Utils
                 }
 
                 // Nếu là controller partners thì check thêm mã hóa bất đối xứng
-                if (request.Path.Value.ToLower().Contains("partners/payin".ToLower()))
+                if (request.Path.Value.ToLower().Contains("api/partners/transactions/receive_external".ToLower()))
                 {
                     string keyReq = request.Headers["key"];
                     string encrypt = request.Headers["signature"];
@@ -112,7 +112,7 @@ namespace InternetBanking.Utils
                     "35d4baf7ea9843a99870eaaac90382ad",
                     "a9030ad3fb5943dd90392480f451e18e",
                     "f936792f71344a6eabf773f18e2694e4",
-                    "99793bb9137042a3a7f15950f1215950",
+                    "99793bb9137042a3a7f15950f1215950", // khuê
                     "09411a3942454ec9b36e3bcaf1d69f22" // Da dung
                 };
 
