@@ -301,7 +301,7 @@ namespace InternetBanking.Services.Implementations
         {
             var res = false;
 
-            var details = _UserCollection.Get(new UserFilter() { AccountNumber = payInfo.AccountNumber, Username = payInfo.UserName });
+            var details = _UserCollection.Get(new UserFilter() { AccountNumber = payInfo.AccountNumber, Username = payInfo.Username });
 
             if (details.Any())
             {
