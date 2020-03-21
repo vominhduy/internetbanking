@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+    <b-form @submit.prevent="login" @reset="onReset" v-if="show">
       <b-form-group label="Username:">
         <b-form-input
           v-model="form.username"
@@ -40,29 +40,21 @@ import axios from "axios";
         }
       },
       methods: {
-        onSubmit(evt) {
-            evt.preventDefault();
-            axios
-              .post(`accounts/login`,{
-                Username: this.form.username,
-                Password: this.form.password
-              })
-              .then(res => {
-                let token = res.data.AccessToken;
-                let userInfo = this.parseJwt(token);
-                if(userInfo.role === "Employee"){
-                  this.$router.push('/employee');
-                }
-                else {
-                  this.$router.push('/user');
-                }
-                
-                console.log(res);
-              })
-              .catch(err => {
-                this.empty = true;
-                console.log(err);
-              })
+        login(){
+          this.$store.dispatch('retrieveLogin', {
+            username: this.form.username,
+            password: this.form.password
+          })
+          .then(res => {
+            if(res){
+              if(res.role === "Employee"){
+                this.$router.push('/employee');
+              }
+              else {
+                this.$router.push('/user');
+              }
+            }
+          })
         },
         onReset(evt) {
             evt.preventDefault()
@@ -75,15 +67,6 @@ import axios from "axios";
             this.show = true
             })
         },
-        parseJwt (token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-
-            return JSON.parse(jsonPayload);
-        }
       }
   }
 </script>

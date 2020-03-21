@@ -48,19 +48,28 @@ const routes = [
     path: '/employee/',
     name: 'EmployeeHome',
     component: EmployeeHome,
-    meta: { layout: EmployeeLayout }
+    meta: { 
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+    }
   },
   {
     path: '/user/',
     name: 'UserHome',
     component: UserHome,
-    meta: { layout: UserLayout }
+    meta: { 
+      layout: UserLayout,
+      requiresAuthen: true,
+    }
   },
   {
     path: '/admin/',
     name: 'AdminHome',
     component: AdminHome,
-    meta: { layout: AdminLayout }
+    meta: { 
+      layout: AdminLayout,
+      requiresAuthen: true,
+    }
   },
   {
     path: '/employee/create-user',
