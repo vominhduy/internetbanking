@@ -30,7 +30,7 @@ Vue.use(BootstrapVueIcons)
 
 Vue.use(VueRouter)
 
-axios.defaults.baseURL = "https://localhost:44396/api/";
+axios.defaults.baseURL = "https://localhost:5006/api/";
 
 const routes = [
   {
@@ -51,6 +51,7 @@ const routes = [
     meta: { 
       layout: EmployeeLayout,
       requiresAuthen: true,
+      requiresRole: 'Employee'
     }
   },
   {
@@ -60,6 +61,7 @@ const routes = [
     meta: { 
       layout: UserLayout,
       requiresAuthen: true,
+      requiresRole: 'User'
     }
   },
   {
@@ -69,6 +71,7 @@ const routes = [
     meta: { 
       layout: AdminLayout,
       requiresAuthen: true,
+      requiresRole: 'Admin'
     }
   },
   {

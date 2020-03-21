@@ -3,6 +3,7 @@ import './plugins/bootstrap-vue'
 import App from './App.vue'
 import router from './router'
 import {store} from './store/store'
+import helper from './helper/helper'
 
 Vue.config.productionTip = false
 
@@ -12,8 +13,32 @@ router.beforeEach((to, from, next) => {
       next({
         name: 'Login',
       })
-    } else {
-      next()
+    } 
+    // if logged in, check role
+    else {
+      let authorize = to.meta.requiresRole;
+      let token = localStorage.getItem('access_token');
+      let userInfo = helper.parseJwt(token);
+      
+      if(authorize){
+        if(!token || !userInfo){
+          next({
+            name: 'Login',
+          })
+        }
+
+        if (authorize.length && authorize === userInfo.role) {
+          next()
+        }
+        else{
+          next({
+            name: 'Login',
+          })
+        }
+      }
+      else{
+        next()
+      }
     }
   } else {
     next()
