@@ -5,6 +5,7 @@ import AdminLayout from '../layouts/AdminLayout.vue'
 import LoginLayout from '../layouts/LoginLayout.vue'
 import EmployeeLayout from '../layouts/EmployeeLayout.vue'
 import UserLayout from '../layouts/UserLayout.vue'
+import constant from '../helper/constant'
 
 import EmployeeHome from '../views/Employee/Home.vue'
 
@@ -30,13 +31,14 @@ Vue.use(BootstrapVueIcons)
 
 Vue.use(VueRouter)
 
-axios.defaults.baseURL = "https://localhost:5006/api/";
+axios.defaults.baseURL = "http://ddpbank.somee.com/api/";
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'Login',
+    component: Login,
+    meta: { layout: LoginLayout }
   },
   {
     path: '/login',
@@ -51,7 +53,7 @@ const routes = [
     meta: { 
       layout: EmployeeLayout,
       requiresAuthen: true,
-      requiresRole: 'Employee'
+      requiresRole: [constant.role.employee]
     }
   },
   {
@@ -61,7 +63,7 @@ const routes = [
     meta: { 
       layout: UserLayout,
       requiresAuthen: true,
-      requiresRole: 'User'
+      requiresRole: [constant.role.user]
     }
   },
   {
@@ -71,7 +73,7 @@ const routes = [
     meta: { 
       layout: AdminLayout,
       requiresAuthen: true,
-      requiresRole: 'Admin'
+      requiresRole: [constant.role.admin]
     }
   },
   {
@@ -124,7 +126,8 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  routes
+  routes,
+  mode: 'history'
 })
 
 export default router

@@ -27,13 +27,11 @@ router.beforeEach((to, from, next) => {
           })
         }
 
-        if (authorize.length && authorize === userInfo.role) {
+        if (authorize.length && authorize.includes(userInfo.role)) {
           next()
         }
         else{
-          next({
-            name: 'Login',
-          })
+          next({ path: from.path })
         }
       }
       else{
