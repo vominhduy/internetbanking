@@ -48,10 +48,13 @@ import axios from "axios";
           .then(res => {
             if(res){
               if(res.role === "Employee"){
-                this.$router.push('/employee');
+                this.$router.push({ name: 'EmployeeHome' });
               }
-              else {
-                this.$router.push('/user');
+              else if (res.role === "User")  {
+                this.$router.push({ name: 'UserHome' });
+              }
+              else if (res.role === "Admin")  {
+                this.$router.push({ name: 'AdminHome' });
               }
             }
           })
