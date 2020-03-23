@@ -2,7 +2,7 @@
   <div>
     <b-navbar class="nav" toggleable="lg" type="light" variant="info" fixed="top">
       <div style="width: 234px; text-align: center;">
-        <img style="width: 70px; cursor:pointer" src="../assets/DDP_logo.png" />
+        <img style="width: 70px; cursor:pointer" src="../assets/DDP_logo.png" v-on:click="$emit('openHome')"/>
         <b-icon v-on:click="$emit('openNav')" icon="code" class="sidebar"></b-icon>
       </div>
       <b-navbar-brand href="#"></b-navbar-brand>
@@ -50,6 +50,7 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch("destroyToken").then(res => {
+        console.log(res);
         this.$router.push({ name: "Login" });
       });
     }
@@ -77,6 +78,6 @@ export default {
   background-color: whitesmoke !important;
 }
 .nav {
-  border-bottom: solid 1px #3c4b64;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.5);
 }
 </style>

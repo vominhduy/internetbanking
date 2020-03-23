@@ -13,14 +13,13 @@ import UserHome from '../views/User/Home.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 
-import Home from '../views/Home.vue'
+//import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
 
 import CreateUser from '../views/Employee/CreateUser.vue'
 import PayIn from '../views/Employee/PayIn.vue'
 import remittance from '../views/User/remittance.vue'
 import History from '../views/Employee/History.vue'
-import TheContainer from '../layouts/TheContainer.vue'
 
 
 
@@ -101,12 +100,6 @@ const routes = [
     name: 'History',
     component: History,
     meta: { layout: EmployeeLayout }
-  },
-  {
-    path: '/employee/histories1',
-    name: 'History',
-    component: TheContainer,
-    meta: { layout: TheContainer }
   }
 ]
 

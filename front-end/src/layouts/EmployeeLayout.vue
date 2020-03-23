@@ -1,15 +1,20 @@
 <template>
   <div>
-    <NavBar v-on:openNav="openNav" />
+    <NavBar v-on:openNav="openNav" v-on:openHome="openHome"/>
     <div id="mySidenav" class="sidenav">
-      <router-link to="/employee/create-user">Tạo tài khoản khách hàng</router-link>
+    <div style="text-align:center">
+      <img style="width: 100px; cursor:pointer" src="../assets/employeeLogo.png" @click.prevent="openHome"/>
+    </div>
+      
+
+      <router-link to="/employee/create-user">Tạo tài khoản khách hàng<b-icon icon="chevron-right" class="rightMenuIcon"></b-icon></router-link>
       <router-link to="/employee/pay-in">
         Nạp tiền tài khoản khách hàng
-        <b-icon icon="chevron-right"></b-icon>
+        <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
       <router-link to="/employee/histories">
         Xem lịch sử giao dịch
-        <b-icon icon="chevron-right"></b-icon>
+        <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
     </div>
     <div id="main">
@@ -21,46 +26,7 @@
         <b-row>
           <b-col>
             <slot />
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
-            <p>sdfsdf</p>
+            
           </b-col>
         </b-row>
       </div>
@@ -96,7 +62,10 @@ export default {
     closeNav() {
       document.getElementById("mySidenav").style.width = "0";
       document.getElementById("main").style.marginLeft = "0";
-    }
+    },
+    openHome() {
+      this.$router.push({ name: 'EmployeeHome' });
+    },
   },
   mounted() {
     console.log("sdfsdfdsfdsfdfvv");
@@ -112,7 +81,7 @@ export default {
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: #3c4b64;
+  background-color: rgba(0, 0, 0, 0.5);
   overflow-x: hidden;
   transition: 0.5s;
   padding-top: 16px;
@@ -164,5 +133,10 @@ export default {
 /* Handle on hover */
 .sidenav::-webkit-scrollbar-thumb:hover {
   background: #999999;
+}
+
+.rightMenuIcon {
+    float: right;
+    margin-top: 5px;
 }
 </style>

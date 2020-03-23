@@ -12,7 +12,7 @@
               label-for="perPageSelect"
               class="mb-0"
             >
-              <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
+              <b-form-select v-model="perPage2" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
             </b-form-group>
           </b-col>
           <b-col lg="6" class="my-1">
@@ -46,8 +46,8 @@
           stacked="md"
           :items="items"
           :fields="fields"
-          :current-page="currentPage"
-          :per-page="perPage"
+          :current-page="currentPage2"
+          :per-page="perPage2"
           :filter="filter"
           :filterIncludedFields="filterOn"
           :sort-by.sync="sortBy"
@@ -91,14 +91,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import moment from 'moment';
-
-Vue.filter('formatDate', function(value) {
-  if (value) {
-    return moment(String(value)).format('DD/MM/YYYY hh:mm:ss')
-  }
-});
 
 export default {
   name: "HistoryOut",
@@ -127,38 +120,7 @@ export default {
         { value: 1, text: "Tên đăng nhập" },
         { value: 2, text: "Số tài khoản" }
       ],
-      items: [
-        {
-          isActive: true,
-          age: 40,
-          name: { first: "Dickerson", last: "Macdonald" }
-        },
-        { isActive: false, age: 21, name: { first: "Larsen", last: "Shaw" } },
-        {
-          isActive: false,
-          age: 9,
-          name: { first: "Mini", last: "Navarro" },
-          _rowVariant: "success"
-        },
-        { isActive: false, age: 89, name: { first: "Geneva", last: "Wilson" } },
-        { isActive: true, age: 38, name: { first: "Jami", last: "Carney" } },
-        { isActive: false, age: 27, name: { first: "Essie", last: "Dunlap" } },
-        { isActive: true, age: 40, name: { first: "Thor", last: "Macdonald" } },
-        {
-          isActive: true,
-          age: 87,
-          name: { first: "Larsen", last: "Shaw" },
-          _cellVariants: { age: "danger", isActive: "warning" }
-        },
-        { isActive: false, age: 26, name: { first: "Mitzi", last: "Navarro" } },
-        {
-          isActive: false,
-          age: 22,
-          name: { first: "Genevieve", last: "Wilson" }
-        },
-        { isActive: true, age: 38, name: { first: "John", last: "Carney" } },
-        { isActive: false, age: 29, name: { first: "Dick", last: "Dunlap" } }
-      ],
+      items: [],
       fields: [
         {
           key: "AccountNumber",
@@ -223,7 +185,7 @@ export default {
   },
   mounted() {
     // Set the initial number of items
-    this.totalRows = this.items.length;
+    this.totalRows2 = this.items.length;
   },
   methods: {
     canceled() {
@@ -242,8 +204,8 @@ export default {
     },
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length;
-      this.currentPage = 1;
+      this.totalRows2 = filteredItems.length;
+      this.currentPage2 = 1;
     }
   }
 };

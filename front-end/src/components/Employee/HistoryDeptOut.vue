@@ -12,7 +12,7 @@
               label-for="perPageSelect"
               class="mb-0"
             >
-              <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
+              <b-form-select v-model="perPage4" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
             </b-form-group>
           </b-col>
           <b-col lg="6" class="my-1">
@@ -46,8 +46,8 @@
           stacked="md"
           :items="items"
           :fields="fields"
-          :current-page="currentPage"
-          :per-page="perPage"
+          :current-page="currentPage4"
+          :per-page="perPage4"
           :filter="filter"
           :filterIncludedFields="filterOn"
           :sort-by.sync="sortBy"
@@ -91,14 +91,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import moment from 'moment';
-
-Vue.filter('formatDate', function(value) {
-  if (value) {
-    return moment(String(value)).format('DD/MM/YYYY hh:mm:ss')
-  }
-});
 
 export default {
   name: "HistoryIn",
@@ -131,7 +124,7 @@ export default {
       fields: [
         {
           key: "AccountNumber",
-          label: "Tài khoản chuyển",
+          label: "Tài khoản nhắc nợ",
           sortable: true,
           sortDirection: "desc"
         },
@@ -192,7 +185,7 @@ export default {
   },
   mounted() {
     // Set the initial number of items
-    this.totalRows = this.items.length;
+    this.totalRows4 = this.items.length;
   },
   methods: {
     canceled() {
@@ -211,8 +204,8 @@ export default {
     },
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length;
-      this.currentPage = 1;
+      this.totalRows4 = filteredItems.length;
+      this.currentPage4 = 1;
     }
   }
 };

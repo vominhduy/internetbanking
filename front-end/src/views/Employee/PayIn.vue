@@ -1,5 +1,5 @@
 <template>
-  <div class="PayIn">
+  <b-card class="bcard-shadow">
     <h1>
       Nạp tiền vào tài khoản khách hàng
     </h1>
@@ -34,9 +34,14 @@
         <div hidden></div>
       </template>
     </b-modal>
-  </div>
+  </b-card>
 </template>
-
+<style scoped>
+.bcard-shadow {
+  margin-top: 15px; 
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+</style>
 <script>
 import axios from "axios";
 

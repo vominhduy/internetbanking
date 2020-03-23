@@ -1,8 +1,6 @@
 <template>
-  <div class="createuser">
-    <h1>
-      Tạo tài khoản khách hàng
-    </h1>
+  <b-card class="bcard-shadow">
+    <h1>Tạo tài khoản khách hàng</h1>
     <b-form @submit.stop.prevent="onSubmit">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
         <b-form-input id="Name" v-model="user.Name"></b-form-input>
@@ -93,8 +91,15 @@
         <div hidden></div>
       </template>
     </b-modal>
-  </div>
+  </b-card>
 </template>
+
+<style scoped>
+.bcard-shadow {
+  margin-top: 15px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+</style>
 
 <script>
 import axios from "axios";

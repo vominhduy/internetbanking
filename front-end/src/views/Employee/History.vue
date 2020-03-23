@@ -1,5 +1,5 @@
 <template>
-  <div class="History">
+  <b-card class="bcard-shadow">
     <h1>Lịch sử giao dịch</h1>
     <b-form @submit.stop.prevent="onSubmit">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Loại" label-for="type">
@@ -21,13 +21,13 @@
       </b-form-group>
     </b-form>
     <div v-if="statusOk">
-      <h2>Thông tin tài khoản</h2>
-      <p>Tên: {{user.Name}}</p>
-      <p>Tên đăng nhập: {{user.Userame}}</p>
-      <p>Số tài khoản: {{user.AccountNumber}}</p>
-      <p>Giới tính: {{user.Gender == 1 ? "Name" : (user.Gender == 2 ? "Nữ": "Khác")}}</p>
-      <p>Địa chỉ: {{user.Address}}</p>
-      <p>Số điện thoại: {{user.Phone}}</p>
+      <h3>Thông tin tài khoản</h3>
+      <p>Tên: <span class="font-weight-bold">{{user.Name}}</span></p>
+      <p>Tên đăng nhập: <span class="font-weight-bold">{{user.Username}}</span></p>
+      <p>Số tài khoản: <span class="font-weight-bold">{{user.AccountNumber}}</span></p>
+      <p>Giới tính: <span class="font-weight-bold">{{user.Gender == 1 ? "Name" : (user.Gender == 2 ? "Nữ": "Khác")}}</span></p>
+      <p>Địa chỉ: <span class="font-weight-bold">{{user.Address}}</span></p>
+      <p>Số điện thoại: <span class="font-weight-bold">{{user.Phone}}</span></p>
       <b-tabs content-class="mt-3">
         <b-tab title="Nhận tiền" active>
           <HistoryIn :histories1="hisIns" />
@@ -53,7 +53,7 @@
         <div hidden></div>
       </template>
     </b-modal>
-  </div>
+  </b-card>
 </template>
 
 <script>
@@ -104,7 +104,6 @@ export default {
       
       if (this.user.AccountNumber == "" && this.user.Username == "")
       {
-        console.log("dfdsfdsfdf");
         return;
       }
 
@@ -189,3 +188,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.bcard-shadow {
+  margin-top: 15px; 
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+</style>
