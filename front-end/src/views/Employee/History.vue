@@ -23,20 +23,23 @@
     <div v-if="statusOk">
       <h2>Thông tin tài khoản</h2>
       <p>Tên: {{user.Name}}</p>
+      <p>Tên đăng nhập: {{user.Userame}}</p>
+      <p>Số tài khoản: {{user.AccountNumber}}</p>
       <p>Giới tính: {{user.Gender == 1 ? "Name" : (user.Gender == 2 ? "Nữ": "Khác")}}</p>
-
+      <p>Địa chỉ: {{user.Address}}</p>
+      <p>Số điện thoại: {{user.Phone}}</p>
       <b-tabs content-class="mt-3">
         <b-tab title="Nhận tiền" active>
-          <HistoryIn :histories="hisIns" />
+          <HistoryIn :histories1="hisIns" />
         </b-tab>
         <b-tab title="Chuyển khoản">
-          <HistoryOut :histories="hisOuts" />
+          <HistoryOut :histories2="hisOuts" />
         </b-tab>
         <b-tab title="Nhắc nợ - nhận">
-          <HistoryDeptIn :histories="hisDeptIns" />
+          <HistoryDeptIn :histories3="hisDeptIns" />
         </b-tab>
         <b-tab title="Nhắc nợ - trả">
-          <HistoryDeptOut :histories="hisDeptOuts" />
+          <HistoryDeptOut :histories4="hisDeptOuts" />
         </b-tab>
       </b-tabs>
     </div>
@@ -121,6 +124,9 @@ export default {
           this.user.AccountNumber = res.data.AccountNumber;
           this.user.Id = res.data.Id;
           this.user.Name = res.data.Name;
+          this.user.Gender = res.data.Gender;
+          this.user.Address = res.data.Address;
+          this.user.Phone = res.data.Phone;
           this.statusOk = true;
           console.log("user", res.data);
           // get histories in
