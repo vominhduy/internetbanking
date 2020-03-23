@@ -13,25 +13,32 @@ import UserHome from '../views/User/Home.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 
-import Home from '../views/Home.vue'
+//import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
 
 import CreateUser from '../views/Employee/CreateUser.vue'
 import PayIn from '../views/Employee/PayIn.vue'
-import HistoryIn from '../views/Employee/HistoryIn.vue'
-import HistoryOut from '../views/Employee/HistoryOut.vue'
-import HistoryDeptIn from '../views/Employee/HistoryDeptIn.vue'
-import HistoryDeptOut from '../views/Employee/HistoryDeptOut.vue'
 import remittance from '../views/User/remittance.vue'
+import History from '../views/Employee/History.vue'
+import VeeValidate from "vee-validate";
 
 
 import { BootstrapVueIcons } from 'bootstrap-vue'
 
 Vue.use(BootstrapVueIcons)
 
+
 Vue.use(VueRouter)
 
-axios.defaults.baseURL = "http://ddpbank.somee.com/api/";
+Vue.use(VeeValidate, {
+  inject: true,
+  fieldsBagName: "veeFields",
+  errorBagName: "veeErrors"
+});
+
+
+axios.defaults.baseURL = "http://localhost:5000/api/";
+//axios.defaults.baseURL = "http://ddpbank.somee.com/api/";\
 
 const routes = [
   {
@@ -50,7 +57,7 @@ const routes = [
     path: '/employee/',
     name: 'EmployeeHome',
     component: EmployeeHome,
-    meta: { 
+    meta: {
       layout: EmployeeLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.employee]
@@ -60,7 +67,7 @@ const routes = [
     path: '/user/',
     name: 'UserHome',
     component: UserHome,
-    meta: { 
+    meta: {
       layout: UserLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.user]
@@ -70,7 +77,7 @@ const routes = [
     path: '/admin/',
     name: 'AdminHome',
     component: AdminHome,
-    meta: { 
+    meta: {
       layout: AdminLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.admin]
@@ -87,42 +94,19 @@ const routes = [
     name: 'PayIn',
     component: PayIn,
     meta: { layout: EmployeeLayout }
-  }
-  ,
-  {
-    path: '/employee/historys/payin',
-    name: 'HistoryIn',
-    component: HistoryIn,
-    meta: { layout: EmployeeLayout }
-  }
-  ,
-  {
-    path: '/employee/historys/payout',
-    name: 'HistoryOut',
-    component: HistoryOut,
-    meta: { layout: EmployeeLayout }
-  }
-  ,
-  {
-    path: '/employee/historys/deptin',
-    name: 'HistoryDeptIn',
-    component: HistoryDeptIn,
-    meta: { layout: EmployeeLayout }
-  }
-  ,
-  {
-    path: '/employee/historys/deptout',
-    name: 'HistoryDeptOut',
-    component: HistoryDeptOut,
-    meta: { layout: EmployeeLayout }
-  }
-  ,
+  },
   {
     path: '/user/remittance',
     name: 'remittance',
     component: remittance,
     meta: { layout: UserLayout }
   },
+  {
+    path: '/employee/histories',
+    name: 'History',
+    component: History,
+    meta: { layout: EmployeeLayout }
+  }
 ]
 
 const router = new VueRouter({

@@ -5,7 +5,7 @@ namespace InternetBanking.Models
 {
     public class PayInfo
     {
-        public string UserName { get; set; }
+        public string Username { get; set; }
         public string AccountNumber { get; set; }
         public decimal Money { get; set; }
     }

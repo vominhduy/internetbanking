@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using InternetBanking.Models;
 using InternetBanking.Services;
 using InternetBanking.Settings;
@@ -33,6 +34,16 @@ namespace InternetBanking.Controllers
             var res = _Service.AddUser(user);
 
             return Ok(res);
+        }
+
+        [HttpPost("users")]
+        public IActionResult GetUserId([FromBody] PayInfo info)
+        {
+            var res = _UserService.GetUsers(new Models.Filters.UserFilter() { AccountNumber = info.AccountNumber, Username = info.Username });
+            if (res.Any())
+                return Ok(res.FirstOrDefault());
+            else
+                return NotFound();
         }
 
         /// <summary>
