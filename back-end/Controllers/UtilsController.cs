@@ -32,12 +32,13 @@ namespace InternetBanking.Controllers
         [HttpGet]
         public IActionResult Sign(string partnerCode, string input)
         {
-           
-           // _external.GetInfoUser("0000000034");
-           // _external.PayIn("123456789", "000000001", 1000, "test");
+
+            //_external.SetPartnerCode("a");
+            //_external.GetInfoUser("0000000043");
+            //_external.PayIn("0170013731", "0000000043", 1000, "test");
 
             _encrypt.SetKey(partnerCode);
-            var signed = _encrypt.EncryptData(input);
+            var signed = _encrypt.EncryptData(input, "");
             return Ok(signed);
         }
 

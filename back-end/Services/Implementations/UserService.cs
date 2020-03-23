@@ -549,9 +549,9 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public bool PayInByPartner(Transfer transfer)
+        public Guid PayInByPartner(Transfer transfer)
         {
-            var res = false;
+            var res = Guid.Empty;
             var linkBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
             if (linkBank != null)
             {
@@ -600,7 +600,7 @@ namespace InternetBanking.Services.Implementations
 
                                     if (transaction.Id != Guid.Empty)
                                     {
-                                        res = true;
+                                        res = transaction.Id;
                                     }
                                     else
                                         _Setting.Message.SetMessage("Không thể lưu thông tin giao dịch!");
@@ -614,7 +614,7 @@ namespace InternetBanking.Services.Implementations
                         else
                             _Setting.Message.SetMessage("Không tìm thấy thông tin người nhận!");
 
-                        if (res)
+                        if (res != Guid.Empty)
                             session.CommitTransactionAsync();
                         else
                             session.AbortTransactionAsync();

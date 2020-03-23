@@ -34,7 +34,7 @@ namespace InternetBanking.Controllers
         /// <returns>ExternalAccount</returns>
 
         [HttpPost("query_info")]
-        public IActionResult GetDetailUser([FromBody] InfoUserRequest info)
+        public IActionResult GetDetailUser([FromBody] InfoUserRequest info, [FromQuery] string partner_code, [FromQuery] string timestamp, [FromQuery] string hash)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace InternetBanking.Controllers
                     return Ok(new
                     {
                         code = -1,
-                        message = "Fail",
+                        message = "This bank account could not be found",
                         data = (string)null
                     });
                 }
@@ -72,7 +72,7 @@ namespace InternetBanking.Controllers
                 return Ok(new
                 {
                     code = -2,
-                    message = "Fail",
+                    message = "Exception: Please contact ddpbank for assistance",
                     data = (string)null
                 });
             }
@@ -84,12 +84,12 @@ namespace InternetBanking.Controllers
         /// <param name="transfer"></param>
         /// <returns>bool</returns>
         [HttpPost("receive_external")]
-        public IActionResult PayIn([FromBody] TransferMoneyRequest transfer)
+        public IActionResult PayIn([FromBody] TransferMoneyRequest transfer, [FromQuery] string partner_code, [FromQuery] string timestamp, [FromQuery] string hash, [FromQuery] string signature)
         {
             try
             {
-                var partnerCode = Request.Headers["partner_code"];
-                var signed = Request.Headers["signature"];
+                var partnerCode = Request.Query["partner_code"];
+                var signed = Request.Query["signature"];
                 var transferDao = new Transfer()
                 {
                     SignedData = signed,
@@ -102,7 +102,7 @@ namespace InternetBanking.Controllers
                 };
                 var record = _Service.PayInByPartner(transferDao);
 
-                if (record)
+                if (record != Guid.Empty)
                 {
                     return Ok(new
                     {
@@ -111,7 +111,8 @@ namespace InternetBanking.Controllers
                         data = new
                         {
                             account_number = transfer.to_account_number,
-                            money_transfer = transfer.amount
+                            money_transfer = transfer.amount,
+                            transaction_id = record.ToString("N")
                         }
                     });
                 }
@@ -120,7 +121,7 @@ namespace InternetBanking.Controllers
                     return Ok(new
                     {
                         code = -1,
-                        message = "Fail",
+                        message = "Error in processing. Please contact ddpbank for assistance",
                         data = (string)null
                     });
                 }
@@ -130,7 +131,7 @@ namespace InternetBanking.Controllers
                 return Ok(new
                 {
                     code = -2,
-                    message = "Fail",
+                    message = "Exception: Please contact ddpbank for assistance",
                     data = (string)null
                 });
             }

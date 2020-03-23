@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using InternetBanking.Models.Request;
 using InternetBanking.Models.ViewModels;
@@ -32,22 +31,9 @@ namespace InternetBanking.Utils
         /// <returns></returns>
         public async Task Invoke(HttpContext httpContext, IEncrypt iencrypt)
         {
-            StringBuilder log = new StringBuilder();
             _encrypt = iencrypt;
-            bool result = false;
             try
             {
-                try
-                {
-                    log.AppendLine(httpContext.Request.Path.Value);
-                    log.AppendLine(JsonConvert.SerializeObject(httpContext.Request.Headers));
-                    log.AppendLine(ReadRequestBody(httpContext.Request));
-                }
-                catch (Exception)
-                {
-                    log.AppendLine("null body");
-                }
-
                 var request = httpContext.Request;
 
                 // Test only
@@ -55,69 +41,40 @@ namespace InternetBanking.Utils
                 if (!string.IsNullOrWhiteSpace(admin)
                     && admin.ToLower().Equals("09411a3942454ec9b36e3bcaf1d69f22".ToLower()))
                 {
-                    result = true;
                     await _next(httpContext);
                     return;
                 }
                 // End Test only
 
-                if (!CheckBasicAuthen(request))
+                if (request.Path.Value.ToLower().Contains("api/transactions".ToLower()))
                 {
-                    log.Append("CheckBasicAuthen: false");
-                    return;
-                }
-
-                // Nếu là controller partners thì check thêm mã hóa bất đối xứng
-                if (request.Path.Value.ToLower().Contains("api/transactions/receive_external".ToLower()))
-                {
-                    string keyReq = request.Headers["partner_code"];
-                    string encrypt = request.Headers["signature"];
-                    long timestampReq = long.Parse(request.Headers["timestamp"]);
-                    string checksumReq = request.Headers["hash"];
-
-                    if (!string.IsNullOrWhiteSpace(encrypt))
+                    if (!CheckBasicAuthenForPartner(request))
                     {
-                        var temp = ReadRequestBody(request);
-                        var obj = JsonConvert.DeserializeObject<TransferMoneyRequest>(temp);
-                        string input = $"{keyReq}|{timestampReq}|{obj.from_account_number}|{obj.to_account_number}|{(int)obj.amount}|{obj.message}";
-                        string hash = Encrypting.HMD5Hash(input, keyReq);
-
-                        _encrypt.SetKey(keyReq);
-                        if (_encrypt.DecryptData(encrypt, hash))
-                        {
-                            result = true;
-                            return;
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
+                        var response = httpContext.Response;
+                        response.ContentType = "application/json";
+                        response.StatusCode = StatusCodes.Status500InternalServerError;
                         return;
                     }
+                    await _next(httpContext);
                 }
-                await _next(httpContext);
+                else
+                {
+                    if (!CheckBasicAuthen(request))
+                    {
+                        var response = httpContext.Response;
+                        response.ContentType = "application/json";
+                        response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return;
+                    }
+                    await _next(httpContext);
+                }
             }
             catch (Exception ex)
             {
-                log.AppendLine(ex.Message);
+                var response = httpContext.Response;
+                response.ContentType = "application/json";
+                response.StatusCode = StatusCodes.Status500InternalServerError;
                 return;
-            }
-            finally
-            {
-                if (httpContext.Request.Path.Value.ToLower().Contains("api/transactions".ToLower()))
-                {
-                    LoggingTxt.InsertLog(log.ToString());
-                }
-
-                if (!result)
-                {
-                    var response = httpContext.Response;
-                    response.ContentType = "application/json";
-                    response.StatusCode = StatusCodes.Status500InternalServerError;
-                }               
             }
         }
 
@@ -140,7 +97,6 @@ namespace InternetBanking.Utils
                     "35d4baf7ea9843a99870eaaac90382ad",
                     "a9030ad3fb5943dd90392480f451e18e",
                     "f936792f71344a6eabf773f18e2694e4",
-                    "99793bb9137042a3a7f15950f1215950", // khuê
                     "09411a3942454ec9b36e3bcaf1d69f22" // Da dung
                 };
 
@@ -160,7 +116,7 @@ namespace InternetBanking.Utils
                 }
 
                 // A kiểm tra xem lời gọi này là mới hay là thông tin cũ đã quá hạn
-                long timestamp = ((DateTimeOffset)DateTime.UtcNow.AddMinutes(-50)).ToUnixTimeSeconds();
+                long timestamp = ((DateTimeOffset)DateTime.UtcNow.AddMinutes(-5)).ToUnixTimeSeconds();
                 if (timestamp > timestampReq)
                 {
                     return false;
@@ -170,15 +126,97 @@ namespace InternetBanking.Utils
                 if (request.Method.Equals("POST")
                     || request.Method.Equals("PUT"))
                 {
+                    // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
+                    if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private bool CheckBasicAuthenForPartner(HttpRequest request)
+        {
+            StringBuilder log = new StringBuilder();
+            try
+            {
+                try
+                {
+                    log.AppendLine(request.Path.Value);
+                    log.AppendLine(JsonConvert.SerializeObject(request.Headers));
+                    log.AppendLine(ReadRequestBody(request));
+                }
+                catch (Exception)
+                {
+                    log.AppendLine("null body");
+                }
+
+                var keys = new[] {
+                    "99793bb9137042a3a7f15950f1215950", // khuê
+                };
+
+                long timestampReq = long.Parse(request.Query["timestamp"].ToString());
+                string keyReq = request.Query["partner_code"].ToString();
+                string checksumReq = request.Query["hash"].ToString();
+
+                // A kiểm tra lời gọi api có phải xuất phát từ B (đã đăng ký liên kết từ trước) hay không
+                if (!keys.Any(x => x.Equals(keyReq)))
+                {
+                    return false;
+                }
+
+                // A kiểm tra xem lời gọi này là mới hay là thông tin cũ đã quá hạn
+                long timestamp = ((DateTimeOffset)DateTime.UtcNow.AddMinutes(-180)).ToUnixTimeSeconds();
+                if (timestamp > timestampReq)
+                {
+                    return false;
+                }
+
+                // Check toàn vẹn dữ liệu
+                if (request.Method.Equals("POST"))
+                {
                     if (request.Path.Value.ToLower().Contains("api/transactions/receive_external".ToLower()))
                     {
                         var temp = ReadRequestBody(request);
                         var obj = JsonConvert.DeserializeObject<TransferMoneyRequest>(temp);
-                        string secretKey = "99793bb9137042a3a7f15950f1215950";
+                        string secretKey = request.Query["partner_code"].ToString().Trim();
                         string input = $"{keyReq}|{timestampReq}|{obj.from_account_number}|{obj.to_account_number}|{(int)obj.amount}|{obj.message}";
 
-                        if (!Encrypting.HMD5Verify(input,checksumReq, secretKey))
+                        if (!Encrypting.HMD5Verify(input, checksumReq, secretKey))
                         {
+                            log.Append("Hash: false");
+                            return false;
+                        }
+
+                        // Nếu là controller partners thì check thêm mã hóa bất đối xứng
+                        string encrypt = request.Headers["signature"];
+                        if (!string.IsNullOrWhiteSpace(encrypt))
+                        {
+                            string hash = Encrypting.HMD5Hash(input, keyReq);
+                            _encrypt.SetKey(keyReq);
+                            if (_encrypt.DecryptData(encrypt, hash))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                log.Append("DecryptData: false");
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            log.Append("DecryptData: false");
                             return false;
                         }
                     }
@@ -186,27 +224,29 @@ namespace InternetBanking.Utils
                     {
                         var temp = ReadRequestBody(request);
                         var obj = JsonConvert.DeserializeObject<InfoUserRequest>(temp);
-                        string secretKey = "99793bb9137042a3a7f15950f1215950";
+                        string secretKey = request.Query["partner_code"].ToString().Trim();
                         string hash = $"{keyReq}|{timestampReq}|{obj.account_number}";
 
                         if (!Encrypting.HMD5Verify(hash, checksumReq, secretKey))
                         {
+                            log.Append("Hash: false");
                             return false;
                         }
                     }
                     else
                     {
-                        // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
-                        if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                log.Append(ex.Message);
                 return false;
+            }
+            finally
+            {
+                LoggingTxt.InsertLog(log.ToString());
             }
             return true;
         }
@@ -223,7 +263,7 @@ namespace InternetBanking.Utils
             request.Body.ReadAsync(buffer, 0, buffer.Length);
             var bodyAsText = Encoding.UTF8.GetString(buffer);
             request.Body.Seek(0, SeekOrigin.Begin);
-
+            
             var temp = JsonConvert.DeserializeObject(bodyAsText);
             bodyAsText = JsonConvert.SerializeObject(temp);
             return bodyAsText;

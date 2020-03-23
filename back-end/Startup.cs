@@ -94,7 +94,7 @@ namespace InternetBanking
             services.AddSingleton<IAccountService, AccountService>();
             services.AddSingleton<IDeptReminderService, DeptReminderService>();
             services.AddSingleton<ILinkingBankService, LinkingBankService>();
-            services.AddTransient<IExternalBanking, ExternalBanking>();
+            services.AddTransient<IExternalBanking, ExternalBanking_BKTBank>();
             ///
 
             services.AddScoped<IEncrypt, Encrypt>();
