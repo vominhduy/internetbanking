@@ -23,6 +23,12 @@
             <b-dropdown-item href="#">RU</b-dropdown-item>
             <b-dropdown-item href="#">FA</b-dropdown-item>
           </b-nav-item-dropdown>
+          <b-nav-item-dropdown text="Lang" right>
+            <b-dropdown-item href="#">EN</b-dropdown-item>
+            <b-dropdown-item href="#">ES</b-dropdown-item>
+            <b-dropdown-item href="#">RU</b-dropdown-item>
+            <b-dropdown-item href="#">FA</b-dropdown-item>
+          </b-nav-item-dropdown>
 
           <b-nav-item-dropdown right>
             <!-- Using 'button-content' slot -->
@@ -30,7 +36,7 @@
               <em>User</em>
             </template>
             <b-dropdown-item href="#">Profile</b-dropdown-item>
-            <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+            <b-dropdown-item href="#" @click="logout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -39,7 +45,16 @@
 </template>
 
 <script>
-export default {};
+export default {
+  name: "NavBar",
+  methods: {
+    logout() {
+      this.$store.dispatch("destroyToken").then(res => {
+        this.$router.push({ name: "Login" });
+      });
+    }
+  }
+};
 </script>
 
 <style scoped>
@@ -48,7 +63,7 @@ export default {};
   cursor: pointer;
   float: right;
   margin-top: 2px;
-  color: rgba(0,0,0,.5);
+  color: rgba(0, 0, 0, 0.5);
   transition: 0.3s;
 }
 .sidebar:hover {
@@ -56,10 +71,10 @@ export default {};
   cursor: pointer;
   float: right;
   margin-top: 2px;
-  color: rgba(0,0,0,.7);
+  color: rgba(0, 0, 0, 0.7);
 }
 .bg-info {
-    background-color: whitesmoke !important;
+  background-color: whitesmoke !important;
 }
 .nav {
   border-bottom: solid 1px #3c4b64;

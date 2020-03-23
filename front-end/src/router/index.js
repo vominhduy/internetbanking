@@ -5,6 +5,7 @@ import AdminLayout from '../layouts/AdminLayout.vue'
 import LoginLayout from '../layouts/LoginLayout.vue'
 import EmployeeLayout from '../layouts/EmployeeLayout.vue'
 import UserLayout from '../layouts/UserLayout.vue'
+import constant from '../helper/constant'
 
 import EmployeeHome from '../views/Employee/Home.vue'
 
@@ -30,13 +31,16 @@ Vue.use(BootstrapVueIcons)
 
 Vue.use(VueRouter)
 
+
 axios.defaults.baseURL = "http://localhost:5000/api/";
+//axios.defaults.baseURL = "http://ddpbank.somee.com/api/";\
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'Login',
+    component: Login,
+    meta: { layout: LoginLayout }
   },
   {
     path: '/login',
@@ -48,19 +52,31 @@ const routes = [
     path: '/employee/',
     name: 'EmployeeHome',
     component: EmployeeHome,
-    meta: { layout: EmployeeLayout }
+    meta: { 
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/user/',
     name: 'UserHome',
     component: UserHome,
-    meta: { layout: UserLayout }
+    meta: { 
+      layout: UserLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.user]
+    }
   },
   {
     path: '/admin/',
     name: 'AdminHome',
     component: AdminHome,
-    meta: { layout: AdminLayout }
+    meta: { 
+      layout: AdminLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.admin]
+    }
   },
   {
     path: '/employee/create-user',
@@ -95,7 +111,8 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  routes
+  routes,
+  mode: 'history'
 })
 
 export default router
