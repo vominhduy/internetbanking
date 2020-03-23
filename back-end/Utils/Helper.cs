@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -79,6 +80,59 @@ namespace InternetBanking.Utils
                 response = null;
             }
             return response;
+        }
+
+    }
+
+    public class LoggingTxt
+    {
+        private static ReaderWriterLockSlim readWriteLock = new ReaderWriterLockSlim();
+
+        /// <summary>
+        /// InsertLog - pathType: 1/2 = lưu theo ngày/giờ
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="pathType">1/2 = lưu theo ngày/giờ</param>
+        /// <param name="data"></param>
+        public static void InsertLog(string _data ,string _path = "", int _pathType = 1)
+        {
+            try
+            {
+                readWriteLock.EnterWriteLock();
+                string sPhysicPath = Environment.CurrentDirectory + "/ErrorLogs";
+                string strDirectory = "";
+                string strFile = "";
+
+                if (_pathType == 1)
+                    strDirectory = sPhysicPath + "/" + _path + "/" + DateTime.Now.ToString("yyyyMM");
+                else if (_pathType == 2)
+                    strDirectory = sPhysicPath + "/" + _path + "/" + DateTime.Now.ToString("yyyyMM") + "/" + DateTime.Now.ToString("dd");
+
+                if (_pathType == 1)
+                    strFile = DateTime.Now.ToString("yyyy-MM-dd");
+                else if (_pathType == 2)
+                    strFile = DateTime.Now.ToString("HH-00");
+
+                if (!Directory.Exists(strDirectory))
+                    Directory.CreateDirectory(strDirectory);
+
+                FileStream fs = new FileStream((strDirectory + ("\\" + (strFile + ".txt"))), FileMode.Append, FileAccess.Write);
+                StreamWriter sw = new StreamWriter(fs, Encoding.UTF8);
+                sw.Write(("---------------------------------------------------------------\r\n" + System.DateTime.Now + ("\r\n" + (_data + "\r\n" + "\r\n"))));
+                sw.Close();
+                sw = null;
+                fs = null;
+                GC.Collect();
+                readWriteLock.ExitWriteLock();
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                GC.Collect();
+            }
         }
     }
 }

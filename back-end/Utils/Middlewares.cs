@@ -32,10 +32,22 @@ namespace InternetBanking.Utils
         /// <returns></returns>
         public async Task Invoke(HttpContext httpContext, IEncrypt iencrypt)
         {
+            StringBuilder log = new StringBuilder();
             _encrypt = iencrypt;
             bool result = false;
             try
             {
+                try
+                {
+                    log.AppendLine(httpContext.Request.Path.Value);
+                    log.AppendLine(JsonConvert.SerializeObject(httpContext.Request.Headers));
+                    log.AppendLine(ReadRequestBody(httpContext.Request));
+                }
+                catch (Exception)
+                {
+                    log.AppendLine("null body");
+                }
+
                 var request = httpContext.Request;
 
                 // Test only
@@ -51,6 +63,7 @@ namespace InternetBanking.Utils
 
                 if (!CheckBasicAuthen(request))
                 {
+                    log.Append("CheckBasicAuthen: false");
                     return;
                 }
 
@@ -87,12 +100,18 @@ namespace InternetBanking.Utils
                 }
                 await _next(httpContext);
             }
-            catch
+            catch (Exception ex)
             {
+                log.AppendLine(ex.Message);
                 return;
             }
             finally
             {
+                if (httpContext.Request.Path.Value.ToLower().Contains("api/transactions".ToLower()))
+                {
+                    LoggingTxt.InsertLog(log.ToString());
+                }
+
                 if (!result)
                 {
                     var response = httpContext.Response;
