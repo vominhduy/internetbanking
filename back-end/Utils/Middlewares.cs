@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using InternetBanking.Models.Request;
+using InternetBanking.Models.ViewModels;
 
 namespace InternetBanking.Utils
 {
@@ -53,15 +55,22 @@ namespace InternetBanking.Utils
                 }
 
                 // Nếu là controller partners thì check thêm mã hóa bất đối xứng
-                if (request.Path.Value.ToLower().Contains("api/partners/transactions/receive_external".ToLower()))
+                if (request.Path.Value.ToLower().Contains("api/transactions/receive_external".ToLower()))
                 {
-                    string keyReq = request.Headers["key"];
+                    string keyReq = request.Headers["partner_code"];
                     string encrypt = request.Headers["signature"];
+                    long timestampReq = long.Parse(request.Headers["timestamp"]);
+                    string checksumReq = request.Headers["hash"];
+
                     if (!string.IsNullOrWhiteSpace(encrypt))
                     {
-                        string bodyReq = ReadRequestBody(request);
+                        var temp = ReadRequestBody(request);
+                        var obj = JsonConvert.DeserializeObject<TransferMoneyRequest>(temp);
+                        string input = $"{keyReq}|{timestampReq}|{obj.from_account_number}|{obj.to_account_number}|{(int)obj.amount}|{obj.message}";
+                        string hash = Encrypting.HMD5Hash(input, keyReq);
+
                         _encrypt.SetKey(keyReq);
-                        if (_encrypt.DecryptData(encrypt, bodyReq))
+                        if (_encrypt.DecryptData(encrypt, hash))
                         {
                             result = true;
                             return;
@@ -88,7 +97,7 @@ namespace InternetBanking.Utils
                 {
                     var response = httpContext.Response;
                     response.ContentType = "application/json";
-                    response.StatusCode = StatusCodes.Status401Unauthorized;
+                    response.StatusCode = StatusCodes.Status500InternalServerError;
                 }               
             }
         }
@@ -122,7 +131,7 @@ namespace InternetBanking.Utils
                 }
 
                 long timestampReq = long.Parse(request.Headers["timestamp"]);
-                string keyReq = request.Headers["key"];
+                string keyReq = request.Headers["partner_code"];
                 string checksumReq = request.Headers["hash"];
 
                 // A kiểm tra lời gọi api có phải xuất phát từ B (đã đăng ký liên kết từ trước) hay không
@@ -142,10 +151,37 @@ namespace InternetBanking.Utils
                 if (request.Method.Equals("POST")
                     || request.Method.Equals("PUT"))
                 {
-                    // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
-                    if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
+                    if (request.Path.Value.ToLower().Contains("api/transactions/receive_external".ToLower()))
                     {
-                        return false;
+                        var temp = ReadRequestBody(request);
+                        var obj = JsonConvert.DeserializeObject<TransferMoneyRequest>(temp);
+                        string secretKey = "99793bb9137042a3a7f15950f1215950";
+                        string input = $"{keyReq}|{timestampReq}|{obj.from_account_number}|{obj.to_account_number}|{(int)obj.amount}|{obj.message}";
+
+                        if (!Encrypting.HMD5Verify(input,checksumReq, secretKey))
+                        {
+                            return false;
+                        }
+                    }
+                    else if (request.Path.Value.ToLower().Contains("api/transactions/query_info".ToLower()))
+                    {
+                        var temp = ReadRequestBody(request);
+                        var obj = JsonConvert.DeserializeObject<InfoUserRequest>(temp);
+                        string secretKey = "99793bb9137042a3a7f15950f1215950";
+                        string hash = $"{keyReq}|{timestampReq}|{obj.account_number}";
+
+                        if (!Encrypting.HMD5Verify(hash, checksumReq, secretKey))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
+                        if (!Encrypting.MD5Verify(string.Concat(ReadRequestBody(request), keyReq, timestamp), checksumReq))
+                        {
+                            return false;
+                        }
                     }
                 }
             }

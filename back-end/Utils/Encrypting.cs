@@ -53,6 +53,45 @@ namespace InternetBanking.Utils
         }
         #endregion
 
+        #region HMACMD5
+        public static string HMD5Hash(string input, string secretKey)
+        {
+          //  input = "bkt.partner|1584885247|000000001";
+            var key = Encoding.UTF8.GetBytes(secretKey);
+            HMACMD5 hmac = new HMACMD5(key);
+
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+            return Convert.ToBase64String(data);
+
+            // Create a new Stringbuilder to collect the bytes
+            // and create a string.
+            StringBuilder sBuilder = new StringBuilder();
+
+            // Loop through each byte of the hashed data 
+            // and format each one as a hexadecimal string.
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            // Return the hexadecimal string.
+            return sBuilder.ToString();
+        }
+
+        public static bool HMD5Verify(string input, string hash, string secretKey)
+        {
+            // Hash the input.
+            string hashOfInput = HMD5Hash(input, secretKey);
+
+            // Create a StringComparer an compare the hashes.
+            StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+
+            return (0 == comparer.Compare(hashOfInput, hash));
+        }
+        #endregion
+
         /// <summary>
         /// Encryting input string with Aes crypto
         /// </summary>

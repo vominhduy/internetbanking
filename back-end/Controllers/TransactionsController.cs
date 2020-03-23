@@ -14,13 +14,13 @@ namespace InternetBanking.Controllers
     /// Api liên kết ngân hàng
     /// </summary>
     //[Authorize]
-    public class PartnersController : ApiController
+    public class TransactionsController : ApiController
     {
         private ISetting _Setting;
         private IUserService _Service;
         private ILinkingBankService _bankService;
 
-        public PartnersController(ISetting setting, IUserService service, ILinkingBankService bankService)
+        public TransactionsController(ISetting setting, IUserService service, ILinkingBankService bankService)
         {
             _Setting = setting;
             _Service = service;
@@ -33,7 +33,7 @@ namespace InternetBanking.Controllers
         /// <param name="account_number"></param>
         /// <returns>ExternalAccount</returns>
 
-        [HttpPost("transactions/query_info")]
+        [HttpPost("query_info")]
         public IActionResult GetDetailUser([FromBody] InfoUserRequest info)
         {
             try
@@ -83,12 +83,12 @@ namespace InternetBanking.Controllers
         /// </summary>
         /// <param name="transfer"></param>
         /// <returns>bool</returns>
-        [HttpPost("transactions/receive_external")]
+        [HttpPost("receive_external")]
         public IActionResult PayIn([FromBody] TransferMoneyRequest transfer)
         {
             try
             {
-                var partnerCode = Request.Headers["key"];
+                var partnerCode = Request.Headers["partner_code"];
                 var signed = Request.Headers["signature"];
                 var transferDao = new Transfer()
                 {
