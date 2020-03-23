@@ -3,19 +3,27 @@
     <h1>Tạo tài khoản khách hàng</h1>
     <b-form @submit.stop.prevent="onSubmit">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
-        <b-form-input id="Name" v-model="user.Name"></b-form-input>
+        <b-form-input id="Name" name="Name" v-validate="{required:true}" v-model="user.Name" :state="validateState('Name')"
+          aria-describedby="NameFeedback"></b-form-input>
+        <b-form-invalid-feedback id="NameFeedback">Tên người dùng không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Giới tính" label-for="Gender">
         <b-form-select id="Gender" v-model="user.Gender" :options="Genders"></b-form-select>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Địa chỉ" label-for="Address">
-        <b-form-input id="Address" v-model="user.Address"></b-form-input>
+        <b-form-input id="Address" name="Address" v-model="user.Address" v-validate="{required:true}" :state="validateState('Address')"
+          aria-describedby="AddressFeedback"></b-form-input>
+        <b-form-invalid-feedback id="AddressFeedback">Địa chỉ không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Email" label-for="Email">
-        <b-form-input id="Email" :type="'email'" v-model="user.Email"></b-form-input>
+        <b-form-input id="Email" :type="'email'" name="Email" v-validate="'required|email'" v-model="user.Email" :state="validateState('Email')"
+          aria-describedby="EmailFeedback"></b-form-input>
+        <b-form-invalid-feedback id="EmailFeedback">Email không đúng định dạng!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Số điện thoại" label-for="Phone">
-        <b-form-input id="Phone" :type="'number'" v-model="user.Phone"></b-form-input>
+        <b-form-input id="Phone" :type="'number'" name="Phone" v-validate="{required:true}" v-model="user.Phone" :state="validateState('Phone')"
+          aria-describedby="PhoneFeedback"></b-form-input>
+        <b-form-invalid-feedback id="PhoneFeedback">Số điện thoại không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group>
         <b-row>
@@ -110,10 +118,10 @@ export default {
     return {
       respone: {},
       user: {
-        Phone: "",
-        Name: "",
-        Email: "",
-        Address: "",
+        Phone: null,
+        Name: null,
+        Email: null,
+        Address: null,
         Gender: 1
       },
       Genders: [
@@ -126,6 +134,10 @@ export default {
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
+      this.$validator.validateAll().then(result => {
+        if (!result) {
+          return;
+        }
       axios
         .post(`employees`, this.user)
         .then(res => {
@@ -136,11 +148,20 @@ export default {
           this.empty = true;
           console.log(err);
         });
-    },
+    })},
     canceled() {
       this.user = {};
       this.user.Gender = 1;
-    }
+    },
+    validateState(ref) {
+      if (
+        this.veeFields[ref] &&
+        (this.veeFields[ref].dirty || this.veeFields[ref].validated)
+      ) {
+        return !this.veeErrors.has(ref);
+      }
+      return null;
+    },
   }
 };
 </script>

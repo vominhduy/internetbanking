@@ -6,8 +6,16 @@
         <b-form-select id="type" v-model="type" :options="types"></b-form-select>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên đăng nhập/Số tài khoản">
-        <b-form-input v-if="type == 1" id="value" v-model="user.Username"></b-form-input>
-        <b-form-input v-if="type == 2" id="value1" v-model="user.AccountNumber"></b-form-input>
+        <div v-show="type == 1">
+          <b-form-input name="value" id="value" v-model="user.Username" v-validate="{required: true}" :state="validateState('value')"
+          aria-describedby="input-live-feedback"></b-form-input>
+          <b-form-invalid-feedback id="input-live-feedback">Tên đăng nhập không được để trống!</b-form-invalid-feedback>
+        </div>
+        <div v-show="type == 2">
+          <b-form-input name="value1" id="value1" v-model="user.AccountNumber" v-validate="{required:true}" :state="validateState('value1')"
+          aria-describedby="input-1-live-feedback"></b-form-input>
+          <b-form-invalid-feedback id="input-1-live-feedback">Số tài khoản không được để trống!</b-form-invalid-feedback>
+        </div>
       </b-form-group>
       <b-form-group>
         <b-row>
@@ -22,12 +30,32 @@
     </b-form>
     <div v-if="statusOk">
       <h3>Thông tin tài khoản</h3>
-      <p>Tên: <span class="font-weight-bold">{{user.Name}}</span></p>
-      <p>Tên đăng nhập: <span class="font-weight-bold">{{user.Username}}</span></p>
-      <p>Số tài khoản: <span class="font-weight-bold">{{user.AccountNumber}}</span></p>
-      <p>Giới tính: <span class="font-weight-bold">{{user.Gender == 1 ? "Name" : (user.Gender == 2 ? "Nữ": "Khác")}}</span></p>
-      <p>Địa chỉ: <span class="font-weight-bold">{{user.Address}}</span></p>
-      <p>Số điện thoại: <span class="font-weight-bold">{{user.Phone}}</span></p>
+      <p>
+        Tên:
+        <span class="font-weight-bold">{{user.Name}}</span>
+      </p>
+      <p>
+        Tên đăng nhập:
+        <span class="font-weight-bold">{{user.Username}}</span>
+      </p>
+      <p>
+        Số tài khoản:
+        <span class="font-weight-bold">{{user.AccountNumber}}</span>
+      </p>
+      <p>
+        Giới tính:
+        <span
+          class="font-weight-bold"
+        >{{user.Gender == 1 ? "Name" : (user.Gender == 2 ? "Nữ": "Khác")}}</span>
+      </p>
+      <p>
+        Địa chỉ:
+        <span class="font-weight-bold">{{user.Address}}</span>
+      </p>
+      <p>
+        Số điện thoại:
+        <span class="font-weight-bold">{{user.Phone}}</span>
+      </p>
       <b-tabs content-class="mt-3">
         <b-tab title="Nhận tiền" active>
           <HistoryIn :histories1="hisIns" />
@@ -101,19 +129,19 @@ export default {
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
-      
-      if (this.user.AccountNumber == "" && this.user.Username == "")
-      {
-        return;
-      }
+this.$validator.validateAll().then(result => {
+        if (!result) {
+          return;
+        }
+     // if (this.user.AccountNumber == "" && this.user.Username == "") {
+     ///   return;
+     // }
 
       if (this.type == 1) {
         this.user.AccountNumber = "";
       } else {
         this.user.Username = "";
       }
-
-      
 
       console.log("get user", this.user);
       axios
@@ -133,7 +161,7 @@ export default {
             .get("employees/histories/" + this.user.Id + "/in")
             .then(res => {
               this.hisIns = res.data;
-              console.log('data', this.hisIns);
+              console.log("data", this.hisIns);
             })
             .catch(err => {
               console.log(err);
@@ -175,7 +203,7 @@ export default {
           this.responeMessage = "Không tìm thấy thông tin tài khoản!";
           this.$refs["respone"].show();
         });
-    },
+    })},
     canceled() {
       this.user.AccountNumber = "";
       this.user.Username = "";
@@ -184,14 +212,26 @@ export default {
       this.payInfo = {};
       this.valueType = "";
       this.type = 1;
-    }
+      this.$nextTick(() => {
+        this.$validator.reset();
+      });
+    },
+    validateState(ref) {
+      if (
+        this.veeFields[ref] &&
+        (this.veeFields[ref].dirty || this.veeFields[ref].validated)
+      ) {
+        return !this.veeErrors.has(ref);
+      }
+      return null;
+    },
   }
 };
 </script>
 
 <style scoped>
 .bcard-shadow {
-  margin-top: 15px; 
+  margin-top: 15px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 </style>

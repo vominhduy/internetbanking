@@ -20,7 +20,7 @@ import CreateUser from '../views/Employee/CreateUser.vue'
 import PayIn from '../views/Employee/PayIn.vue'
 import remittance from '../views/User/remittance.vue'
 import History from '../views/Employee/History.vue'
-
+import VeeValidate from "vee-validate";
 
 
 import { BootstrapVueIcons } from 'bootstrap-vue'
@@ -29,6 +29,12 @@ Vue.use(BootstrapVueIcons)
 
 
 Vue.use(VueRouter)
+
+Vue.use(VeeValidate, {
+  inject: true,
+  fieldsBagName: "veeFields",
+  errorBagName: "veeErrors"
+});
 
 
 axios.defaults.baseURL = "http://localhost:5000/api/";
@@ -51,7 +57,7 @@ const routes = [
     path: '/employee/',
     name: 'EmployeeHome',
     component: EmployeeHome,
-    meta: { 
+    meta: {
       layout: EmployeeLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.employee]
@@ -61,7 +67,7 @@ const routes = [
     path: '/user/',
     name: 'UserHome',
     component: UserHome,
-    meta: { 
+    meta: {
       layout: UserLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.user]
@@ -71,7 +77,7 @@ const routes = [
     path: '/admin/',
     name: 'AdminHome',
     component: AdminHome,
-    meta: { 
+    meta: {
       layout: AdminLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.admin]
