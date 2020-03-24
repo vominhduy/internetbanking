@@ -44,7 +44,8 @@ export default {
   },
   data() {
     return {
-      isSidebar: false
+      isSidebar: false,
+      isActive: false
     };
   },
   methods: {
@@ -65,7 +66,7 @@ export default {
     },
     openHome() {
       this.$router.push({ name: 'EmployeeHome' });
-    },
+    }
   },
   mounted() {
     console.log("sdfsdfdsfdsfdfvv");
@@ -81,7 +82,7 @@ export default {
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #6a727a;
   overflow-x: hidden;
   transition: 0.5s;
   padding-top: 16px;
@@ -137,6 +138,11 @@ export default {
 
 .rightMenuIcon {
     float: right;
-    margin-top: 5px;
+    margin-top: 4px;
+}
+
+.sidenav a.router-link-exact-active {
+  color: white;
+  background-color: #1061a0 !important;
 }
 </style>
