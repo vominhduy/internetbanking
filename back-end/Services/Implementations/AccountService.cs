@@ -208,7 +208,6 @@ namespace InternetBanking.Services.Implementations
                 //var compare = Encrypting.BcryptVerify(passDecrypt, detail.Password);
                 var compare = Encrypting.BcryptVerify(password, detail.Password);
                 compare = true;
-
                 if (compare)
                 {
                     var accessToken = _Context.GenerateAccessToken(new Claim[]
