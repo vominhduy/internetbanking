@@ -123,6 +123,8 @@
 import NavBar from "@/components/User/confirm_otp.vue";
 import Categories from "@/components/User/transfer_money_info.vue";
 import axios from "axios";
+import helper from "../../helper/call_api.js";
+
 export default {
   name: "remittance",
   components: {
@@ -152,34 +154,46 @@ export default {
       ]
     };
   },
-  mounted(){
-      var usertest ={
-         Phone: "2",
-        Name: "3",
-        Email: "4",
-        Address: "5",
-        Gender: 1
-      }
-      this.user = usertest
+  mounted() {
+    var usertest = {
+      Phone: "2",
+      Name: "3",
+      Email: "4",
+      Address: "5",
+      Gender: 1
+    };
+    this.user = usertest;
   },
   methods: {
     changeComponet() {
       this.show = true;
       console.log(this.component);
       this.component = "NavBar";
+
+      console.log("aaa");
+      helper
+        .call_api("1", "get", "2")
+        .then(s => {
+            console.log("s");
+           console.log(s);
+        })
+        .catch(err => {
+          console.log("e");
+          console.log(err);
+        });
     },
     onSubmit(evt) {
       evt.preventDefault();
-      axios
-        .post(`employees`, this.user)
-        .then(res => {
-          this.respone = res.data;
-          this.$refs["respone"].show();
-        })
-        .catch(err => {
-          this.empty = true;
-          console.log(err);
-        });
+      // axios
+      //   .post(`employees`, this.user)
+      //   .then(res => {
+      //     this.respone = res.data;
+      //     this.$refs["respone"].show();
+      //   })
+      //   .catch(err => {
+      //     this.empty = true;
+      //     console.log(err);
+      //   });
     },
     canceled() {
       this.user = {};

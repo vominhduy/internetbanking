@@ -57,9 +57,9 @@ namespace InternetBanking.Utils
                     {
                         var obj = new
                         {
-                            code = -1,
+                            messageCode = -1,
                             message = resultCheck.Item2,
-                            data = (string)null
+                            data = ""
                         };
                         var response = httpContext.Response;
                         response.ContentType = "application/json";
@@ -141,7 +141,16 @@ namespace InternetBanking.Utils
                     // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
                     var task = Task.Run(() => ReadRequestBody(request)).GetAwaiter();
                     string body = task.GetResult();
-                    if (!Encrypting.MD5Verify(string.Concat(body, keyReq, timestamp), checksumReq))
+                    if (!Encrypting.MD5Verify(string.Concat(body, keyReq, timestampReq), checksumReq))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // A kiểm tra xem gói tin B gửi qua là gói tin nguyên bản hay gói tin đã bị chỉnh sửa
+                    string body = "";
+                    if (!Encrypting.MD5Verify(string.Concat(body, keyReq, timestampReq), checksumReq))
                     {
                         return false;
                     }

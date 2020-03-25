@@ -5,8 +5,10 @@ using InternetBanking.Models.ViewModels;
 using InternetBanking.Services;
 using InternetBanking.Settings;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net;
 
 namespace InternetBanking.Controllers
 {
@@ -44,37 +46,23 @@ namespace InternetBanking.Controllers
                 {
                     return Ok(new
                     {
-                        code = 1,
-                        message = "Successful",
-                        data = new InfoUserResponse()
-                        {
-                            account_number = record.AccountNumber,
-                            address = record.Address,
-                            email = record.Email,
-                            full_name = record.Name,
-                            gender = record.Gender,
-                            phone = record.Phone
-                        }
+                        account_number = record.AccountNumber,
+                        email = record.Email,
+                        full_name = record.Name,
+                        username = record.AccountNumber
                     });
                 }
                 else
                 {
-                    return Ok(new
+                    return BadRequest(new
                     {
-                        code = -1,
                         message = "This bank account could not be found",
-                        data = (string)null
                     });
                 }
             }
             catch (Exception ex)
             {
-                return Ok(new
-                {
-                    code = -2,
-                    message = "Exception: Please contact ddpbank for assistance",
-                    data = (string)null
-                });
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -98,7 +86,7 @@ namespace InternetBanking.Controllers
                     Money = transfer.amount,
                     Description = transfer.message,
                     DestinationLinkingBankId = _bankService.GetLinkingBankById(new LinkingBankFilter() { Code = partnerCode }).Id,
-                    SourceLinkingBankId = _bankService.GetLinkingBankById(new LinkingBankFilter() { Code = _Setting.BankCode}).Id, // Luôn lấy mặc định là chính ngân hàng của mình
+                    SourceLinkingBankId = _bankService.GetLinkingBankById(new LinkingBankFilter() { Code = _Setting.BankCode }).Id, // Luôn lấy mặc định là chính ngân hàng của mình
                 };
                 var record = _Service.PayInByPartner(transferDao);
 
@@ -106,34 +94,20 @@ namespace InternetBanking.Controllers
                 {
                     return Ok(new
                     {
-                        code = 1,
-                        message = "Successful",
-                        data = new
-                        {
-                            account_number = transfer.to_account_number,
-                            money_transfer = transfer.amount,
-                            transaction_id = record.ToString("N")
-                        }
+                        result = "success"
                     });
                 }
                 else
                 {
-                    return Ok(new
+                    return BadRequest(new
                     {
-                        code = -1,
-                        message = "Error in processing. Please contact ddpbank for assistance",
-                        data = (string)null
+                        result = "Error in processing. Please contact ddpbank for assistance",
                     });
                 }
             }
             catch (Exception ex)
             {
-                return Ok(new
-                {
-                    code = -2,
-                    message = "Exception: Please contact ddpbank for assistance",
-                    data = (string)null
-                });
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
