@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from "axios";
 import helper from '../helper/helper'
+import apiHelper from '../helper/call_api'
 
 Vue.use(Vuex)
 
@@ -33,47 +34,45 @@ export const store = new Vuex.Store({
     actions:{
         retrieveLogin(context, credentials){
             return new Promise((resolve, reject) => {
-                axios
-                .post(`accounts/login`,{
-                    Username: credentials.username,
-                    Password: credentials.password
-                })
-                .then(res => {
-                    let token = res.data.AccessToken;
-                    localStorage.setItem('access_token', token); //aware cross-site scripting
-                    context.commit('retrieveToken', token);
-                    
-                    let userInfo = helper.parseJwt(token);
-                    localStorage.setItem('user_role', userInfo.role); //aware cross-site scripting
-                    context.commit('retrieveUserInfo', userInfo);
-                    resolve(userInfo);
-                })
-                .catch(err => {
-                    console.log(err);
-                    reject(err);
-                })
+                apiHelper
+                    .call_api("accounts/login", "post", {
+                        Username: credentials.username,
+                        Password: credentials.password
+                    })
+                    .then(res => {
+                        let token = res.data.AccessToken;
+                        localStorage.setItem('access_token', token); //aware cross-site scripting
+                        context.commit('retrieveToken', token);
+                        
+                        let userInfo = helper.parseJwt(token);
+                        localStorage.setItem('user_role', userInfo.role); //aware cross-site scripting
+                        context.commit('retrieveUserInfo', userInfo);
+                        resolve(userInfo);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        reject(err);
+                    });
             })
         },
         destroyToken(context){
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.jwt;
-
             if (context.getters.loggedIn) {
                 return new Promise((resolve, reject) => {
-                    axios
-                    .post(`accounts/logout`)
-                    .then(res => {
-                        localStorage.removeItem('access_token');
-                        localStorage.removeItem('user_role');
-                        context.commit('destroyToken');
-                        resolve(res);
-                    })
-                    .catch(err => {
-                        localStorage.removeItem('access_token');
-                        localStorage.removeItem('user_role');
-                        context.commit('destroyToken');
-                        console.log(err);
-                        reject(err);
-                    })
+                    apiHelper
+                        .call_api("accounts/logout", "post", '')
+                        .then(res => {
+                            localStorage.removeItem('access_token');
+                            localStorage.removeItem('user_role');
+                            context.commit('destroyToken');
+                            resolve(res);
+                        })
+                        .catch(err => {
+                            localStorage.removeItem('access_token');
+                            localStorage.removeItem('user_role');
+                            context.commit('destroyToken');
+                            console.log(err);
+                            reject(err);
+                        });
                 })
             }
         }
