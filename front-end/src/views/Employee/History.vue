@@ -6,7 +6,23 @@
         <b-form-select id="type" v-model="type" :options="types"></b-form-select>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên đăng nhập/Số tài khoản">
-        <div v-show="type == 1">
+              <b-form-input
+          id="value"
+          name="value"
+          v-model="valueType"
+          v-validate="{required:true}"
+          :state="validateState('value')"
+          aria-describedby="valuefeedback"
+        ></b-form-input>
+        <b-form-invalid-feedback
+          v-if="type == 1"
+          id="valuefeedback"
+        >Tên đăng nhập không được để trống!</b-form-invalid-feedback>
+        <b-form-invalid-feedback
+          v-if="type == 2"
+          id="valuefeedback"
+        >Số tài khoản không được để trống!</b-form-invalid-feedback>
+        <!-- <div v-show="type == 1">
           <b-form-input name="value" id="value" v-model="user.Username" v-validate="{required: true}" :state="validateState('value')"
           aria-describedby="input-live-feedback"></b-form-input>
           <b-form-invalid-feedback id="input-live-feedback">Tên đăng nhập không được để trống!</b-form-invalid-feedback>
@@ -15,7 +31,7 @@
           <b-form-input name="value1" id="value1" v-model="user.AccountNumber" v-validate="{required:true}" :state="validateState('value1')"
           aria-describedby="input-1-live-feedback"></b-form-input>
           <b-form-invalid-feedback id="input-1-live-feedback">Số tài khoản không được để trống!</b-form-invalid-feedback>
-        </div>
+        </div> -->
       </b-form-group>
       <b-form-group>
         <b-row>
@@ -85,11 +101,11 @@
 </template>
 
 <script>
-import axios from "axios";
 import HistoryDeptIn from "../../components/Employee/HistoryDeptIn.vue";
 import HistoryIn from "../../components/Employee/HistoryIn.vue";
 import HistoryDeptOut from "../../components/Employee/HistoryDeptOut.vue";
 import HistoryOut from "../../components/Employee/HistoryOut.vue";
+import apiHelper from '../../helper/call_api'
 
 export default {
   name: "History",
@@ -129,7 +145,7 @@ export default {
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
-this.$validator.validateAll().then(result => {
+      this.$validator.validateAll().then(result => {
         if (!result) {
           return;
         }
@@ -137,74 +153,65 @@ this.$validator.validateAll().then(result => {
      ///   return;
      // }
 
-      if (this.type == 1) {
-        this.user.AccountNumber = "";
-      } else {
-        this.user.Username = "";
-      }
-
-      console.log("get user", this.user);
-      axios
-        .post(`employees/users`, this.user)
-        .then(res => {
-          this.user.Username = res.data.Username;
-          this.user.AccountNumber = res.data.AccountNumber;
-          this.user.Id = res.data.Id;
-          this.user.Name = res.data.Name;
-          this.user.Gender = res.data.Gender;
-          this.user.Address = res.data.Address;
-          this.user.Phone = res.data.Phone;
-          this.statusOk = true;
-          console.log("user", res.data);
-          // get histories in
-          axios
-            .get("employees/histories/" + this.user.Id + "/in")
-            .then(res => {
-              this.hisIns = res.data;
-              console.log("data", this.hisIns);
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          // get histories out
-          axios
-            .get("employees/histories/" + this.user.Id + "/out")
-            .then(res => {
-              this.hisOuts = res.data;
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          // get histories dept in
-          axios
-            .get("employees/histories/" + this.user.Id + "/dept/in")
-            .then(res => {
-              this.hisDeptIns = res.data;
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          // get histories dept out
-          axios
-            .get("employees/histories/" + this.user.Id + "/dept/out")
-            .then(res => {
-              this.hisDeptOuts = res.data;
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          //if (res.data == true) this.responeMessage = "Nạp tiền thành công!";
-          //else this.responeMessage = "Không tìm thấy thông tin tài khoản!";
-          //this.$refs["respone"].show();
-        })
-        .catch(err => {
-          this.statusOk = false;
-          console.log(err);
-          this.responeMessage = "Không tìm thấy thông tin tài khoản!";
-          this.$refs["respone"].show();
-        });
+      if (this.type == 1) this.payInfo.UserName = this.valueType;
+        else this.payInfo.AccountNumber = this.valueType;
+      apiHelper
+          .call_api(`employees/users`, "post", this.user)
+          .then(res => {
+            this.user.Username = res.data.Username;
+            this.user.AccountNumber = res.data.AccountNumber;
+            this.user.Id = res.data.Id;
+            this.user.Name = res.data.Name;
+            this.user.Gender = res.data.Gender;
+            this.user.Address = res.data.Address;
+            this.user.Phone = res.data.Phone;
+            this.statusOk = true;
+            // get histories in
+            apiHelper
+              .call_api(`employees/histories/${this.user.Id}/in`, "get", '')
+              .then(res => {
+                this.hisIns = res.data;
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            // get histories out
+            apiHelper
+              .call_api(`employees/histories/${this.user.Id}/out`, "get", '')
+              .then(res => {
+                this.hisOuts = res.data;
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            // get histories dept in
+            apiHelper
+              .call_api(`employees/histories/${this.user.Id}/dept/in`, "get", '')
+              .then(res => {
+                this.hisDeptIns = res.data;
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            // get histories dept out  
+            apiHelper
+              .call_api(`employees/histories/${this.user.Id}/dept/out`, "get", '')
+              .then(res => {
+                this.hisDeptOuts = res.data;
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          })
+          .catch(err => {
+            this.statusOk = false;
+            console.log(err);
+            this.responeMessage = "Không tìm thấy thông tin tài khoản!";
+            this.$refs["respone"].show();
+          });
     })},
     canceled() {
+      // Reset our form values
       this.user.AccountNumber = "";
       this.user.Username = "";
       this.statusOk = false;
