@@ -110,7 +110,7 @@
 </style>
 
 <script>
-import axios from "axios";
+import apiHelper from '../../helper/call_api'
 
 export default {
   name: "CreateUser",
@@ -138,16 +138,16 @@ export default {
         if (!result) {
           return;
         }
-      axios
-        .post(`employees`, this.user)
-        .then(res => {
-          this.respone = res.data;
-          this.$refs["respone"].show();
-        })
-        .catch(err => {
-          this.empty = true;
-          console.log(err);
-        });
+        apiHelper
+          .call_api(`employees`, "post", this.user)
+          .then(res => {
+            this.respone = res.data;
+            this.$refs["respone"].show();
+          })
+          .catch(err => {
+            this.empty = true;
+            console.log(err);
+          });
     })},
     canceled() {
       this.user = {};
