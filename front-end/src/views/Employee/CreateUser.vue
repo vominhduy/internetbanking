@@ -1,7 +1,7 @@
 <template>
   <b-card class="bcard-shadow">
     <h1>Tạo tài khoản khách hàng</h1>
-    <b-form @submit.stop.prevent="onSubmit">
+    <b-form @submit.stop.prevent="onSubmit" v-if="show">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
         <b-form-input id="Name" name="Name" v-validate="{required:true}" v-model="user.Name" :state="validateState('Name')"
           aria-describedby="NameFeedback"></b-form-input>
@@ -128,7 +128,8 @@ export default {
         { value: 1, text: "Nam" },
         { value: 2, text: "Nữ" },
         { value: 3, text: "Khác" }
-      ]
+      ],
+      show: true
     };
   },
   methods: {
@@ -149,9 +150,16 @@ export default {
             console.log(err);
           });
     })},
-    canceled() {
+    canceled(evt) {
+      evt.preventDefault()
+      // Reset our form values
       this.user = {};
       this.user.Gender = 1;
+      // Trick to reset/clear native browser form validation state
+      this.show = false
+      this.$nextTick(() => {
+        this.show = true
+      })
     },
     validateState(ref) {
       if (
