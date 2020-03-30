@@ -1,9 +1,6 @@
 ﻿using DidiSoft.Pgp;
 using InternetBanking.DataCollections;
-using InternetBanking.Settings;
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -50,6 +47,42 @@ namespace InternetBanking.Utils
         {
             // Convert the input string to a byte array and compute the hash.
             return md5Hash.ComputeHash(bytes);
+        }
+        #endregion
+
+        #region HMACMD5
+        public static string HMD5Hash(string input, string secretKey)
+        {
+            var key = Encoding.UTF8.GetBytes(secretKey);
+            HMACMD5 hmac = new HMACMD5(key);
+
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+            // Create a new Stringbuilder to collect the bytes
+            // and create a string.
+            StringBuilder sBuilder = new StringBuilder();
+
+            // Loop through each byte of the hashed data 
+            // and format each one as a hexadecimal string.
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            // Return the hexadecimal string.
+            return sBuilder.ToString();
+        }
+
+        public static bool HMD5Verify(string input, string hash, string secretKey)
+        {
+            // Hash the input.
+            string hashOfInput = HMD5Hash(input, secretKey);
+
+            // Create a StringComparer an compare the hashes.
+            StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+
+            return (0 == comparer.Compare(hashOfInput, hash));
         }
         #endregion
 
@@ -122,7 +155,7 @@ namespace InternetBanking.Utils
 
     public interface IEncrypt
     {
-        public string EncryptData(string msg);
+        public string EncryptData(string msg, string code);
         public bool DecryptData(string signed, string msg = "");
         public void SetKey(string key);
     }
@@ -170,20 +203,34 @@ namespace InternetBanking.Utils
             }
         }
 
-        public string EncryptData(string msg)
+        public string EncryptData(string msg, string code ="")
         {
             if (Init())
             {
                 if (_type == 1)
                 {
-                    SHA256 sha256Hash = SHA256.Create();
-                    byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(msg));
+                    //SHA256 sha256Hash = SHA256.Create();
+                   // byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(msg));
+                    //var key = Encoding.UTF8.GetBytes(code);
+                    //HMACMD5 hmac = new HMACMD5(key);
+                    // Convert the input string to a byte array and compute the hash.
+                    //byte[] bytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(msg));
+
                     var rsa = RSA.Create();
                     rsa.KeySize = _keySize;
                     rsa.ImportRSAPrivateKey(Convert.FromBase64String(_privateKey), out int byteReads);
-                    var r = rsa.SignData(bytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                    string result = Convert.ToBase64String(r);
-                    return result;
+                    var r = rsa.SignData(Encoding.UTF8.GetBytes(msg), HashAlgorithmName.MD5, RSASignaturePadding.Pkcs1);
+                    //string result = Convert.ToBase64String(r);
+                    StringBuilder sBuilder = new StringBuilder();
+
+                    // Loop through each byte of the hashed data 
+                    // and format each one as a hexadecimal string.
+                    for (int i = 0; i < r.Length; i++)
+                    {
+                        sBuilder.Append(r[i].ToString("x2"));
+                    }
+
+                    return sBuilder.ToString();
                 }
                 else
                 {
@@ -211,13 +258,15 @@ namespace InternetBanking.Utils
             {
                 if (_type == 1)
                 {
-                    SHA256 sha256Hash = SHA256.Create();
-                    byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(msg));
-                    byte[] bsigned = Convert.FromBase64String(signed);
+                    //SHA256 sha256Hash = SHA256.Create();
+                    //byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(msg));
+                    
+                    byte[] bsigned = StringToByteArray(signed);
+                    byte[] bytes = Encoding.UTF8.GetBytes(msg);
                     var rsa = RSA.Create();
                     rsa.KeySize = _keySize;
                     rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(_publicKey), out int byteReads);
-                    var result = rsa.VerifyData(bytes, bsigned, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                    var result = rsa.VerifyData(bytes, bsigned, HashAlgorithmName.MD5, RSASignaturePadding.Pkcs1);
                     return result;
                 }
                 else
@@ -239,6 +288,14 @@ namespace InternetBanking.Utils
         public void SetKey(string key)
         {
             _key = key;
+        }
+
+        public static byte[] StringToByteArray(string hex)
+        {
+            return Enumerable.Range(0, hex.Length)
+                             .Where(x => x % 2 == 0)
+                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                             .ToArray();
         }
     }
 }

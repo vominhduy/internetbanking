@@ -1,7 +1,7 @@
 <template>
   <b-card class="bcard-shadow">
     <h1>Nạp tiền vào tài khoản khách hàng</h1>
-    <b-form @submit.stop.prevent="onSubmit">
+    <b-form @submit.stop.prevent="onSubmit" v-if="show">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Loại" label-for="type">
         <b-form-select id="type" v-model="type" :options="Types"></b-form-select>
       </b-form-group>
@@ -65,7 +65,7 @@
 }
 </style>
 <script>
-import axios from "axios";
+import apiHelper from '../../helper/call_api'
 import { Validator } from 'vee-validate';
 
 const isBetween = (value, { min, max } = {}) => {
@@ -95,7 +95,8 @@ export default {
       Types: [
         { value: 1, text: "Tên đăng nhập" },
         { value: 2, text: "Số tài khoản" }
-      ]
+      ],
+      show: true
     };
   },
   methods: {
@@ -108,8 +109,8 @@ export default {
         if (this.type == 1) this.payInfo.UserName = this.valueType;
         else this.payInfo.AccountNumber = this.valueType;
 
-        axios
-          .post(`employees/Users/payin`, this.payInfo)
+        apiHelper
+          .call_api(`employees/Users/payin`, "post", this.payInfo)
           .then(res => {
             if (res.data == true) this.responeMessage = "Nạp tiền thành công!";
             else this.responeMessage = "Nạp tiền thất bại!";
@@ -120,10 +121,17 @@ export default {
           });
       });
     },
-    canceled() {
+    canceled(evt) {
+      evt.preventDefault()
+      // Reset our form values
       this.payInfo = {};
       this.valueType = "";
       this.type = 1;
+      // Trick to reset/clear native browser form validation state
+      this.show = false
+      this.$nextTick(() => {
+        this.show = true
+      })
     },
     validateState(ref) {
       if (

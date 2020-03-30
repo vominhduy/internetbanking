@@ -37,7 +37,7 @@ Vue.use(VeeValidate, {
 });
 
 
-axios.defaults.baseURL = "http://localhost:5000/api/";
+axios.defaults.baseURL = "https://localhost:44396/api/";
 //axios.defaults.baseURL = "http://ddpbank.somee.com/api/";\
 
 const routes = [

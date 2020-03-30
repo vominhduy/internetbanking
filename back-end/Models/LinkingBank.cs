@@ -20,6 +20,11 @@ namespace InternetBanking.Models
         public string PublicKey { get; set; }
         public int KeySize { get; set; }
 
+        /// <summary>
+        /// Hash md5
+        /// </summary>
+        public string SecretKey { get; set; }
+
         public LinkingBank()
         {
             KeySize = 1024;

@@ -77,13 +77,15 @@ namespace InternetBanking.Services.Implementations
                 try
                 {
                     //var passDecrypt = Encrypting.AesDecrypt(account.Password, Encoding.UTF8.GetBytes(_Setting.AesKey), Encoding.UTF8.GetBytes(_Setting.AesIv), Encoding.UTF8);
-                    var lstUser = _UserCollection.Get(new UserFilter() { Username = account.Username });
-                    if (!lstUser.Any())
-                    {
+                    //var lstUser = _UserCollection.Get(new UserFilter() { Username = account.Username });
+                    //if (!lstUser.Any())
+                    //{
                         // phát sinh password ngẫu nhiên
                         string randomPass = _Context.MakeOTP(10);
+                    // test only
+                    account.Password = "123456";
 
-                        res = new User();
+                    res = new User();
                         res.Id = Guid.Empty;
                         res.Name = account.Name;
                         res.Gender = account.Gender;
@@ -119,11 +121,11 @@ namespace InternetBanking.Services.Implementations
                         {
                             res = null;
                         }
-                    }
-                    else
-                    {
-                        _Setting.Message.SetMessage("Trùng tên đăng nhập");
-                    }
+                    //}
+                    //else
+                    //{
+                    //    _Setting.Message.SetMessage("Trùng tên đăng nhập");
+                    //}
                     session.CommitTransactionAsync().Wait();
                 }
                 catch
