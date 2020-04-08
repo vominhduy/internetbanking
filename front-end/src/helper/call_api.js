@@ -11,7 +11,7 @@ module.exports = {
     auto_get_access_token() {
         var access_token_new = ""
         var last_time = new Date((new Date(this.last_usded)).toUTCString() + this.token_time * 60000);
-        if ((Math.round(last_time.getTime() / 1000)) > Math.round((new Date((new Date(this.last_usded)).toUTCString())).getTime() / 1000)) {
+        if ((Math.round(last_time.getTime() / 1000)) > Math.round((new Date()).getTime() / 1000)) {
             // lấy access_token mới và lưu lại
             // TODO
             access_token_new = localStorage.getItem('access_token')
@@ -36,7 +36,7 @@ module.exports = {
         // add header
         const instance = axios.create({
             baseURL: this.base_url,
-            timeout: 10000,
+            timeout: 100000,
             headers: {
                 'partner_code': this.secret_key,
                 'timestamp': timestamp,
@@ -48,10 +48,21 @@ module.exports = {
         if (method === "delete") {
             // TODO
             console.log(this.last_usded)
-        } else if (method === "post" || method === "put") {
+        } else if (method === "put") {
             // TODO
-            this.last_usded = Math.round((new Date()).getTime() / 1000);
             console.log(this.last_usded)
+        }
+        else if (method === "post") {
+            this.last_usded = Math.round((new Date()).getTime() / 1000);
+            return new Promise((resolve, reject) => {
+                instance.post(url, request)
+                    .then(res => {
+                        resolve(res);
+                    })
+                    .catch(err => {
+                        reject(err)
+                    });
+            });
         } else {
             this.last_usded = Math.round((new Date()).getTime() / 1000);
             return new Promise((resolve, reject) => {

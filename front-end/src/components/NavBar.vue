@@ -64,7 +64,7 @@ export default {
   cursor: pointer;
   float: right;
   margin-top: 2px;
-  color: rgba(0, 0, 0, 0.5);
+  color: #6a727a;
   transition: 0.3s;
 }
 .sidebar:hover {
