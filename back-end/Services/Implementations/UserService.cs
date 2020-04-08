@@ -47,10 +47,20 @@ namespace InternetBanking.Services.Implementations
 
                 if (linkingBank != null)
                 {
-                    var countModified = _UserCollection.AddPayee(userId, payee);
-                    if (countModified > 0)
+                    // get payee detail
+                    var payeeDetail = _UserCollection.GetByAccountNumber(payee.AccountNumber);
+
+
+                    if (payeeDetail != null)
                     {
-                        res = payee;
+                        if (string.IsNullOrEmpty(payee.MnemonicName))
+                            payee.MnemonicName = payeeDetail.Name;
+                        payee.Id = Guid.NewGuid();
+                        var countModified = _UserCollection.AddPayee(userId, payee);
+                        if (countModified > 0)
+                        {
+                            res = payee;
+                        }
                     }
                 }
             }

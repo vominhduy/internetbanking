@@ -32,11 +32,11 @@ namespace InternetBanking.Controllers
         //}
 
         // GET: api/Users/31231123
-        [HttpGet("{id}")]
+        [HttpGet()]
         [AllowAnonymous]
-        public IActionResult GetDetailUser(Guid id)
+        public IActionResult GetDetailUser()
         {
-            var records = _Service.GetUsers(new UserFilter() { Id = id, Name = "" });
+            var records = _Service.GetUsers(new UserFilter() { Id = this.UserId, Name = "" });
 
             if (records.Any())
                 return Ok(records.FirstOrDefault());
