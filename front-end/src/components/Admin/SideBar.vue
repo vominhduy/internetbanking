@@ -11,10 +11,10 @@
                 <b-list-group-item :to="`/employee/`" >
                     Xem danh sách giao dịch trong tháng với các ngân hàng khác
                 </b-list-group-item> -->
-                <b-list-group-item :to="`/employee/`" >
+                <b-list-group-item  >
                     Quản lý danh sách nhân viên
                 </b-list-group-item>
-                <b-list-group-item :to="`/employee/`" >
+                <b-list-group-item  >
                     Xem danh sách giao dịch trong tháng với các ngân hàng khác
                 </b-list-group-item>
             </b-list-group>
