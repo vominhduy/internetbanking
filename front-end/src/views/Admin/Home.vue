@@ -8,7 +8,7 @@
           placeholder="Tên đăng nhập"
         ></b-form-input>
       </b-form-group>
-      <b-form-group label="Email:">
+      <b-form-group label="Họ:">
         <b-form-input
           type="text"
           required
@@ -19,7 +19,7 @@
         <b-form-input
           type="text"
           required
-          placeholder="Họ"
+          placeholder="Email"
         ></b-form-input>
       </b-form-group>
 
