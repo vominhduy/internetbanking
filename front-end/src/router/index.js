@@ -10,6 +10,8 @@ import constant from '../helper/constant'
 import EmployeeHome from '../views/Employee/Home.vue'
 
 import UserHome from '../views/User/Home.vue'
+import UserAccounts from '../views/User/UserAccounts.vue'
+import UserContacts from '../views/User/Contacts.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 
@@ -64,9 +66,47 @@ const routes = [
     }
   },
   {
+    path: '/employee/create-user',
+    name: 'CreateUser',
+    component: CreateUser,
+    meta: { layout: EmployeeLayout }
+  },
+  {
+    path: '/employee/pay-in',
+    name: 'PayIn',
+    component: PayIn,
+    meta: { layout: EmployeeLayout }
+  },
+  {
+    path: '/employee/histories',
+    name: 'History',
+    component: History,
+    meta: { layout: EmployeeLayout }
+  },
+  {
     path: '/user/',
     name: 'UserHome',
     component: UserHome,
+    meta: {
+      layout: UserLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.user]
+    }
+  },
+  {
+    path: '/user/accounts',
+    name: 'UserAccounts',
+    component: UserAccounts,
+    meta: {
+      layout: UserLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.user]
+    }
+  },
+  {
+    path: '/user/contacts',
+    name: 'UserContacts',
+    component: UserContacts,
     meta: {
       layout: UserLayout,
       requiresAuthen: true,
@@ -84,29 +124,16 @@ const routes = [
     }
   },
   {
-    path: '/employee/create-user',
-    name: 'CreateUser',
-    component: CreateUser,
-    meta: { layout: EmployeeLayout }
-  },
-  {
-    path: '/employee/pay-in',
-    name: 'PayIn',
-    component: PayIn,
-    meta: { layout: EmployeeLayout }
-  },
-  {
     path: '/user/remittance',
     name: 'remittance',
     component: remittance,
-    meta: { layout: UserLayout }
+    meta: 
+      { 
+        layout: UserLayout,
+        requiresAuthen: true,
+        requiresRole: [constant.role.user] 
+      }
   },
-  {
-    path: '/employee/histories',
-    name: 'History',
-    component: History,
-    meta: { layout: EmployeeLayout }
-  }
 ]
 
 const router = new VueRouter({

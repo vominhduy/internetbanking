@@ -49,8 +49,16 @@ module.exports = {
             // TODO
             console.log(this.last_usded)
         } else if (method === "put") {
-            // TODO
-            console.log(this.last_usded)
+            this.last_usded = Math.round((new Date()).getTime() / 1000);
+            return new Promise((resolve, reject) => {
+                instance.put(url, request)
+                    .then(res => {
+                        resolve(res);
+                    })
+                    .catch(err => {
+                        reject(err)
+                    });
+            });
         }
         else if (method === "post") {
             this.last_usded = Math.round((new Date()).getTime() / 1000);

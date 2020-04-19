@@ -13,7 +13,7 @@
         Danh sách tài khoản
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
-      <router-link to="/employee/">
+      <router-link to="/user/contacts">
         Thiết lập danh bạ
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
