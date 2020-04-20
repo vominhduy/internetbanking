@@ -9,7 +9,7 @@
           @click.prevent="openHome"
         />
       </div>
-      <router-link to="/employee/">
+      <router-link to="/user/accounts">
         Danh sách tài khoản
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
