@@ -13,6 +13,7 @@ import UserHome from '../views/User/Home.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 import SearchStaff from '../views/Admin/SearchStaff.vue'
+import EditRemoveStaff from '../views/Admin/EditRemoveStaff.vue'
 
 //import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
@@ -88,6 +89,12 @@ const routes = [{
         name: 'SearchStaff',
         component: SearchStaff,
         meta: { layout: SearchStaff }
+    },
+    {
+        path: '/admin/edit-remove',
+        name: 'EditRemoveStaff',
+        component: EditRemoveStaff,
+        meta: { layout: EditRemoveStaff }
     },
 
     {
