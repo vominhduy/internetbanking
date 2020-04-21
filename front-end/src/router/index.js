@@ -12,6 +12,8 @@ import EmployeeHome from '../views/Employee/Home.vue'
 import UserHome from '../views/User/Home.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
+import SearchStaff from '../views/Admin/SearchStaff.vue'
+import EditRemoveStaff from '../views/Admin/EditRemoveStaff.vue'
 
 //import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
@@ -31,87 +33,99 @@ Vue.use(BootstrapVueIcons)
 Vue.use(VueRouter)
 
 Vue.use(VeeValidate, {
-  inject: true,
-  fieldsBagName: "veeFields",
-  errorBagName: "veeErrors"
+    inject: true,
+    fieldsBagName: "veeFields",
+    errorBagName: "veeErrors"
 });
 
 
 axios.defaults.baseURL = "https://localhost:44396/api/";
 //axios.defaults.baseURL = "http://ddpbank.somee.com/api/";\
 
-const routes = [
-  {
-    path: '/',
-    name: 'Login',
-    component: Login,
-    meta: { layout: LoginLayout }
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login,
-    meta: { layout: LoginLayout }
-  },
-  {
-    path: '/employee/',
-    name: 'EmployeeHome',
-    component: EmployeeHome,
-    meta: {
-      layout: EmployeeLayout,
-      requiresAuthen: true,
-      requiresRole: [constant.role.employee]
+const routes = [{
+        path: '/',
+        name: 'Login',
+        component: Login,
+        meta: { layout: LoginLayout }
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login,
+        meta: { layout: LoginLayout }
+    },
+    {
+        path: '/employee/',
+        name: 'EmployeeHome',
+        component: EmployeeHome,
+        meta: {
+            layout: EmployeeLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.employee]
+        }
+    },
+    {
+        path: '/user/',
+        name: 'UserHome',
+        component: UserHome,
+        meta: {
+            layout: UserLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.user]
+        }
+    },
+    {
+        path: '/admin/',
+        name: 'AdminHome',
+        component: AdminHome,
+        meta: {
+            layout: AdminLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.admin]
+        }
+    },
+    {
+        path: '/admin/search',
+        name: 'SearchStaff',
+        component: SearchStaff,
+        meta: { layout: SearchStaff }
+    },
+    {
+        path: '/admin/edit-remove',
+        name: 'EditRemoveStaff',
+        component: EditRemoveStaff,
+        meta: { layout: EditRemoveStaff }
+    },
+
+    {
+        path: '/employee/create-user',
+        name: 'CreateUser',
+        component: CreateUser,
+        meta: { layout: EmployeeLayout }
+    },
+    {
+        path: '/employee/pay-in',
+        name: 'PayIn',
+        component: PayIn,
+        meta: { layout: EmployeeLayout }
+    },
+    {
+        path: '/user/remittance',
+        name: 'remittance',
+        component: remittance,
+        meta: { layout: UserLayout }
+    },
+    {
+        path: '/employee/histories',
+        name: 'History',
+        component: History,
+        meta: { layout: EmployeeLayout }
     }
-  },
-  {
-    path: '/user/',
-    name: 'UserHome',
-    component: UserHome,
-    meta: {
-      layout: UserLayout,
-      requiresAuthen: true,
-      requiresRole: [constant.role.user]
-    }
-  },
-  {
-    path: '/admin/',
-    name: 'AdminHome',
-    component: AdminHome,
-    meta: {
-      layout: AdminLayout,
-      requiresAuthen: true,
-      requiresRole: [constant.role.admin]
-    }
-  },
-  {
-    path: '/employee/create-user',
-    name: 'CreateUser',
-    component: CreateUser,
-    meta: { layout: EmployeeLayout }
-  },
-  {
-    path: '/employee/pay-in',
-    name: 'PayIn',
-    component: PayIn,
-    meta: { layout: EmployeeLayout }
-  },
-  {
-    path: '/user/remittance',
-    name: 'remittance',
-    component: remittance,
-    meta: { layout: UserLayout }
-  },
-  {
-    path: '/employee/histories',
-    name: 'History',
-    component: History,
-    meta: { layout: EmployeeLayout }
-  }
 ]
 
 const router = new VueRouter({
-  routes,
-  mode: 'history'
+    routes,
+    mode: 'history'
 })
 
 export default router
