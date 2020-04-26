@@ -8,6 +8,7 @@ import UserLayout from '../layouts/UserLayout.vue'
 import constant from '../helper/constant'
 import EditRemoveStaffLayout from '../layouts/EditRemoveStaff.vue'
 import SearchStaffLayout from '../layouts/SearchStaffLayout.vue'
+import AddStaffLayout from '../layouts/AddStaffLayout.vue'
 
 import EmployeeHome from '../views/Employee/Home.vue'
 
@@ -16,6 +17,7 @@ import UserHome from '../views/User/Home.vue'
 import AdminHome from '../views/Admin/Home.vue'
 import SearchStaff from '../views/Admin/SearchStaff.vue'
 import EditRemoveStaff from '../views/Admin/EditRemoveStaff.vue'
+import AddStaff from '../views/Admin/AddStaff.vue'
 
 //import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
@@ -99,6 +101,14 @@ const routes = [{
         name: 'EditRemoveStaff',
         component: EditRemoveStaff,
         meta: { layout: EditRemoveStaffLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.admin] }
+    },
+    {
+        path: '/admin/add-staff/',
+        name: 'AddStaff',
+        component: AddStaff,
+        meta: { layout: AddStaffLayout,
             requiresAuthen: true,
             requiresRole: [constant.role.admin] }
     },

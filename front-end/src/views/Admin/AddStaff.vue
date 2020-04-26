@@ -1,6 +1,6 @@
 <template>
   <b-card class="bcard-shadow">
-    <h1>Tạo tài khoản khách hàng</h1>
+    <h1>Thêm nhân viên</h1>
     <b-form @submit.stop.prevent="onSubmit" v-if="show">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
         <b-form-input id="Name" name="Name" v-validate="{required:true}" v-model="user.Name" :state="validateState('Name')"
@@ -110,4 +110,66 @@
 </style>
 
 <script>
+import apiHelper from '../../helper/call_api'
+
+export default {
+  name: "AddStaff",
+  data() {
+    return {
+      respone: {},
+      user: {
+        Phone: null,
+        Name: null,
+        Email: null,
+        Address: null,
+        Gender: 1
+      },
+      Genders: [
+        { value: 1, text: "Nam" },
+        { value: 2, text: "Nữ" },
+        { value: 3, text: "Khác" }
+      ],
+      show: true
+    };
+  },
+  methods: {
+    onSubmit(evt) {
+      evt.preventDefault();
+      this.$validator.validateAll().then(result => {
+        if (!result) {
+          return;
+        }
+        apiHelper
+          .call_api(`employees`, "post", this.user)
+          .then(res => {
+            this.respone = res.data;
+            this.$refs["respone"].show();
+          })
+          .catch(err => {
+            this.empty = true;
+            console.log(err);
+          });
+    })},
+    canceled(evt) {
+      evt.preventDefault()
+      // Reset our form values
+      this.user = {};
+      this.user.Gender = 1;
+      // Trick to reset/clear native browser form validation state
+      this.show = false
+      this.$nextTick(() => {
+        this.show = true
+      })
+    },
+    validateState(ref) {
+      if (
+        this.veeFields[ref] &&
+        (this.veeFields[ref].dirty || this.veeFields[ref].validated)
+      ) {
+        return !this.veeErrors.has(ref);
+      }
+      return null;
+    },
+  }
+};
 </script>
