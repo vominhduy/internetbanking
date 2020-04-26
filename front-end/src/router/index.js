@@ -6,6 +6,8 @@ import LoginLayout from '../layouts/LoginLayout.vue'
 import EmployeeLayout from '../layouts/EmployeeLayout.vue'
 import UserLayout from '../layouts/UserLayout.vue'
 import constant from '../helper/constant'
+import EditRemoveStaffLayout from '../layouts/EditRemoveStaff.vue'
+import SearchStaffLayout from '../layouts/SearchStaffLayout.vue'
 
 import EmployeeHome from '../views/Employee/Home.vue'
 
@@ -85,16 +87,20 @@ const routes = [{
         }
     },
     {
-        path: '/admin/search',
+        path: '/admin/search/',
         name: 'SearchStaff',
         component: SearchStaff,
-        meta: { layout: SearchStaff }
+        meta: { layout: SearchStaffLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.admin] }
     },
     {
-        path: '/admin/edit-remove',
+        path: '/admin/edit-remove/',
         name: 'EditRemoveStaff',
         component: EditRemoveStaff,
-        meta: { layout: EditRemoveStaff }
+        meta: { layout: EditRemoveStaffLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.admin] }
     },
 
     {

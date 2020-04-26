@@ -1,7 +1,7 @@
 <template>
   <div>
    <b-form>
-      <b-form-group label="Xóa sửa nhân viên" style="width: 30%;">
+      <b-form-group label="Xóa / Sửa nhân viên" style="width: 30%;">
         <b-form-input
           type="text"
           required
@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: "AdminHome",
+  name: "SearchStaff",
   components: {}
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div>
    <b-form>
-     <b-form-group label="Xóa sửa nhân viên" style="width: 30%;">
+     <b-form-group label="Xóa / Sửa nhân viên" style="width: 30%;">
         <b-form-input
           type="text"
           required
@@ -10,7 +10,7 @@
         </b-form-input>
         <b-button type="submit" style="float:right" variant="primary">Tìm kiếm</b-button>
       </b-form-group>
-      <b-form-group label="Sửa xóa nhân viên">
+      <b-form-group label="Tên">
         <b-form-input
           type="text"
           required
@@ -49,7 +49,7 @@
 
 <script>
 export default {
-  name: "AdminHome",
+  name: "EditRemoveStaff",
   components: {}
 };
 </script>
