@@ -53,6 +53,8 @@ namespace InternetBanking.Services.Implementations
             user.Name = employee.Name;
             user.Phone = employee.Phone;
             user.Password = Encrypting.Bcrypt(employee.Password);
+            user.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
+            //Thêm ngày 01-05-2020 fix bug không đăng nhập được khi tao tài khoản
             employee.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
             user.Role = 2;
            
