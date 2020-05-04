@@ -10,7 +10,7 @@ namespace InternetBanking.Services.Implementations
     {
         ExternalInfoUserResponse GetInfoUser(string accountNumber);
         bool PayIn(string source, string dest, decimal amount, string message);
-        void SetPartnerCode(string code);
+        void SetPartnerCode();
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ namespace InternetBanking.Services.Implementations
             }
         }
 
-        public void SetPartnerCode(string code)
+        public void SetPartnerCode()
         {
             _partnerCode = "99793bb9137042a3a7f15950f1215950";
             _url = "http://bkt-banking.herokuapp.com/";
