@@ -42,10 +42,12 @@
                 </b-button>
               </b-col>
             </b-row>
+            <!--
             <b-label for="usr">{{info_confirm_otp.full_name}}:</b-label>
             <b-label>{{info_confirm_otp.email}}:</b-label>
             <b-label>{{info_confirm_otp.transaction_id}}:</b-label>
-            <b-form-input v-model="transaction_id">{{info_confirm_otp.transaction_id}}</b-form-input>
+            -->
+
           </b-form-group>
         </b-form>
       </div>

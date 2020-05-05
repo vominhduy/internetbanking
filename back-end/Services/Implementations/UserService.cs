@@ -505,6 +505,39 @@ namespace InternetBanking.Services.Implementations
                         else
                         {
                             // TODO
+                            // Khuê
+                            IExternalBanking externalBanking = null;
+                            if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                            {
+                                externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+                            var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            if (source != null)
+                            {
+                                hisTransaction.AccountName = source.full_name;
+                                hisTransaction.AccountNumber = source.account_number;
+                                hisTransaction.Description = transfer.Description;
+
+                                if (transfer.IsSenderPay)
+                                {
+                                    hisTransaction.Money = transfer.Money;
+                                }
+                                else
+                                {
+                                    hisTransaction.Money = transfer.Money - transfer.Fee;
+                                }
+
+                                var linkingBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+                                if (linkingBank != null)
+                                {
+                                    hisTransaction.BankName = linkingBank.Name;
+                                }
+                                else
+                                    continue;
+                            }
+                            else
+                                continue;
                         }
 
                         res.Add(hisTransaction);
@@ -564,6 +597,40 @@ namespace InternetBanking.Services.Implementations
                         else
                         {
                             // TODO
+
+                            // Get chi tiết người nhận
+                            IExternalBanking externalBanking = null;
+                            if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                            {
+                                externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+                            var dest = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            if (dest != null)
+                            {
+                                hisTransaction.AccountName = dest.full_name;
+                                hisTransaction.AccountNumber = dest.account_number;
+                                hisTransaction.Description = transfer.Description;
+
+                                if (!transfer.IsSenderPay)
+                                {
+                                    hisTransaction.Money = transfer.Money;
+                                }
+                                else
+                                {
+                                    hisTransaction.Money = transfer.Money + transfer.Fee;
+                                }
+
+                                var linkingBank = _LinkingBankCollection.GetById(transfer.DestinationLinkingBankId);
+                                if (linkingBank != null)
+                                {
+                                    hisTransaction.BankName = linkingBank.Name;
+                                }
+                                else
+                                    continue;
+                            }
+                            else
+                                continue;
                         }
 
                         res.Add(hisTransaction);
@@ -760,6 +827,7 @@ namespace InternetBanking.Services.Implementations
                         externalBanking.SetPartnerCode();
                     }
 
+                    // test only
                     transfer.DestinationAccountNumber = "0000000034";
                     var result = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
                     if (result != null)
