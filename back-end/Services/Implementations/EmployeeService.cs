@@ -20,9 +20,10 @@ namespace InternetBanking.Services.Implementations
         private ITransferCollection _TransferCollection;
         private ITransactionCollection _TransactionCollection;
         private ILinkingBankCollection _LinkingBankCollection;
+        private IEncrypt _Encrypt;
 
         public EmployeeService(ISetting setting, IUserCollection userCollection, IContext context, MongoDBClient mongoDBClient
-            , ITransactionCollection transactionCollection, ITransferCollection transferCollection, ILinkingBankCollection linkingBankCollection)
+            , ITransactionCollection transactionCollection, ITransferCollection transferCollection, ILinkingBankCollection linkingBankCollection, IEncrypt Encrypt)
         {
             _Setting = setting;
             _UserCollection = userCollection;
@@ -31,6 +32,7 @@ namespace InternetBanking.Services.Implementations
             _TransferCollection = transferCollection;
             _TransactionCollection = transactionCollection;
             _LinkingBankCollection = linkingBankCollection;
+            _Encrypt = Encrypt;
         }
 
         public Employee Add(Employee employee)
@@ -171,6 +173,22 @@ namespace InternetBanking.Services.Implementations
                         // Get thông tin tài khoản nguồn
                         // TODO
                         var sourceAccount = new ExternalAccount();
+                        IExternalBanking externalBanking = null;
+                        if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                        {
+                            externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                            externalBanking.SetPartnerCode();
+                        }
+                        var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                        if(source != null)
+                        {
+                            sourceAccount.Name = source.full_name;
+                            sourceAccount.AccountNumber = source.account_number;
+                        }
+                        else
+                        {
+                            sourceAccount = null;
+                        }
                         if (sourceAccount != null)
                         {
                             // Get thông tin tài khoản đích
@@ -239,6 +257,22 @@ namespace InternetBanking.Services.Implementations
                             // Get thông tin tài khoản đích
                             // TODO
                             var destAccount = new ExternalAccount();
+                            IExternalBanking externalBanking = null;
+                            if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                            {
+                                externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+                            var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            if (source != null)
+                            {
+                                destAccount.AccountNumber = source.account_number;
+                                destAccount.Name = source.full_name;
+                            }
+                            else
+                            {
+                                destAccount = null;
+                            }
                             if (destAccount != null)
                             {
                                 var history = new CrossChecking();

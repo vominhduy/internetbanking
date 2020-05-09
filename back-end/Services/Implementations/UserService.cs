@@ -22,9 +22,11 @@ namespace InternetBanking.Services.Implementations
         private ITransactionCollection _TransactionCollection;
         private IDeptReminderCollection _DeptReminderCollection;
         private MongoDBClient _MongoDBClient;
+        private IEncrypt _Encrypt;
+
         public UserService(ISetting setting, IUserCollection userCollection, ILinkingBankCollection linkingBankCollection, IContext context
             , ITransferCollection transferCollection, MongoDBClient mongoDBClient, IDeptReminderCollection deptReminderCollection
-            , ITransactionCollection transactionCollection)
+            , ITransactionCollection transactionCollection, IEncrypt encrypt)
         {
             _UserCollection = userCollection;
             _Setting = setting;
@@ -34,6 +36,7 @@ namespace InternetBanking.Services.Implementations
             _MongoDBClient = mongoDBClient;
             _DeptReminderCollection = deptReminderCollection;
             _TransactionCollection = transactionCollection;
+            _Encrypt = encrypt;
         }
 
         public Payee AddPayee(Guid userId, Payee payee)
@@ -183,6 +186,17 @@ namespace InternetBanking.Services.Implementations
                                                 {
                                                     // lien ngan hang
                                                     // TODO
+                                                    // Khuê
+                                                    IExternalBanking externalBanking = null;
+                                                    if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                                                    {
+                                                        externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                                                        externalBanking.SetPartnerCode();
+                                                    }
+
+                                                    var result = externalBanking.PayIn(transfer.SourceAccountNumber, transfer.DestinationAccountNumber, transfer.Money, transfer.Description);
+
+                                                    success = result;
                                                 }
 
                                                 if (success)
@@ -491,6 +505,39 @@ namespace InternetBanking.Services.Implementations
                         else
                         {
                             // TODO
+                            // Khuê
+                            IExternalBanking externalBanking = null;
+                            if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                            {
+                                externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+                            var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            if (source != null)
+                            {
+                                hisTransaction.AccountName = source.full_name;
+                                hisTransaction.AccountNumber = source.account_number;
+                                hisTransaction.Description = transfer.Description;
+
+                                if (transfer.IsSenderPay)
+                                {
+                                    hisTransaction.Money = transfer.Money;
+                                }
+                                else
+                                {
+                                    hisTransaction.Money = transfer.Money - transfer.Fee;
+                                }
+
+                                var linkingBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+                                if (linkingBank != null)
+                                {
+                                    hisTransaction.BankName = linkingBank.Name;
+                                }
+                                else
+                                    continue;
+                            }
+                            else
+                                continue;
                         }
 
                         res.Add(hisTransaction);
@@ -550,6 +597,40 @@ namespace InternetBanking.Services.Implementations
                         else
                         {
                             // TODO
+
+                            // Get chi tiết người nhận
+                            IExternalBanking externalBanking = null;
+                            if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                            {
+                                externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+                            var dest = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            if (dest != null)
+                            {
+                                hisTransaction.AccountName = dest.full_name;
+                                hisTransaction.AccountNumber = dest.account_number;
+                                hisTransaction.Description = transfer.Description;
+
+                                if (!transfer.IsSenderPay)
+                                {
+                                    hisTransaction.Money = transfer.Money;
+                                }
+                                else
+                                {
+                                    hisTransaction.Money = transfer.Money + transfer.Fee;
+                                }
+
+                                var linkingBank = _LinkingBankCollection.GetById(transfer.DestinationLinkingBankId);
+                                if (linkingBank != null)
+                                {
+                                    hisTransaction.BankName = linkingBank.Name;
+                                }
+                                else
+                                    continue;
+                            }
+                            else
+                                continue;
                         }
 
                         res.Add(hisTransaction);
@@ -738,6 +819,21 @@ namespace InternetBanking.Services.Implementations
                 {
                     // Get recepient info from linking bank
                     // TODO
+                    // Khuê
+                    IExternalBanking externalBanking = null;
+                    if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                    {
+                        externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                        externalBanking.SetPartnerCode();
+                    }
+
+                    // test only
+                    transfer.DestinationAccountNumber = "0000000034";
+                    var result = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                    if (result != null)
+                    {
+                        recepient = new User();
+                    }
                 }
 
                 if (recepient != null)

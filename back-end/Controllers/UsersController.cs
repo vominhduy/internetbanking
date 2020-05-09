@@ -4,7 +4,9 @@ using InternetBanking.Models;
 using InternetBanking.Models.Constants;
 using InternetBanking.Models.Filters;
 using InternetBanking.Services;
+using InternetBanking.Services.Implementations;
 using InternetBanking.Settings;
+using InternetBanking.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +16,7 @@ namespace InternetBanking.Controllers
     {
         private ISetting _Setting;
         private IUserService _Service;
+        private IEncrypt _Encrypt;
 
         public UsersController(ISetting setting, IUserService service)
         {
@@ -44,6 +47,44 @@ namespace InternetBanking.Controllers
                 return NotFound();
         }
 
+        [HttpGet("infotransfer")]
+        //[Authorize(Roles = "User")]
+        public IActionResult GetInfoTransfer([FromQuery]string accountNumber, [FromQuery] Guid bankId)
+        {
+            if (bankId == Guid.Empty)
+            {
+                var records = _Service.GetUsers(new UserFilter() { AccountNumber = accountNumber });
+                if (records.Any())
+                    return Ok(records.Select(x => new
+                    {
+                        x.AccountNumber,
+                        x.Name
+                    }).FirstOrDefault());
+                else
+                    return NotFound();
+            }
+            else
+            {
+                IExternalBanking externalBanking = null;
+                if (bankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                {
+                    externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+                    externalBanking.SetPartnerCode();
+                }
+
+                var result = externalBanking.GetInfoUser(accountNumber);
+                if (result != null)
+                {
+                    return Ok(new
+                    {
+                        AccountNumber = result.account_number,
+                        Name = result.full_name
+                    });
+                }
+                else
+                    return NotFound();
+            }
+        }
         //// PUT: api/User
         //[HttpPut()]
         //[Authorize(Roles = "User")]

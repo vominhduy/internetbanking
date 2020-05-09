@@ -33,7 +33,7 @@ namespace InternetBanking.Controllers
         public IActionResult Sign(string partnerCode, string input)
         {
 
-            _external.SetPartnerCode("a");
+            _external.SetPartnerCode();
             var t1 =_external.GetInfoUser("0000000043");
             var t2 =_external.PayIn("0170013731", "0000000043", 1000, "test");
 
