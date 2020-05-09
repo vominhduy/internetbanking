@@ -28,7 +28,10 @@
       <b-form-group>
         <b-row>
           <b-col>
-            <b-button block type="submit" variant="success">Thêm</b-button>
+            <b-button block type="submit" variant="success">Sửa</b-button>
+          </b-col>
+          <b-col>
+            <b-button block  variant="danger" @click.prevent="deleted">Xóa</b-button>
           </b-col>
           <b-col>
             <b-button block variant="danger" @click.prevent="canceled">Hủy</b-button>
@@ -140,7 +143,7 @@ export default {
           return;
         }
         apiHelper
-          .call_api(`employees`, "post", this.user)
+          .call_api(`api/Administrators/Employees/962c3538-65f9-40c3-98b4-0ce277c3f559`, "put", this.user)
           .then(res => {
             this.respone = res.data;
             this.$refs["respone"].show();
@@ -161,6 +164,9 @@ export default {
         this.show = true
       })
     },
+    deleted(iduser){
+      confirm.show("OkOK");
+    }, 
     validateState(ref) {
       if (
         this.veeFields[ref] &&

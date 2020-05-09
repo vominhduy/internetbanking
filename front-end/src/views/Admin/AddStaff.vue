@@ -140,7 +140,7 @@ export default {
           return;
         }
         apiHelper
-          .call_api(`employees`, "post", this.user)
+          .call_api(`Administrators/Employees`, "post", this.user)
           .then(res => {
             this.respone = res.data;
             this.$refs["respone"].show();

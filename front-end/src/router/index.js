@@ -18,7 +18,7 @@ import AdminHome from '../views/Admin/Home.vue'
 import SearchStaff from '../views/Admin/SearchStaff.vue'
 import EditRemoveStaff from '../views/Admin/EditRemoveStaff.vue'
 import AddStaff from '../views/Admin/AddStaff.vue'
-
+import ListEmployee from '../views/Admin/ListEmployee.vue'
 //import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
 
@@ -82,6 +82,16 @@ const routes = [{
         path: '/admin/',
         name: 'AdminHome',
         component: AdminHome,
+        meta: {
+            layout: AdminLayout,
+            requiresAuthen: true,
+            requiresRole: [constant.role.admin]
+        }
+    },
+    {
+        path: '/admin/ListEmployee/',
+        name: 'ListEmployee',
+        component: ListEmployee,
         meta: {
             layout: AdminLayout,
             requiresAuthen: true,
