@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace InternetBanking.Controllers
 {
     //[Authorize(Roles = "Admin")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class AdministratorsController : ApiController
     {
         private ISetting _Setting;
