@@ -174,12 +174,12 @@ namespace InternetBanking.Services.Implementations
                         // TODO
                         var sourceAccount = new ExternalAccount();
                         IExternalBanking externalBanking = null;
-                        if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                        if (transfer.SourceLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
                         {
                             externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                             externalBanking.SetPartnerCode();
                         }
-                        var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                        var source = externalBanking.GetInfoUser(transfer.SourceAccountNumber);
                         if(source != null)
                         {
                             sourceAccount.Name = source.full_name;

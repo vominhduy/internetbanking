@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace InternetBanking.Controllers
 {
     //[Authorize(Roles = "Admin")]
-    [Route("api/[controller]")]
-    [ApiController]
+    //[Route("api/[controller]")]
+   // [ApiController]
     public class AdministratorsController : ApiController
     {
         private ISetting _Setting;
@@ -112,7 +112,7 @@ namespace InternetBanking.Controllers
         [HttpGet("CrossCheckings/In")]
         public IActionResult GetCrossCheckingIn([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? bankId)
         {
-            var records = _Service.CrossCheckingIn(from, to, bankId);
+            var records = _Service.CrossCheckingIn(from, to, bankId); 
 
             return Ok(records);
         }
