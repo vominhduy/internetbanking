@@ -7,6 +7,7 @@ import EmployeeLayout from '../layouts/EmployeeLayout.vue'
 import UserLayout from '../layouts/UserLayout.vue'
 import constant from '../helper/constant'
 
+import AddStaffLayout from '../layouts/AddStaffLayout.vue'
 import EmployeeHome from '../views/Employee/Home.vue'
 
 import UserHome from '../views/User/Home.vue'
@@ -14,7 +15,10 @@ import UserAccounts from '../views/User/UserAccounts.vue'
 import UserContacts from '../views/User/Contacts.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
-
+import AddStaff from '../views/Admin/AddStaff.vue'
+import ListEmployee from '../views/Admin/ListEmployee.vue'
+import DoisoatIN  from '../views/Admin/DoisoatIN.vue'
+import DoisoatOUT from '../views/Admin/DoisoatOUT.vue'
 //import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
 
@@ -123,6 +127,45 @@ const routes = [
       requiresRole: [constant.role.admin]
     }
   },
+  {
+    path: '/admin/ListEmployee/',
+    name: 'ListEmployee',
+    component: ListEmployee,
+    meta: {
+        layout: AdminLayout,
+        requiresAuthen: true,
+        requiresRole: [constant.role.admin]
+    }
+},
+{
+  path: '/admin/DoisoatIN/',
+  name: 'in',
+  component: DoisoatIN,
+  meta: {
+      layout: AdminLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.admin]
+  }
+},
+{
+  path: '/admin/DoisoatOUT/',
+  name: 'out',
+  component: DoisoatOUT,
+  meta: {
+      layout: AdminLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.admin]
+  }
+},
+{
+  path: '/admin/addstaff/',
+  name: 'AddStaff',
+  component: AddStaff,
+  meta: { layout: AddStaffLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.admin] }
+},
+
   {
     path: '/user/remittance',
     name: 'remittance',

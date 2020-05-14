@@ -5,11 +5,17 @@
                 <h6 class="mb-0">Categories</h6>
             </template>
             <b-list-group>
-                <b-list-group-item :to="`/employee/`" >
+                <b-list-group-item :to="`/admin/ListEmployee`" >
                     Quản lý danh sách nhân viên
                 </b-list-group-item>
-                <b-list-group-item :to="`/employee/`" >
-                    Xem danh sách giao dịch
+                 <b-list-group-item :to="`/admin/addStaff`" >
+                    Thêm nhân viên
+                </b-list-group-item>
+                <b-list-group-item :to="`/admin/DoisoatIN`" >
+                    Đối soát IN
+                </b-list-group-item>
+                <b-list-group-item :to="`/admin/DoisoatOUT`" >
+                    Đối soát OUT
                 </b-list-group-item>
             </b-list-group>
         </b-card>
