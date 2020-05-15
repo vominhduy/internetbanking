@@ -59,16 +59,17 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public bool ConfirmForgetting(Guid userId, string otp)
+        public bool ConfirmForgetting(Guid id, string email, string otp)
         {
             var res = false;
 
-            var detail = _UserCollection.GetById(userId);
+            var details = _UserCollection.Get(new UserFilter() { Email = email });
 
-            if (detail != null)
+            if (details != null && details.Any())
             {
+                var detail = details.FirstOrDefault();
                 // Get chi tiết giao dịch
-                var transactions = _TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = userId, Type = 2 });
+                var transactions = _TransactionCollection.GetMany(new TransactionFilter() { Id = id, ReferenceId = detail.Id, Type = 2 });
                 if (transactions.Any())
                 {
                     var transaction = transactions.FirstOrDefault();
@@ -89,7 +90,7 @@ namespace InternetBanking.Services.Implementations
                                     // Create mật khẩu mới
                                     string pass = _Context.MakeOTP(8);
 
-                                    if (_UserCollection.ChangePassword(new UserFilter() { Id = userId }, Encrypting.Bcrypt(pass)) > 0)
+                                    if (_UserCollection.ChangePassword(new UserFilter() { Id = detail.Id }, Encrypting.Bcrypt(pass)) > 0)
                                     {
                                         // Update giao dịch
                                         transaction.ConfirmTime = DateTime.Now;
@@ -145,9 +146,9 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public bool ForgetPassword(string email)
+        public Guid ForgetPassword(string email)
         {
-            var res = false;
+            var res = Guid.Empty;
 
             var details = _UserCollection.Get(new UserFilter() { Email = email });
             if (details.Any())
@@ -161,12 +162,12 @@ namespace InternetBanking.Services.Implementations
                 while (true)
                 {
                     transaction.Otp = _Context.MakeOTP(6);
-                    if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = detail.Id, Type = 2 }).Any())
+                    if (!_TransactionCollection.GetMany(new TransactionFilter() { ReferenceId = detail.Id, Type = 2, Otp = transaction.Otp }).Any())
                         break;
                 }
 
                 _TransactionCollection.Create(transaction);
-                if (transaction.Id == Guid.Empty)
+                if (transaction.Id != Guid.Empty)
                 {
                     // Send mail
                     var sb = new StringBuilder();
@@ -178,7 +179,7 @@ namespace InternetBanking.Services.Implementations
 
                     if (_Context.SendMail("Xác thực yêu cầu quên mật khẩu", sb.ToString(), detail.Email, detail.Name))
                     {
-                        res = true;
+                        res = transaction.Id;
                     }
                 }
             }

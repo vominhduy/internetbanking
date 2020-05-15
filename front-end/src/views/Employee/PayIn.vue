@@ -120,9 +120,6 @@ export default {
               this.responeMessage = "Nạp tiền thất bại!";
               this.makeToast('danger', "Nạp tiền thất bại!");
             }
-
-            this.makeToast('')
-
             //this.$refs["respone"].show();
           })
           .catch(err => {

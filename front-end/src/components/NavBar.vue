@@ -122,17 +122,6 @@
 import apiHelper from "../helper/call_api";
 import { Validator } from "vee-validate";
 
-const isPassword = (value, { second } = {}) => {
-  return value == second;
-};
-
-// The first param is called 'min', and the second is called 'max'.
-const paramNames = ["second"];
-
-Validator.extend("password", isPassword, {
-  paramNames //  pass it in the extend options.
-});
-
 export default {
   name: "NavBar",
   data() {

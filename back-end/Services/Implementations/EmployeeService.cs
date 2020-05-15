@@ -74,6 +74,11 @@ namespace InternetBanking.Services.Implementations
         public User AddUser(Account account)
         {
             User res = null;
+
+            var duplicates = _UserCollection.Get(new UserFilter() { Email = account.Email });
+            if (duplicates != null && duplicates.Any())
+                return res;
+
             using (var sessionTask = _MongoDBClient.StartSessionAsync())
             {
                 var session = sessionTask.Result;
