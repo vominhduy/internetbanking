@@ -238,9 +238,19 @@ namespace InternetBanking.Services.Implementations
 
         public void Logout(ClaimsPrincipal claimsPrincipal, HttpRequest httpRequest)
         {
-            var token = _Context.GetCurrentToken(httpRequest);
-            _Context.SetTokenBlackList(token, 0);
+            if (!claimsPrincipal.Claims.Any())
+                return;
+
             var timeExpire = Convert.ToInt64(claimsPrincipal.FindFirst("exp").Value);
+
+            if (timeExpire <= 0)
+                return;
+
+            var token = _Context.GetCurrentToken(httpRequest);
+
+
+            //_Context.SetTokenBlackList(token, 0);
+            
 
             _Context.SetTokenBlackList(token, timeExpire);
         }
