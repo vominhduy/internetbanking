@@ -1,7 +1,6 @@
 <template>
   <div>
     <b-form @submit.prevent="login" @reset="onReset" v-if="show">
-      <div id="ServerFeedback" class="invalid-message">{{form.serverErrorMessage}}</div>
       <b-form-group label="Username:">
         <b-form-input
           name="username"
@@ -27,7 +26,7 @@
         <br>
         <vue-recaptcha @verify="verifyRecaptcha" sitekey="6LcL7eQUAAAAANOMygbJIXb8yVFQc9vc-vUawUak" :loadRecaptchaScript="true">
         </vue-recaptcha>
-        <div id="CaptchaFeedback" class="invalid-message">{{form.recaptchaVerifiedMessage}}</div>
+        <div id="CaptchaFeedback" class="invalid-captcha">{{form.recaptchaVerifiedMessage}}</div>
       </b-form-group>
 
       <b-button type="submit" variant="primary">Submit</b-button>
@@ -37,12 +36,11 @@
 </template>
 
 <style scoped>
-  .invalid-feedback, .invalid-message {
+  .invalid-captcha {
     width: 100%;
     margin-top: .25rem;
-    font-size: 90%;
+    font-size: 80%;
     color: #dc3545;
-  font-weight: bold;
   }
 </style>
 
@@ -59,7 +57,6 @@ import VueRecaptcha from 'vue-recaptcha';
               password: '',
               recaptchaVerified: false,
               recaptchaVerifiedMessage: '',
-              serverErrorMessage:'',
             },
             show: true
         }
@@ -87,11 +84,6 @@ import VueRecaptcha from 'vue-recaptcha';
               }
             }
           })
-          .catch((err) => {
-            if(err.response.data){
-              this.form.serverErrorMessage = err.response.data;
-            }
-          });
         },
         onReset(evt) {
             evt.preventDefault()
