@@ -83,11 +83,9 @@
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
           <p>Tên: {{infoModal.content.AccountName}}</p>
           <p>Số tài khoản: {{infoModal.content.AccountNumber}}</p>
-          <p>Ngân hàng: {{infoModal.content.BankName}}</p>
           <p>Số tiền chuyển: {{infoModal.content.Money}}</p>
           <p>Nội dung: {{infoModal.content.Description}}</p>
           <p>Ngày: {{ infoModal.content.ConfirmTime | formatDate }}</p>
-          <p v-if="infoModal.content.IsPayIn != null && infoModal.content.IsPayIn">Ghi chú: Nạp tiền từ nhân viên!</p>
         </b-modal>
   </div>
 </template>

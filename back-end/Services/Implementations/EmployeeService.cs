@@ -4,8 +4,10 @@ using InternetBanking.Models;
 using InternetBanking.Models.Filters;
 using InternetBanking.Settings;
 using InternetBanking.Utils;
+using MongoDB.Bson.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -57,7 +59,7 @@ namespace InternetBanking.Services.Implementations
             user.Password = Encrypting.Bcrypt(employee.Password);
             employee.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
             user.Role = 2;
-           
+
 
             _UserCollection.Create(user);
             if (user.Id != Guid.Empty)
@@ -72,6 +74,11 @@ namespace InternetBanking.Services.Implementations
         public User AddUser(Account account)
         {
             User res = null;
+
+            var duplicates = _UserCollection.Get(new UserFilter() { Email = account.Email });
+            if (duplicates != null && duplicates.Any())
+                return res;
+
             using (var sessionTask = _MongoDBClient.StartSessionAsync())
             {
                 var session = sessionTask.Result;
@@ -82,47 +89,47 @@ namespace InternetBanking.Services.Implementations
                     //var lstUser = _UserCollection.Get(new UserFilter() { Username = account.Username });
                     //if (!lstUser.Any())
                     //{
-                        // phát sinh password ngẫu nhiên
-                        string randomPass = _Context.MakeOTP(10);
+                    // phát sinh password ngẫu nhiên
+                    string randomPass = _Context.MakeOTP(10);
                     // test only
                     account.Password = "123456";
 
                     res = new User();
-                        res.Id = Guid.Empty;
-                        res.Name = account.Name;
-                        res.Gender = account.Gender;
-                        res.Email = account.Email;
-                        res.Phone = account.Phone;
-                        //res.Password = Encrypting.Bcrypt(passDecrypt);
-                        res.Password = Encrypting.Bcrypt(randomPass);
-                        res.Address = account.Address;
-                        res.Role = 1;
+                    res.Id = Guid.Empty;
+                    res.Name = account.Name;
+                    res.Gender = account.Gender;
+                    res.Email = account.Email;
+                    res.Phone = account.Phone;
+                    //res.Password = Encrypting.Bcrypt(passDecrypt);
+                    res.Password = Encrypting.Bcrypt(randomPass);
+                    res.Address = account.Address;
+                    res.Role = 1;
 
-                        // Tao so tai khoan
-                        while (true)
-                        {
-                            res.AccountNumber = _Context.MakeOTP(10, isAllDigits: true);
-                            if (!_UserCollection.Get(new UserFilter() { AccountNumber = res.AccountNumber }).Any())
-                                break;
-                        }
-                        res.Username = string.Concat(account.Name.Split(' ').Last(), res.AccountNumber);
+                    // Tao so tai khoan
+                    while (true)
+                    {
+                        res.AccountNumber = _Context.MakeOTP(10, isAllDigits: true);
+                        if (!_UserCollection.Get(new UserFilter() { AccountNumber = res.AccountNumber }).Any())
+                            break;
+                    }
+                    res.Username = string.Concat(account.Name.Split(' ').Last(), res.AccountNumber);
 
-                        // Tạo thông tin tài khoản thanh toán
-                        res.CheckingAccount = new BankAccount()
-                        {
-                            AccountBalance = 0,
-                            Description = "Tài khoản thanh toán",
-                            Name = res.AccountNumber
-                        };
+                    // Tạo thông tin tài khoản thanh toán
+                    res.CheckingAccount = new BankAccount()
+                    {
+                        AccountBalance = 0,
+                        Description = "Tài khoản thanh toán",
+                        Name = res.AccountNumber
+                    };
 
-                        _UserCollection.Create(res);
+                    _UserCollection.Create(res);
 
-                        // tạo thành công trả về password
-                        res.Password = randomPass;
-                        if (res.Id.Equals(Guid.Empty))
-                        {
-                            res = null;
-                        }
+                    // tạo thành công trả về password
+                    res.Password = randomPass;
+                    if (res.Id.Equals(Guid.Empty))
+                    {
+                        res = null;
+                    }
                     //}
                     //else
                     //{
@@ -142,7 +149,7 @@ namespace InternetBanking.Services.Implementations
         {
             var res = new List<CrossChecking>();
 
-            var transfers = _TransferCollection.GetMany(new TransferFilter() { IsConfirmed = true});
+            var transfers = _TransferCollection.GetMany(new TransferFilter() { IsConfirmed = true });
             transfers = transfers.Where(x => x.DestinationLinkingBankId == Guid.Empty);
             if (bankId.HasValue)
             {
@@ -174,13 +181,13 @@ namespace InternetBanking.Services.Implementations
                         // TODO
                         var sourceAccount = new ExternalAccount();
                         IExternalBanking externalBanking = null;
-                        if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                        if (transfer.SourceLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
                         {
                             externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                             externalBanking.SetPartnerCode();
                         }
-                        var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
-                        if(source != null)
+                        var source = externalBanking.GetInfoUser(transfer.SourceAccountNumber);
+                        if (source != null)
                         {
                             sourceAccount.Name = source.full_name;
                             sourceAccount.AccountNumber = source.account_number;
@@ -333,18 +340,68 @@ namespace InternetBanking.Services.Implementations
             return res;
         }
 
-        public bool PayIn(PayInfo payInfo)
+        public bool PayIn(Guid userId, PayInfo payInfo)
         {
             var res = false;
 
             var details = _UserCollection.Get(new UserFilter() { AccountNumber = payInfo.AccountNumber, Username = payInfo.Username });
+            var detailsEmployee = _UserCollection.GetById(userId);
 
-            if (details.Any())
+            if (details.Any() && detailsEmployee != null)
             {
                 var detail = details.FirstOrDefault();
                 detail.CheckingAccount.AccountBalance += payInfo.Money;
 
-                res = _UserCollection.UpdateCheckingAccount(new UserFilter() { AccountNumber = payInfo.AccountNumber, Id = detail.Id }, detail.CheckingAccount) > 0;
+                // luu giao dich
+                var transfer = new Transfer();
+                transfer.Description = "Nạp tiền";
+                transfer.DestinationAccountNumber = detail.AccountNumber;
+                transfer.DestinationLinkingBankId = Guid.Empty;
+                transfer.Fee = 0;
+                transfer.IsConfirmed = true;
+                transfer.IsSenderPay = true;
+                transfer.Money = payInfo.Money;
+                transfer.SourceAccountNumber = detailsEmployee.AccountNumber;
+                transfer.SourceLinkingBankId = Guid.Empty;
+                transfer.IsPayIn = true;
+
+                using (var sessionTask = _MongoDBClient.StartSessionAsync())
+                {
+                    var session = sessionTask.Result;
+                    session.StartTransaction();
+                    try
+                    {
+                        _TransferCollection.Create(transfer);
+
+                        if (transfer.Id == Guid.Empty)
+                            throw new Exception();
+
+                        var resUp = _UserCollection.UpdateCheckingAccount(new UserFilter() { AccountNumber = payInfo.AccountNumber, Id = detail.Id }, detail.CheckingAccount) > 0;
+
+                        if (!resUp)
+                            throw new Exception();
+
+                        var transaction = new Transaction();
+                        transaction.Id = Guid.Empty;
+                        transaction.ReferenceId = transfer.Id;
+                        transaction.Otp = "";
+                        transaction.CreateTime = DateTime.Now;
+                        transaction.ExpireTime = transaction.CreateTime.AddMinutes(_Setting.TransferExpiration);
+                        transaction.Type = 0;
+                        transaction.ConfirmTime = transaction.CreateTime;
+
+                        _TransactionCollection.Create(transaction);
+
+                        if (transaction.Id == Guid.Empty)
+                            throw new Exception();
+                        res = true;
+                        session.CommitTransactionAsync();
+                    }
+                    catch (Exception)
+                    {
+                        session.AbortTransactionAsync();
+                    }
+                }
             }
             else
             {
@@ -383,13 +440,13 @@ namespace InternetBanking.Services.Implementations
                     else
                         session.AbortTransactionAsync();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     session.AbortTransactionAsync();
                     throw ex;
                 }
             }
-            
+
             return res;
         }
     }

@@ -12,8 +12,8 @@ namespace InternetBanking.Services
         public void Logout(string token, long timeExpire);
         public void Logout(ClaimsPrincipal claimsPrincipal, HttpRequest httpRequest);
         public AccountRespone RefreshToken(string accessToken, string refreshToken);
-        public bool ForgetPassword(string email);
-        public bool ConfirmForgetting(Guid userId, string otp);
+        public Guid ForgetPassword(string email);
+        public bool ConfirmForgetting(Guid id, string email, string otp);
         public bool ChangePassword(Guid userId, string oldPassword, string newPassword);
     }
 }

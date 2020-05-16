@@ -463,10 +463,12 @@ namespace InternetBanking.Services.Implementations
             var userDetail = _UserCollection.GetById(userId);
             if (userDetail != null)
             {
-                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { DestinationAccountNumber = userDetail.AccountNumber });
+                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { DestinationAccountNumber = userDetail.AccountNumber, IsConfirmed = true });
                 userTransfers = userTransfers.Where(x => x.DestinationLinkingBankId == Guid.Empty);
                 if (userTransfers.Any())
                 {
+                    var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
+
                     foreach (var transfer in userTransfers)
                     {
                         var hisTransaction = new TransactionHistory();
@@ -480,6 +482,7 @@ namespace InternetBanking.Services.Implementations
                                 hisTransaction.AccountName = source.Name;
                                 hisTransaction.AccountNumber = source.AccountNumber;
                                 hisTransaction.Description = transfer.Description;
+                                hisTransaction.IsPayIn = transfer.IsPayIn;
 
                                 if (transfer.IsSenderPay)
                                 {
@@ -490,13 +493,20 @@ namespace InternetBanking.Services.Implementations
                                     hisTransaction.Money = transfer.Money - transfer.Fee;
                                 }
 
-                                var linkingBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
-                                if (linkingBank != null)
+                                if (transfer.SourceLinkingBankId == bank.Id || (hisTransaction.IsPayIn.HasValue && hisTransaction.IsPayIn.Value == true))
                                 {
-                                    hisTransaction.BankName = linkingBank.Name;
+                                    // noi bo
+                                    hisTransaction.BankName = bank.Name;
                                 }
-                                else
-                                    continue;
+                                else {
+                                    var linkingBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+                                    if (linkingBank != null)
+                                    {
+                                        hisTransaction.BankName = linkingBank.Name;
+                                    }
+                                    else
+                                        continue;
+                                }
                             }
                             else
                                 continue;
@@ -555,8 +565,8 @@ namespace InternetBanking.Services.Implementations
             var userDetail = _UserCollection.GetById(userId);
             if (userDetail != null)
             {
-                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { SourceAccountNumber = userDetail.AccountNumber });
-                userTransfers = userTransfers.Where(x => x.SourceLinkingBankId == Guid.Empty);
+                var userTransfers = _TransferCollection.GetMany(new TransferFilter() { SourceAccountNumber = userDetail.AccountNumber, IsConfirmed = true });
+                userTransfers = userTransfers.Where(x => x.SourceLinkingBankId == Guid.Empty && (x.IsPayIn == null || x.IsPayIn.Value == false));
                 if (userTransfers.Any())
                 {
                     foreach (var transfer in userTransfers)

@@ -11,7 +11,7 @@ namespace InternetBanking.Services
         public bool Update(Employee employee);
         public Employee Add(Employee employee);
         public User AddUser(Account account);
-        public bool PayIn(PayInfo payInfo);
+        public bool PayIn(Guid userId, PayInfo payInfo);
         public bool Delete(Guid id);
         public IEnumerable<CrossChecking> CrossCheckingIn(DateTime? from, DateTime? to, Guid? bankId);
         public IEnumerable<CrossChecking> CrossCheckingOut(DateTime? from, DateTime? to, Guid? bankId);

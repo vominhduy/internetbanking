@@ -27,7 +27,7 @@ namespace InternetBanking.Controllers
         // POST: api/Accounts/Login
         [HttpPost("Login")]
         public IActionResult Login([FromBody] RAccount account)
-        {
+            {
             var record = _Service.Login(account.Username, account.Password);
 
             if (record != null)

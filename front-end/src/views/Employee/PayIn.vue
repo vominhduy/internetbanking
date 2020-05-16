@@ -30,7 +30,7 @@
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Số tiền (ĐV: nghìn đồng)" label-for="money">
         <b-form-input id="money" name="money" :type="'number'" v-model="payInfo.Money" v-validate="'between: 1000,50000000'" :state="validateState('money')"
-          aria-describedby="valuefeedback"></b-form-input>
+          aria-describedby="moneyfeedback"></b-form-input>
         <b-form-invalid-feedback
           id="moneyfeedback"
         >Số phải phải nằm trong khoảng [1,000 - 50,000,000]!</b-form-invalid-feedback>
@@ -112,9 +112,15 @@ export default {
         apiHelper
           .call_api(`employees/Users/payin`, "post", this.payInfo)
           .then(res => {
-            if (res.data == true) this.responeMessage = "Nạp tiền thành công!";
-            else this.responeMessage = "Nạp tiền thất bại!";
-            this.$refs["respone"].show();
+            if (res.data == true) {
+              this.responeMessage = "Nạp tiền thành công!";
+              this.makeToast('success', "Nạp tiền thành công!");
+            }
+            else {
+              this.responeMessage = "Nạp tiền thất bại!";
+              this.makeToast('danger', "Nạp tiền thất bại!");
+            }
+            //this.$refs["respone"].show();
           })
           .catch(err => {
             console.log(err);
@@ -141,6 +147,15 @@ export default {
         return !this.veeErrors.has(ref);
       }
       return null;
+    },
+    makeToast(variant = null, content = null) {
+      this.$bvToast.toast(content, {
+        title: "Thông báo!",
+        autoHideDelay: 3000,
+        variant: variant,
+        solid: true,
+        toaster: "b-toaster-bottom-right"
+      });
     }
   }
 };

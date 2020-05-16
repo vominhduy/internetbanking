@@ -1,5 +1,5 @@
 <template>
-  <div class="HistoryIn">
+  <div class="HistoryDeptIn">
     <b-row>
           <b-col sm="5" md="6" class="my-1">
             <b-form-group
@@ -12,7 +12,7 @@
               label-for="perPageSelect"
               class="mb-0"
             >
-              <b-form-select v-model="perPage1" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
+              <b-form-select v-model="perPage3" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
             </b-form-group>
           </b-col>
           <b-col lg="6" class="my-1">
@@ -46,8 +46,8 @@
           stacked="md"
           :items="items"
           :fields="fields"
-          :current-page="currentPage1"
-          :per-page="perPage1"
+          :current-page="currentPage3"
+          :per-page="perPage3"
           :filter="filter"
           :filterIncludedFields="filterOn"
           :sort-by.sync="sortBy"
@@ -56,6 +56,7 @@
           @filtered="onFiltered"
         >
           <template v-slot:cell(name)="row">{{ row.value.first }} {{ row.value.last }}</template>
+          <template v-slot:cell(name)="row">{{ row.value}}</template>
 
           <template v-slot:cell(actions)="row">
             <b-button
@@ -71,9 +72,9 @@
           </b-col>
           <b-col sm="6" md="6" class="my-1">
             <b-pagination
-              v-model="currentPage1"
-              :total-rows="totalRows1"
-              :per-page="perPage1"
+              v-model="currentPage3"
+              :total-rows="totalRows3"
+              :per-page="perPage3"
               class="mt-4"
               align="right"
             ></b-pagination>
@@ -81,30 +82,31 @@
         </b-row>
 
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
-          <p>Tên: {{infoModal.content.AccountName}}</p>
-          <p>Số tài khoản: {{infoModal.content.AccountNumber}}</p>
-          <p>Ngân hàng: {{infoModal.content.BankName}}</p>
-          <p>Số tiền chuyển: {{infoModal.content.Money}}</p>
-          <p>Nội dung: {{infoModal.content.Description}}</p>
-          <p>Ngày: {{ infoModal.content.ConfirmTime | formatDate }}</p>
-          <p v-if="infoModal.content.IsPayIn != null && infoModal.content.IsPayIn">Ghi chú: Nạp tiền từ nhân viên!</p>
+          <p>Tên: {{infoModal.content.Name}}</p>
+           <p>Địa chỉ: {{infoModal.content.Address}}</p>
+          <p>Email: {{infoModal.content.Email}}</p>
+          <p>Phone: {{infoModal.content.Phone}}</p>
+          
         </b-modal>
   </div>
 </template>
 
 <script>
+import helper from "../../helper/call_api.js";
 import moment from 'moment';
+// import moment from '';
+import axios from "axios";
 
 export default {
-  name: "HistoryIn",
+  name: "HistoryDeptIn",
   props: {
-    histories1: {
+    histories3: {
       type: Array
     }
   },
   watch: {
-    histories1: function() {
-      this.items = this.histories1
+    histories3: function() {
+      this.items = this.histories3
     }
   },
   data() {
@@ -125,43 +127,40 @@ export default {
       items: [],
       fields: [
         {
-          key: "AccountNumber",
-          label: "Tài khoản chuyển",
+          key: "Name",
+          label: "Tên",
           sortable: true,
           sortDirection: "desc"
         },
-        {
-          key: "AccountName",
-          label: "Tên",
+         {
+          key: "Username",
+          label: "tên đăng nhập ",
           sortable: true,
-          class: "text-center"
+          sortDirection: "desc"
         },
-        {
-          key: "Money",
-          label: "Số tiền",
+         {
+          key: "Address",
+          label: "Địa chỉ",
           sortable: true,
-          class: "text-center"
+          sortDirection: "desc"
         },
-        {
-          key: "Description",
-          label: "Nội dung",
+         {
+          key: "Phone",
+          label: "Phone",
           sortable: true,
-          class: "text-center"
+          sortDirection: "desc"
         },
-        {
-          key: "ConfirmTime",
-          label: "Ngày",
-          sortable: false,
-          formatter: (value) => {
-            return moment(String(value)).format('DD/MM/YYYY hh:mm:ss')
-          },
-          class: "text-center"
+         {
+          key: "Email",
+          label: "Email",
+          sortable: true,
+          sortDirection: "desc"
         },
         { key: "actions", label: "#", class: "text-center"}
       ],
-      totalRows1: 1,
-      currentPage1: 1,
-      perPage1: 5,
+      totalRows3: 1,
+      currentPage3: 1,
+      perPage3: 5,
       pageOptions: [1, 2, 5, 10, 15],
       sortBy: "",
       sortDesc: false,
@@ -169,7 +168,7 @@ export default {
       filter: null,
       filterOn: [],
       infoModal: {
-        id: "info-modal-In",
+        id: "info-modal-Dept-In",
         title: "",
         content: ""
       }
@@ -187,7 +186,20 @@ export default {
   },
   mounted() {
     // Set the initial number of items
-    this.totalRows1 = this.items.length;
+    this.totalRows3 = this.items.length;
+
+    let config = {
+        headers: {
+            admin_key: '09411a3942454ec9b36e3bcaf1d69f22',
+        }
+    }
+
+    axios
+      .get('https://localhost:44396/api/Administrators/Employees', config)
+      .then(response => {
+        //   (this.info = response)
+        this.items = response.data;
+      })
   },
   methods: {
     canceled() {
@@ -196,7 +208,7 @@ export default {
       this.type = 1;
     },
     info(item, index, button) {
-      this.infoModal.title = "Thông tin người gửi";
+      this.infoModal.title = "Sửa tài khoản";
       this.infoModal.content = item;
       this.$root.$emit("bv::show::modal", this.infoModal.id, button);
     },
@@ -206,8 +218,8 @@ export default {
     },
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows1 = filteredItems.length;
-      this.currentPage1 = 1;
+      this.totalRows3 = filteredItems.length;
+      this.currentPage3 = 1;
     }
   }
 };

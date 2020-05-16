@@ -62,7 +62,7 @@
         Giới tính:
         <span
           class="font-weight-bold"
-        >{{user.Gender == 1 ? "Name" : (user.Gender == 2 ? "Nữ": "Khác")}}</span>
+        >{{user.Gender == 1 ? "Nam" : (user.Gender == 2 ? "Nữ": "Khác")}}</span>
       </p>
       <p>
         Địa chỉ:
@@ -153,8 +153,10 @@ export default {
      ///   return;
      // }
 
-      if (this.type == 1) this.payInfo.UserName = this.valueType;
-        else this.payInfo.AccountNumber = this.valueType;
+      if (this.type == 1) this.user.UserName = this.valueType;
+        else this.user.AccountNumber = this.valueType;
+      
+      console.log(this.user);
       apiHelper
           .call_api(`employees/users`, "post", this.user)
           .then(res => {
@@ -165,6 +167,8 @@ export default {
             this.user.Gender = res.data.Gender;
             this.user.Address = res.data.Address;
             this.user.Phone = res.data.Phone;
+            this.user.IsPayIn = res.data.IsPayIn;
+            this.user.BankName = res.data.BankName;
             this.statusOk = true;
             // get histories in
             apiHelper
