@@ -25,7 +25,7 @@
         Quản lý nhắc nợ
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
-      <router-link to="/employee/histories">
+      <router-link to="/user/histories">
         Xem lịch sử giao dịch
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>

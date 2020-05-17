@@ -13,6 +13,7 @@ import EmployeeHome from '../views/Employee/Home.vue'
 import UserHome from '../views/User/Home.vue'
 import UserAccounts from '../views/User/UserAccounts.vue'
 import UserContacts from '../views/User/Contacts.vue'
+import UserHistories from '../views/User/History.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 import AddStaff from '../views/Admin/AddStaff.vue'
@@ -111,6 +112,16 @@ const routes = [
     path: '/user/contacts',
     name: 'UserContacts',
     component: UserContacts,
+    meta: {
+      layout: UserLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.user]
+    }
+  },
+  {
+    path: '/user/histories',
+    name: 'UserHistories',
+    component: UserHistories,
     meta: {
       layout: UserLayout,
       requiresAuthen: true,
