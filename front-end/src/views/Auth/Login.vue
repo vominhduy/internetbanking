@@ -1,6 +1,7 @@
 <template>
   <div>
     <b-form @submit.prevent="login" @reset="onReset" v-if="show">
+      <div id="ServerFeedback" class="invalid-message">{{form.serverErrorMessage}}</div>
       <b-form-group label="Username:">
         <b-form-input
           name="username"
@@ -29,7 +30,7 @@
           sitekey="6LcL7eQUAAAAANOMygbJIXb8yVFQc9vc-vUawUak"
           :loadRecaptchaScript="true"
         ></vue-recaptcha>
-        <div id="CaptchaFeedback" class="invalid-captcha">{{form.recaptchaVerifiedMessage}}</div>
+        <div id="CaptchaFeedback" class="invalid-message">{{form.recaptchaVerifiedMessage}}</div>
       </b-form-group>
       <b-form-group>
         <b-link href="#" @click.prevent="showForgetPassword">Quên mật khẩu?</b-link>
@@ -103,11 +104,12 @@
 </template>
 
 <style scoped>
-.invalid-captcha {
+  .invalid-feedback, .invalid-message {
   width: 100%;
   margin-top: 0.25rem;
-  font-size: 80%;
+  font-size: 90%;
   color: #dc3545;
+  font-weight: bold;
 }
 </style>
 
@@ -125,7 +127,8 @@ export default {
         username: "",
         password: "",
         recaptchaVerified: false,
-        recaptchaVerifiedMessage: ""
+        recaptchaVerifiedMessage: "",
+        serverErrorMessage:'',
       },
       show: true,
       forgetPasswordEmail: "",
@@ -162,6 +165,11 @@ export default {
             } else if (res.role === "Admin") {
               this.$router.push({ name: "AdminHome" });
             }
+          }
+        })
+        .catch((err) => {
+          if(err.response.data){
+            this.form.serverErrorMessage = err.response.data;
           }
         });
     },
