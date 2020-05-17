@@ -113,6 +113,10 @@ export default {
                     apiHelper
                     .call_api(`Users/Payees`, "post", me.contacInfo)
                     .then(res => {
+                        if(res.status == 204){
+                            me.showErrorMsg('Thông tin tài khoản không hợp lệ!');
+                            return;
+                        }
                         if(res.data){
                             let isActive = me.items.length > 0 ? !me.items[me.items.length - 1].isActive : true;
                             let linkKingBank = me.linkingBankList.filter(x => x.value == res.data.LinkingBankId);
@@ -209,7 +213,7 @@ export default {
         },
         onAdd(){
             if(this.contacInfo.IdContact){
-                this.canceled();
+                this.clearFormData();
             }
             this.$refs['my-modal'].show();
         },
@@ -237,7 +241,7 @@ export default {
             .then(value => {
                 if(value){
                     apiHelper
-                    .call_api(`Users/Payees/${row.item.Id}`, "delete",{})
+                    .call_api(`Users/Payees/${row.item.Id}`, "get",'')
                     .then(res => {
                         if(res){
                             let deletedContact = me.items.filter(x => x.Id === me.contacInfo.IdContact);
@@ -256,7 +260,7 @@ export default {
                 console.log(err);
             })
         },
-        canceled(){
+        clearFormData(){
             this.linkingBank = this.linkingBankList[0].value;
             this.contacInfo.IdContact = '';
             this.contacInfo.AccountNumber = '';
@@ -269,12 +273,27 @@ export default {
                 this.show = true
             })
         },
+        canceled(){
+            this.clearFormData();
+            this.$refs['my-modal'].hide();
+        },
         showSuccessfullMsg(msg) {
             this.$bvModal.msgBoxOk(msg, {
-                title: 'Confirmation',
+                title: 'Thông báo',
                 size: 'sm',
                 buttonSize: 'sm',
                 okVariant: 'success',
+                headerClass: 'p-2 border-bottom-0',
+                footerClass: 'p-2 border-top-0',
+                centered: true
+            });
+        },
+        showErrorMsg(msg) {
+            this.$bvModal.msgBoxOk(msg, {
+                title: 'Thông báo',
+                size: 'sm',
+                buttonSize: 'sm',
+                okVariant: 'danger',
                 headerClass: 'p-2 border-bottom-0',
                 footerClass: 'p-2 border-top-0',
                 centered: true
