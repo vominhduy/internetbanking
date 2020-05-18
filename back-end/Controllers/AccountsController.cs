@@ -33,7 +33,7 @@ namespace InternetBanking.Controllers
             if (record != null)
                 return Ok(record);
             else
-                return Conflict("Wrong username or password!");
+                return Conflict("Sai tài khoản hoặc mật khẩu!");
         }
 
         /// <summary>
@@ -56,6 +56,9 @@ namespace InternetBanking.Controllers
         [HttpPost("Passwords/Forget")]
         public IActionResult ForgetPassword([FromBody] Newtonsoft.Json.Linq.JObject email)
         {
+            var mail = email.Value<string>("Email");
+            if (string.IsNullOrEmpty(mail))
+                return BadRequest("email can not be null or empty!");
             var res = _Service.ForgetPassword(email.Value<string>("Email"));
             if (res == Guid.Empty)
                 return Ok("");

@@ -22,6 +22,7 @@ import DoisoatIN  from '../views/Admin/DoisoatIN.vue'
 import DoisoatOUT from '../views/Admin/DoisoatOUT.vue'
 //import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
+import PasswordForgetting from '../views/PasswordForgetting.vue'
 
 import CreateUser from '../views/Employee/CreateUser.vue'
 import PayIn from '../views/Employee/PayIn.vue'
@@ -87,6 +88,12 @@ const routes = [
     name: 'History',
     component: History,
     meta: { layout: EmployeeLayout }
+  },
+  {
+    path: '/password/forget',
+    name: 'PasswordForgetting',
+    component: PasswordForgetting,
+    meta: { layout: LoginLayout }
   },
   {
     path: '/user/',
