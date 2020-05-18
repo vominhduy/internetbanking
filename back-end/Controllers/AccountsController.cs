@@ -57,10 +57,9 @@ namespace InternetBanking.Controllers
         public IActionResult ForgetPassword([FromBody] Newtonsoft.Json.Linq.JObject email)
         {
             var res = _Service.ForgetPassword(email.Value<string>("Email"));
-            if (res)
-                return Ok(res);
-            else
-                return Conflict(_Setting.Message.GetMessage());
+            if (res == Guid.Empty)
+                return Ok("");
+            return Ok(res);
         }
 
         /// <summary>
@@ -72,7 +71,7 @@ namespace InternetBanking.Controllers
         [HttpPost("Passwords/ConfirmForgetting")]
         public IActionResult ConfirmForgetting([FromBody] JObject otp)
         {
-            var res = _Service.ConfirmForgetting(UserId, otp.Value<string>("Otp"));
+            var res = _Service.ConfirmForgetting(Guid.Parse(otp.Value<string>("Id")), otp.Value<string>("Email"), otp.Value<string>("Otp"));
 
             if (res)
                 return Ok(res);
@@ -90,6 +89,8 @@ namespace InternetBanking.Controllers
         public IActionResult ChangePassword([FromBody] RPassword password)
         {
             var res = _Service.ChangePassword(UserId, password.OldPassword, password.NewPassword);
+
+            //res = true;
 
             if (res)
                 return Ok(res);
