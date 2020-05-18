@@ -82,11 +82,30 @@
         </b-row>
 
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
-          <p>Tên: {{infoModal.content.Name}}</p>
-           <p>Địa chỉ: {{infoModal.content.Address}}</p>
-          <p>Email: {{infoModal.content.Email}}</p>
-          <p>Phone: {{infoModal.content.Phone}}</p>
-          
+          <b-form-group
+                    label-cols-sm="12"
+                    label-cols-md="4"
+                    label="Tên"
+                    label-for="mnemonicName">
+                    <b-form-input
+                        id="mnemonicName"
+                        name="mnemonicName"
+                        v-model="infoModal.content.Name">
+                    </b-form-input>
+                </b-form-group>
+          <b-form-group
+                    label-cols-sm="12"
+                    label-cols-md="4"
+                    label="Địa chỉ"
+                    label-for="mnemonicName">
+                    <b-form-input
+                        id="id"
+                        name="mnemonicName"
+                        v-model="infoModal.content.Address">
+                    </b-form-input>
+                </b-form-group>
+           
+      
         </b-modal>
   </div>
 </template>
@@ -156,12 +175,12 @@ export default {
           sortable: true,
           sortDirection: "desc"
         },
-        { key: "actions", label: "#", class: "text-center"}
+        { key: "actions", label: "Edit", class: "text-center"}
       ],
       totalRows3: 1,
       currentPage3: 1,
-      perPage3: 5,
-      pageOptions: [1, 2, 5, 10, 15],
+      perPage3: 6,
+      pageOptions: [1, 2, 5, 10, 15, 50,70],
       sortBy: "",
       sortDesc: false,
       sortDirection: "asc",
@@ -195,7 +214,7 @@ export default {
     }
 
     axios
-      .get('https://localhost:44396/api/Administrators/Employees', config)
+      .get('Administrators/Employees', config)
       .then(response => {
         //   (this.info = response)
         this.items = response.data;
@@ -211,10 +230,52 @@ export default {
       this.infoModal.title = "Sửa tài khoản";
       this.infoModal.content = item;
       this.$root.$emit("bv::show::modal", this.infoModal.id, button);
+      console.log(item.Id)
+
+    //   let config = {
+    //     headers: {
+    //         admin_key: '09411a3942454ec9b36e3bcaf1d69f22',
+    //     }
+    // },
+    // axios.post('https://localhost:44396/api/Administrators/Employees', {
+    //   firstName: 'First name',
+    //   lastName: 'Last name'
+    // })
+    // .then(function (response) {
+    //   console.log(response);
+    // })
+    // .catch(function (error) {
+    //   console.log(error);
+    // });
+    //   axios
+    //   .put('https://localhost:44396/api/Administrators/Employees', config)
+    //   .then(response => {
+    //     //   (this.info = response)
+    //     this.items = response.data;
+    //   })
     },
     resetInfoModal() {
-      this.infoModal.title = "";
-      this.infoModal.content = "";
+      let config = {
+          headers: {
+              admin_key: '09411a3942454ec9b36e3bcaf1d69f22',
+          }
+      };
+      var cloneObj = Object.assign({}, this.infoModal.content);
+      delete cloneObj.Id;
+      delete cloneObj.Password;
+      delete cloneObj.Role;
+      delete cloneObj.UserName;
+      axios
+      .put('https://localhost:44396/api/Administrators/Employees/' + this.infoModal.content.Id, cloneObj, config)
+      .then(response => {
+        if(response && response.data) {
+          alert('Sua thanh cong');
+        } else {
+          alert('Sua that bai');
+        }
+        this.infoModal.title = "";
+        this.infoModal.content = "";
+      }).catch(error => alert(error));
     },
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
