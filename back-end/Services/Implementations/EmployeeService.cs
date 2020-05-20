@@ -58,7 +58,7 @@ namespace InternetBanking.Services.Implementations
             user.Phone = employee.Phone;
             user.Password = Encrypting.Bcrypt(employee.Password);
             employee.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
-            user.Role = 2;
+            user.Role = 1;
 
 
             _UserCollection.Create(user);
@@ -103,7 +103,7 @@ namespace InternetBanking.Services.Implementations
                     //res.Password = Encrypting.Bcrypt(passDecrypt);
                     res.Password = Encrypting.Bcrypt(randomPass);
                     res.Address = account.Address;
-                    res.Role = 1;
+                    res.Role = 2;
 
                     // Tao so tai khoan
                     while (true)

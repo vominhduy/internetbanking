@@ -46,7 +46,16 @@ module.exports = {
         });
 
         if (method === "delete") {
-            // TODO
+            this.last_usded = Math.round((new Date()).getTime() / 1000);
+            return new Promise((resolve, reject) => {
+                instance.get(url)
+                    .then(res => {
+                        resolve(res);
+                    })
+                    .catch(err => {
+                        reject(err)
+                    });
+            });
             console.log(this.last_usded)
         } else if (method === "put") {
             this.last_usded = Math.round((new Date()).getTime() / 1000);
