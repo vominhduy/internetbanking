@@ -8,13 +8,19 @@
     </div>
     <div class="body">
       <b-form-group>
-        <b-label>{{info_transfer.message}}</b-label>
+        <!-- <div v-if="info_transfer.is_success == true" style="font-size:200px; ">
+          <b-icon icon="check-circle"></b-icon>
+        </div>
+        <div v-else style="font-size:200px;">
+          <b-icon icon="x-circle"></b-icon>
+        </div> -->
+
+        <label>{{info_transfer.message}}</label>
         <br />
-        <b-label>Số tài khoản: {{info_transfer.destination_account_number}}</b-label>
+        <label>Số tài khoản: {{info_transfer.destination_account_number}}</label>
         <br />
-        <b-label>Số tiền: {{info_transfer.amount}}</b-label>
+        <label>Số tiền: {{info_transfer.amount}}</label>
         <br />
-        <b-label>Icon chỗ này nha :))</b-label>
       </b-form-group>
     </div>
   </b-card>

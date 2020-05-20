@@ -97,7 +97,7 @@ namespace InternetBanking.Services.Implementations
         public void SetPartnerCode()
         {
             _partnerCode = "99793bb9137042a3a7f15950f1215950";
-            _url = "https://localhost:44396/";
+            _url = "http://bkt-banking.herokuapp.com/";
             _secretKey = "99793bb9137042a3a7f15950f1215950";
         }
     }

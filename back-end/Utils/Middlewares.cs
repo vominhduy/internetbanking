@@ -188,8 +188,8 @@ namespace InternetBanking.Utils
 
                 var keys = new[] {
                     "f936792f71344a6eabf773f18e2694e4",
-                    "99793bb9137042a3a7f15950f1215950",// khuê
-                    "bkt.partner"
+                    "99793bb9137042a3a7f15950f1215950",// anh Vũ
+                    "bkt.partner" // khuê
                 };
 
                 long timestampReq = long.Parse(request.Query["timestamp"].ToString());

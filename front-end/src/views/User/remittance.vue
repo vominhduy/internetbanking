@@ -51,7 +51,7 @@
 
             <b-row>
               <b-col>
-                <b-button variant="success" size="sm" class="float-right">
+                <b-button variant="primary" size="sm" class="float-right">
                   Đổi tài khoản
                   <b-icon icon="chevron-right"></b-icon>
                 </b-button>
@@ -177,7 +177,7 @@
                           variant="success"
                           @click.prevent="changeComponet"
                         >
-                          Chuyển khoản
+                         Tiếp tục
                           <b-icon icon="chevron-right"></b-icon>
                         </b-button>
                       </b-col>
@@ -304,7 +304,7 @@
                           variant="success"
                           @click.prevent="changeComponet"
                         >
-                          Chuyển khoản
+                          Tiếp tục
                           <b-icon icon="chevron-right"></b-icon>
                         </b-button>
                       </b-col>
@@ -459,75 +459,101 @@ export default {
     },
     changeComponet(evt) {
       if (this.tabIndex == 0) {
-        // chuyển khoản nội bộ
-        var obj = {
-          SourceAccountNumber: this.internal_transfer.from_account,
-          DestinationAccountNumber: this.internal_transfer.to_account,
-          Money: this.internal_transfer.amount,
-          IsSenderPay: this.paid_type == 1 ? true : false,
-          Description: this.internal_transfer.description
-        };
-        helper
-          .call_api("users/internaltransfer", "post", obj)
-          .then(res => {
-            console.log("s");
-            console.log(res);
-            if (res.status == "200") {
-              this.info_confirm_otp.full_name = this.user_detail.name;
-              this.info_confirm_otp.transaction_id = res.data;
-              this.info_confirm_otp.email = this.user_detail.email;
-              this.info_confirm_otp.destination_account_number = this.internal_transfer.to_account;
-              this.info_confirm_otp.amount = this.internal_transfer.amount;
-            }
-          })
-          .catch(err => {
-            console.log("e");
-            console.log(err);
-            this.show = true;
-            this.component = "NavBar";
-            console.log(this.component);
-          });
+        // validate
+        Promise.all([
+          this.$validator.validate("inDescription"),
+          this.$validator.validate("inAmount"),
+          this.$validator.validate("inPayeesName"),
+          this.$validator.validate("inPayees")
+        ]).then(result => {
+          console.log(result);
+          if (!result.every((val, i, arr) => val == true)) {
+            return;
+          }
 
-        this.show = true;
-        console.log(this.component);
-        this.component = "NavBar";
-        console.log("aaa");
+          // chuyển khoản nội bộ
+          var obj = {
+            SourceAccountNumber: this.internal_transfer.from_account,
+            DestinationAccountNumber: this.internal_transfer.to_account,
+            Money: this.internal_transfer.amount,
+            IsSenderPay: this.paid_type == 1 ? true : false,
+            Description: this.internal_transfer.description
+          };
+          helper
+            .call_api("users/internaltransfer", "post", obj)
+            .then(res => {
+              console.log("s");
+              console.log(res);
+              if (res.status == "200") {
+                this.info_confirm_otp.full_name = this.user_detail.name;
+                this.info_confirm_otp.transaction_id = res.data;
+                this.info_confirm_otp.email = this.user_detail.email;
+                this.info_confirm_otp.destination_account_number = this.internal_transfer.to_account;
+                this.info_confirm_otp.amount = this.internal_transfer.amount;
+              }
+            })
+            .catch(err => {
+              console.log("e");
+              console.log(err);
+              this.show = true;
+              this.component = "NavBar";
+              console.log(this.component);
+            });
+
+          this.show = true;
+          console.log(this.component);
+          this.component = "NavBar";
+          console.log("aaa");
+        });
       } else if (this.tabIndex == 1) {
-        // liên ngân hàng
-        var obj2 = {
-          SourceAccountNumber: this.external_transfer.from_account,
-          DestinationAccountNumber: this.external_transfer.to_account,
-          Money: this.external_transfer.amount,
-          IsSenderPay: this.external_transfer == 1 ? true : false,
-          Description: this.external_transfer.description,
-          DestinationLinkingBankId: this.external_transfer
-            .destination_linking_bank_id
-        };
-        helper
-          .call_api("users/externaltransfer", "post", obj2)
-          .then(res => {
-            console.log("s");
-            console.log(res);
-            if (res.status == "200") {
-              this.info_confirm_otp.full_name = this.user_detail.name;
-              this.info_confirm_otp.transaction_id = res.data;
-              this.info_confirm_otp.email = this.user_detail.email;
-              this.info_confirm_otp.destination_account_number = this.external_transfer.to_account;
-              this.info_confirm_otp.amount = this.external_transfer.amount;
-            }
-          })
-          .catch(err => {
-            console.log("e");
-            console.log(err);
-            this.show = true;
-            this.component = "NavBar";
-            console.log(this.component);
-          });
+        // validate
+        Promise.all([
+          this.$validator.validate("exPayeesAcc"),
+          this.$validator.validate("exPayeesName"),
+          this.$validator.validate("exAmount"),
+          this.$validator.validate("exDescription")
+        ]).then(result => {
+          console.log(result);
+          if (!result.every((val, i, arr) => val == true)) {
+            return;
+          }
 
-        this.show = true;
-        console.log(this.component);
-        this.component = "NavBar";
-        console.log("aaa");
+          // liên ngân hàng
+          var obj2 = {
+            SourceAccountNumber: this.external_transfer.from_account,
+            DestinationAccountNumber: this.external_transfer.to_account,
+            Money: this.external_transfer.amount,
+            IsSenderPay: this.external_transfer == 1 ? true : false,
+            Description: this.external_transfer.description,
+            DestinationLinkingBankId: this.external_transfer
+              .destination_linking_bank_id
+          };
+          helper
+            .call_api("users/externaltransfer", "post", obj2)
+            .then(res => {
+              console.log("s");
+              console.log(res);
+              if (res.status == "200") {
+                this.info_confirm_otp.full_name = this.user_detail.name;
+                this.info_confirm_otp.transaction_id = res.data;
+                this.info_confirm_otp.email = this.user_detail.email;
+                this.info_confirm_otp.destination_account_number = this.external_transfer.to_account;
+                this.info_confirm_otp.amount = this.external_transfer.amount;
+              }
+            })
+            .catch(err => {
+              console.log("e");
+              console.log(err);
+              this.show = true;
+              this.component = "NavBar";
+              console.log(this.component);
+            });
+
+          this.show = true;
+          console.log(this.component);
+          this.component = "NavBar";
+          console.log("aaa");
+        });
       }
     },
     onSubmit(evt) {
@@ -546,11 +572,19 @@ export default {
 
     tabActivated(newTabIndex, oldTabIndex) {
       this.payees_filter = [];
+      //this.external_bank = [];
       this.tabIndex = newTabIndex;
       if (newTabIndex == 1) {
         console.log("external");
         // lay danh sach ngan hang
         if (this.external_bank.length == 0) {
+          var bank = {
+            value: -1,
+            text: "--------Chọn ngân hàng-------"
+          };
+
+          this.external_bank.push(bank);
+
           helper
             .call_api("LinkingBank/LinkingBanks", "get", "")
             .then(res => {
@@ -679,9 +713,7 @@ export default {
           this.external_transfer.to_name = "";
         });
     },
-    canceled() {
-      this.user = {};
-    },
+    canceled() {},
     validateState(ref) {
       if (
         this.veeFields[ref] &&

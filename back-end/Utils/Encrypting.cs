@@ -178,13 +178,14 @@ namespace InternetBanking.Utils
             _LinkingBankCollection = linkingBankCollection;
         }
 
-        private bool Init()
+        private bool Init(int type = 1)
         {
             try
             {
-                var info = _LinkingBankCollection.Get(new Models.Filters.LinkingBankFilter() { Code = _key }).FirstOrDefault();
-                if (info != null)
+                var linkingBanks = _LinkingBankCollection.Get(new Models.Filters.LinkingBankFilter() { Code = _key }).ToList();
+                if (linkingBanks != null)
                 {
+                    var info = linkingBanks.First(x => (int)x.Type == type);
                     _type = (int)info.Type;
                     _pgpKeyPassword = info.Password;
                     _privateKey = info.PrivateKey;

@@ -9,24 +9,24 @@
       </div>
       <div class="body">
         <b-form>
-          <b-label>Mã xác nhận (OTP) đã được gửi đến email {{info_confirm_otp.email}} của quý khách.</b-label>
+          <label>Mã xác nhận (OTP) đã được gửi đến email {{info_confirm_otp.email}} của quý khách.</label>
           <br />
           <br />
           <b-form-group
             label-cols-sm="12"
             label-cols-md="4"
             label="Nhập mã xác nhận"
-            label-for="Address"
+            label-for="opt"
           >
             <b-form-input
-              id="Address"
-              name="Address"
+              id="otp"
+              name="otp"
               v-validate="{required:true}"
-              :state="validateState('Address')"
-              aria-describedby="AddressFeedback"
+              :state="validateState('otp')"
+              aria-describedby="otpFeedback"
               v-model="otp"
             ></b-form-input>
-            <b-form-invalid-feedback id="AddressFeedback">Mã xác nhận không được để trống!</b-form-invalid-feedback>
+            <b-form-invalid-feedback id="otpFeedback">Mã xác nhận không được để trống!</b-form-invalid-feedback>
           </b-form-group>
 
           <b-form-group>
@@ -47,7 +47,6 @@
             <b-label>{{info_confirm_otp.email}}:</b-label>
             <b-label>{{info_confirm_otp.transaction_id}}:</b-label>
             -->
-
           </b-form-group>
         </b-form>
       </div>
@@ -94,40 +93,48 @@ export default {
   //this.$props.info_confirm_otp.transaction_id
   methods: {
     changeComponet() {
-      helper
-        .call_api(
-          "users/confirmtransfer/" +
-            this.$props.info_confirm_otp.transaction_id +
-            "/?otp=" +
-            this.otp,
-          "post",
-          {}
-        )
-        .then(res => {
-          console.log("s");
-          console.log(res);
-          if (res.status == "200") {
-            this.info_transfer.is_success = this.data;
-            this.info_transfer.message =
-              res.data == true
-                ? "Quý khách đã chuyển tiền thành công!"
-                : "Chuyển tiền thất bại!. Quý khách vui lòng kiểm tra lại mã xác nhận.";
-            this.info_transfer.destination_account_number = this.$props.info_confirm_otp.destination_account_number;
-            this.info_transfer.amount = this.$props.info_confirm_otp.amount;
+      // validate
+      this.$validator.validate('otp').then(result => {
+        if (!result) {
+          return;
+        }
+
+        //
+        helper
+          .call_api(
+            "users/confirmtransfer/" +
+              this.$props.info_confirm_otp.transaction_id +
+              "/?otp=" +
+              this.otp,
+            "post",
+            {}
+          )
+          .then(res => {
+            console.log("s");
+            console.log(res);
+            if (res.status == "200") {
+              this.info_transfer.is_success = this.data;
+              this.info_transfer.message =
+                res.data == true
+                  ? "Quý khách đã chuyển tiền thành công!"
+                  : "Chuyển tiền thất bại!. Quý khách vui lòng kiểm tra lại mã xác nhận.";
+              this.info_transfer.destination_account_number = this.$props.info_confirm_otp.destination_account_number;
+              this.info_transfer.amount = this.$props.info_confirm_otp.amount;
+              this.show = true;
+            } else {
+              this.info_transfer.message =
+                res.data == true
+                  ? "Quý khách đã chuyển tiền thành công!"
+                  : "Chuyển tiền thất bại!. Quý khách vui lòng kiểm tra lại mã xác nhận.";
+            }
+          })
+          .catch(err => {
+            console.log("e");
+            console.log(err);
+            this.info_transfer.message = "Error";
             this.show = true;
-          } else {
-            this.info_transfer.message =
-              res.data == true
-                ? "Quý khách đã chuyển tiền thành công!"
-                : "Chuyển tiền thất bại!. Quý khách vui lòng kiểm tra lại mã xác nhận.";
-          }
-        })
-        .catch(err => {
-          console.log("e");
-          console.log(err);
-          this.info_transfer.message = "Error";
-          this.show = true;
-        });
+          });
+      });
     },
     validateState(ref) {
       if (

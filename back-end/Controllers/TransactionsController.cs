@@ -44,13 +44,13 @@ namespace InternetBanking.Controllers
 
                 if (record != null)
                 {
-                    var t = new InfoUserRoot();
-                    t.data = new InfoUserCustomResponse();
-                    t.data.account_number = record.AccountNumber;
-                    t.data.email = record.Email;
-                    t.data.full_name = record.Name;
-                    t.data.username = record.AccountNumber;
-                    return Ok(t);
+                    return Ok(new
+                    {
+                        account_number = record.AccountNumber,
+                        email = record.Email,
+                        full_name = record.Name,
+                        username = record.AccountNumber
+                    });
                 }
                 else
                 {
