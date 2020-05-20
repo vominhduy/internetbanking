@@ -88,8 +88,7 @@
                     label="Tên"
                     label-for="mnemonicName">
                     <b-form-input
-                        id="mnemonicName"
-                        name="mnemonicName"
+                        
                         v-model="infoModal.content.Name">
                     </b-form-input>
                 </b-form-group>
@@ -99,8 +98,7 @@
                     label="Địa chỉ"
                     label-for="mnemonicName">
                     <b-form-input
-                        id="id"
-                        name="mnemonicName"
+                       
                         v-model="infoModal.content.Address">
                     </b-form-input>
                 </b-form-group>

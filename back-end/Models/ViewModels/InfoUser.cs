@@ -10,6 +10,19 @@ namespace InternetBanking.Models.Request
         public string account_number { get; set; }
     }
 
+    public class InfoUserRoot
+    {
+        public InfoUserCustomResponse data { get; set; }
+    }
+
+    public class InfoUserCustomResponse
+    {
+        public string account_number { get; internal set; }
+        public string email { get; internal set; }
+        public string full_name { get; internal set; }
+        public string username { get; internal set; }
+    }
+
     public class InfoUserResponse
     {
         public string account_number { get; set; }
