@@ -47,8 +47,9 @@ module.exports = {
 
         if (method === "delete") {
             this.last_usded = Math.round((new Date()).getTime() / 1000);
+            console.log(this.last_usded)
             return new Promise((resolve, reject) => {
-                instance.get(url)
+                instance.delete(url)
                     .then(res => {
                         resolve(res);
                     })
@@ -56,7 +57,6 @@ module.exports = {
                         reject(err)
                     });
             });
-            console.log(this.last_usded)
         } else if (method === "put") {
             this.last_usded = Math.round((new Date()).getTime() / 1000);
             return new Promise((resolve, reject) => {
