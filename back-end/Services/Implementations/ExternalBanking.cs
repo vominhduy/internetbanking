@@ -49,7 +49,7 @@ namespace InternetBanking.Services.Implementations
                 account_number = accountNumber,
             };
 
-            var info = CallAPIHelper.CallAPI<ExternalBankRes<ExternalInfoUserResponse>>(string.Concat(_url, "api/transactions/query_info"), "POST", obj, headers, addQueryParams: true);
+            var info = Helper.CallAPI<ExternalBankRes<ExternalInfoUserResponse>>(string.Concat(_url, "api/transactions/query_info"), "POST", obj, headers, addQueryParams: true);
             if (info != null)
             {
                 return info.data;
@@ -82,7 +82,7 @@ namespace InternetBanking.Services.Implementations
                 {"signature", _encrypt.EncryptData(hash, _secretKey)}
             };
 
-            var info = CallAPIHelper.CallAPI<ExternalBankRes<ExternalTransferMoneyResponse>>(string.Concat(_url, "api/transactions/receive_external"), "POST", obj, headers, addQueryParams: true);
+            var info = Helper.CallAPI<ExternalBankRes<ExternalTransferMoneyResponse>>(string.Concat(_url, "api/transactions/receive_external"), "POST", obj, headers, addQueryParams: true);
 
             if (info != null)
             {

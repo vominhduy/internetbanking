@@ -286,7 +286,7 @@ namespace InternetBanking.Utils
             }
             finally
             {
-                LoggingTxt.InsertLog(log.ToString());
+                LogTxt.WritetLog(log.ToString());
             }
             return result;
         }

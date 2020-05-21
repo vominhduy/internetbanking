@@ -11,136 +11,101 @@ using System.Web;
 
 namespace InternetBanking.Utils
 {
-    public class CallAPIHelper
+    public class Helper
     {
-        public static T CallAPI<T>(string url, string method, object request, Dictionary<string, string> headers = null, bool addQueryParams = false) where T : class
+        public static T CallAPI<T>(string api, string method, object obj, Dictionary<string, string> headers = null, bool addQueryParams = false) where T : class
         {
             string json = "";
-            T response = null;
+            T result = null;
 
             try
             {
-                if ((method.ToUpper() == "GET" && request != null) || (addQueryParams && headers != null))
+                if (addQueryParams && headers != null)
                 {
                     if (addQueryParams)
                     {
                         string Params = "";
-                        foreach (KeyValuePair<string, string> entry in headers)
+                        foreach (var h in headers)
                         {
-                            var param = string.Format("{0}={1}&", entry.Key, entry.Value);
-                            Params += param;
+                            Params += string.Format("{0}={1}&", h.Key, h.Value); ;
                         }
-                        url += string.Format("?{0}", Params);
-                    }
-                    else
-                    {
-                        var jsonrequest = JsonConvert.SerializeObject(request);
-                        Dictionary<string, string> ht = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonrequest);
-                        string Params = "";
-                        for (int i = 0; i < ht.Count; i++)
-                        {
-                            var param = string.Format("{0}={1}&", ht.ElementAt(i).Key, HttpUtility.UrlEncode(ht.ElementAt(i).Value));
-                            Params += param;
-                        }
-
-                        url += string.Format("?{0}", Params);
+                        api += string.Format("?{0}", Params);
                     }
                 }
 
-                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(url);
-                Request.Method = method.ToString();
-                Request.KeepAlive = false;
-                Request.ContentType = "application/json; charset=UTF-8";
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(api);
+                request.Method = method;
+                request.KeepAlive = false;
+                request.ContentType = "application/json; charset=UTF-8";
 
                 if (headers != null && !addQueryParams)
                 {
                     foreach (KeyValuePair<string, string> entry in headers)
                     {
-                        Request.Headers.Add(entry.Key, entry.Value);
+                        request.Headers.Add(entry.Key, entry.Value);
                     }
                 }
 
-                //khoi tao tham so
-                if (method.ToUpper() != "GET")
+                if (method.ToUpper() == "POST")
                 {
-                    Byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
-                    Request.ContentLength = byteArray.Length;
-                    Stream dataStream = Request.GetRequestStream();
+                    Byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj));
+                    request.ContentLength = byteArray.Length;
+                    Stream dataStream = request.GetRequestStream();
                     dataStream.Write(byteArray, 0, byteArray.Length);
                     dataStream.Close();
                 }
-
-                /*Kiểm tra kết quả trả về */
-                WebResponse Response = Request.GetResponse();
-                HttpStatusCode ResponseCode = ((HttpWebResponse)Response).StatusCode;
-                if (ResponseCode.Equals(HttpStatusCode.OK))
+                WebResponse response = request.GetResponse();
+                HttpStatusCode statusCode = ((HttpWebResponse)response).StatusCode;
+                if (statusCode.Equals(HttpStatusCode.OK))
                 {
-                    StreamReader Reader = new StreamReader(Response.GetResponseStream());
+                    StreamReader Reader = new StreamReader(response.GetResponseStream());
                     json = Reader.ReadToEnd();
                     Reader.Close();
                     if (typeof(System.String) == typeof(T))
                     {
-                        response = (T)Convert.ChangeType(json, typeof(T));
+                        result = (T)Convert.ChangeType(json, typeof(T));
                     }
                     else
                     {
-                        response = JsonConvert.DeserializeObject<T>(json);
+                        result = JsonConvert.DeserializeObject<T>(json);
                     }
                 }
             }
             catch (Exception ex)
             {
-                response = null;
+                result = null;
             }
-            return response;
+            return result;
         }
 
     }
 
-    public class LoggingTxt
-    {
-        private static ReaderWriterLockSlim readWriteLock = new ReaderWriterLockSlim();
+    /// <summary>
+    /// 
+    /// </summary>
 
-        /// <summary>
-        /// InsertLog - pathType: 1/2 = lưu theo ngày/giờ
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="pathType">1/2 = lưu theo ngày/giờ</param>
-        /// <param name="data"></param>
-        public static void InsertLog(string _data ,string _path = "", int _pathType = 1)
+    public class LogTxt
+    {
+        private static ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+
+        public static void WritetLog(string content)
         {
             try
             {
-                readWriteLock.EnterWriteLock();
-                string sPhysicPath = Environment.CurrentDirectory + "/ErrorLogs";
-                string strDirectory = "";
-                string strFile = "";
+                _lock.EnterWriteLock();
+                string basePath = Environment.CurrentDirectory + "/MyLogs";
+                string directoryPath = basePath + "/" + DateTime.Now.ToString("yyyyMM");
+                string filePath = DateTime.Now.ToString("yyyy-MM-dd");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
 
-                if (_pathType == 1)
-                    strDirectory = sPhysicPath + "/" + _path + "/" + DateTime.Now.ToString("yyyyMM");
-                else if (_pathType == 2)
-                    strDirectory = sPhysicPath + "/" + _path + "/" + DateTime.Now.ToString("yyyyMM") + "/" + DateTime.Now.ToString("dd");
-
-                if (_pathType == 1)
-                    strFile = DateTime.Now.ToString("yyyy-MM-dd");
-                else if (_pathType == 2)
-                    strFile = DateTime.Now.ToString("HH-00");
-
-                if (!Directory.Exists(strDirectory))
-                    Directory.CreateDirectory(strDirectory);
-
-                FileStream fs = new FileStream((strDirectory + ("\\" + (strFile + ".txt"))), FileMode.Append, FileAccess.Write);
-                StreamWriter sw = new StreamWriter(fs, Encoding.UTF8);
-                sw.Write(("---------------------------------------------------------------\r\n" + System.DateTime.Now + ("\r\n" + (_data + "\r\n" + "\r\n"))));
-                sw.Close();
-                sw = null;
-                fs = null;
-                GC.Collect();
-                readWriteLock.ExitWriteLock();
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine(ex.Message);
+                var fs = new FileStream(Path.Combine(directoryPath ,(filePath  + ".txt")), FileMode.Append, FileAccess.Write);
+                StreamWriter streamWriter = new StreamWriter(fs, Encoding.UTF8);
+                streamWriter.Write(("******************************\r\n" + DateTime.Now + ("\r\n" + (content + "\r\n" + "\r\n"))));
+                streamWriter.Close();
+                _lock.ExitWriteLock();
             }
             finally
             {
