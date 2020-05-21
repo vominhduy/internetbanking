@@ -92,7 +92,7 @@
                         v-model="infoModal.content.Name">
                     </b-form-input>
                 </b-form-group>
-          <b-form-group
+                <b-form-group
                     label-cols-sm="12"
                     label-cols-md="4"
                     label="Địa chỉ"
@@ -102,7 +102,26 @@
                         v-model="infoModal.content.Address">
                     </b-form-input>
                 </b-form-group>
-           
+                 <b-form-group
+                    label-cols-sm="12"
+                    label-cols-md="4"
+                    label="Địa chỉ"
+                    label-for="mnemonicName">
+                    <b-form-input
+                       
+                        v-model="infoModal.content.Phone">
+                    </b-form-input>
+                </b-form-group>
+            <b-form-group
+                    label-cols-sm="12"
+                    label-cols-md="4"
+                    label="Email"
+                    label-for="mnemonicName">
+                    <b-form-input
+                       
+                        v-model="infoModal.content.Email">
+                    </b-form-input>
+                </b-form-group>
       
         </b-modal>
   </div>
@@ -264,7 +283,7 @@ export default {
       delete cloneObj.Role;
       delete cloneObj.UserName;
       axios
-      .put('https://localhost:44396/api/Administrators/Employees/' + this.infoModal.content.Id, cloneObj, config)
+      .put('Administrators/Employees/' + this.infoModal.content.Id, cloneObj, config)
       .then(response => {
         if(response && response.data) {
           alert('Sua thanh cong');

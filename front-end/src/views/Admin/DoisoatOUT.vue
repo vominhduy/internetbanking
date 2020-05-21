@@ -21,6 +21,23 @@
             </b-row>
         </b-form-group>
     </b-form>
+     <b-row>
+          <b-col sm="5" md="6" class="my-1">
+            <b-form-group
+              label="Hiển thị"
+              label-cols-sm="6"
+              label-cols-md="4"
+              label-cols-lg="3"
+              label-align-sm="right"
+              label-size="sm"
+              label-for="perPageSelect"
+              class="mb-0"
+            >
+              <b-form-select v-model="perPage3" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
+            </b-form-group>
+          </b-col>
+        
+        </b-row>
     <div v-if="statusOk">
         <b-table show-empty small stacked="md" :items="hisIns" :fields="fields" :current-page="currentPage3" :per-page="perPage3" :filter="filter" :filterIncludedFields="filterOn" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :sort-direction="sortDirection" @filtered="onFiltered">
             <template v-slot:cell(name)="row">{{ row.value.first }} {{ row.value.last }}</template>
@@ -100,20 +117,38 @@ export default {
             filter: null,
             filterOn: [],
             fields: [{
-                    key: "DestinationBankName",
-                    label: "DestinationBankName",
+                    key: "SourceAccountNumber",
+                    label: "STT",
                     sortable: true,
                     sortDirection: "desc"
                 },
                 {
+                    key: "SourceAccountName",
+                    label: "Tên ",
+                    sortable: true,
+                    sortDirection: "desc"
+                },
+                {
+                    key: "SourceBankName",
+                    label: "Bank Liên Kết ",
+                    sortable: true,
+                    sortDirection: "desc"
+                },
+                 {
                     key: "Money",
-                    label: "Money",
+                    label: "Tiền",
                     sortable: true,
                     sortDirection: "desc"
                 },
                 {
                     key: "ConfirmTime",
-                    label: "ConfirmTime",
+                    label: "Time",
+                    sortable: true,
+                    sortDirection: "desc"
+                },
+                  {
+                    key: "Description",
+                    label: "Mô tả",
                     sortable: true,
                     sortDirection: "desc"
                 },
