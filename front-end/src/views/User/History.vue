@@ -74,7 +74,7 @@ import HistoryOut from "../../components/Employee/HistoryOut.vue";
 import apiHelper from '../../helper/call_api'
 
 export default {
-  name: "History",
+  name: "UserHistories",
   components: {
     HistoryDeptIn,
     HistoryIn,

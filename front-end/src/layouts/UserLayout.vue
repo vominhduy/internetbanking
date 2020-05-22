@@ -21,8 +21,8 @@
         Chuyển khoản
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
-      <router-link to="/employee/">
-        Quản lý nhắc nợ
+      <router-link to="/user/deptreminders">
+        Tạo nhắc nợ
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
       <router-link to="/user/histories">

@@ -14,6 +14,7 @@ import UserHome from '../views/User/Home.vue'
 import UserAccounts from '../views/User/UserAccounts.vue'
 import UserContacts from '../views/User/Contacts.vue'
 import UserHistories from '../views/User/History.vue'
+import UserDeptreminders from '../views/User/Deptreminders.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 import AddStaff from '../views/Admin/AddStaff.vue'
@@ -45,8 +46,8 @@ Vue.use(VeeValidate, {
 });
 
 
-axios.defaults.baseURL = "https://localhost:44396/api/";
-//axios.defaults.baseURL = "http://ddpbank.somee.com/api/";\
+//axios.defaults.baseURL = "https://localhost:44396/api/";
+axios.defaults.baseURL = "http://ddpbank.somee.com/api/";
 
 const routes = [
   {
@@ -129,6 +130,16 @@ const routes = [
     path: '/user/histories',
     name: 'UserHistories',
     component: UserHistories,
+    meta: {
+      layout: UserLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.user]
+    }
+  },
+  {
+    path: '/user/deptreminders',
+    name: 'UserDeptreminders',
+    component: UserDeptreminders,
     meta: {
       layout: UserLayout,
       requiresAuthen: true,
