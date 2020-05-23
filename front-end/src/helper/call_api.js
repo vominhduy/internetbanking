@@ -44,6 +44,25 @@ module.exports = {
                 'authorization': 'Bearer ' + this.auto_get_access_token()
             }
         });
+        
+        instance.interceptors.response.use(function (response) {
+            return response;
+          }, function (error) {
+            if(error.response.status === 401){
+                let dataToken = {
+                    AccessToken: localStorage.getItem('access_token'),
+                    RefreshToken: localStorage.getItem('refresh_token')
+                };
+                instance.post("Accounts/Tokens/Refresh", dataToken)
+                    .then(res => {
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+            }
+            //return Promise.reject(error);
+          });
 
         if (method === "delete") {
             this.last_usded = Math.round((new Date()).getTime() / 1000);

@@ -134,8 +134,8 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.dispatch("destroyToken").then(res => {
-        console.log(res);
+      this.$store.dispatch("destroyToken")
+      .then(res => {
         this.$router.push({ name: "Login" });
       });
     },

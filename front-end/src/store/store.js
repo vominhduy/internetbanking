@@ -42,6 +42,7 @@ export const store = new Vuex.Store({
                     .then(res => {
                         let token = res.data.AccessToken;
                         localStorage.setItem('access_token', token); //aware cross-site scripting
+                        localStorage.setItem('refresh_token', res.data.RefreshToken); //aware cross-site scripting
                         context.commit('retrieveToken', token);
                         
                         let userInfo = helper.parseJwt(token);
