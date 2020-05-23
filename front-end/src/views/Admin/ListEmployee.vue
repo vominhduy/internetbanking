@@ -57,6 +57,14 @@
         >
           <template v-slot:cell(name)="row">{{ row.value.first }} {{ row.value.last }}</template>
           <template v-slot:cell(name)="row">{{ row.value}}</template>
+          <template v-slot:cell(actionsion)="row">
+           
+            <b-button
+              size="sm"
+              @click="hamxoa(row.item, row.index, $event.target)"
+              class="mr-1"
+            ><b-icon icon="document-text"></b-icon></b-button>
+          </template>
 
           <template v-slot:cell(actions)="row">
             <b-button
@@ -65,6 +73,7 @@
               class="mr-1"
             ><b-icon icon="document-text"></b-icon></b-button>
           </template>
+
         </b-table>
         <b-row>
           <b-col sm="6" md="6" class="my-1">
@@ -80,7 +89,7 @@
             ></b-pagination>
           </b-col>
         </b-row>
-
+      
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
           <b-form-group
                     label-cols-sm="12"
@@ -192,7 +201,8 @@ export default {
           sortable: true,
           sortDirection: "desc"
         },
-        { key: "actions", label: "Edit", class: "text-center"}
+        { key: "actions", label: "Edit", class: "text-center"},
+        { key: "actionsion", label: "Xoa", class: "text-center"}
       ],
       totalRows3: 1,
       currentPage3: 1,
@@ -271,6 +281,31 @@ export default {
     //     this.items = response.data;
     //   })
     },
+    hamxoa(item, index, button) {
+      // this.infoModal.title = "Sửa tài khoản";
+      this.infoModal.content = item;
+      //this.$root.$emit("bv::show::modal", this.infoModal.id, button);
+      
+
+       let config = {
+          headers: {
+              admin_key: '09411a3942454ec9b36e3bcaf1d69f22',
+          }
+      };
+     console.log('id la'+ this.infoModal.content.Id)
+      
+      axios
+      .delete('Administrators/Employees/' + this.infoModal.content.Id,config)
+      .then(response => {
+          axios
+         .get('Administrators/Employees', config)
+      .then(response => {
+        //   (this.info = response)
+        this.items = response.data;
+      })
+         console.log(response)
+      }).catch(error => alert(error));
+    },
     resetInfoModal() {
       let config = {
           headers: {
@@ -300,5 +335,7 @@ export default {
       this.currentPage3 = 1;
     }
   }
+  
 };
+
 </script>
