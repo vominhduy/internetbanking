@@ -97,7 +97,7 @@ export default {
               utilsHelper.showSuccessfullMsg(me, 'Gửi nhắc nợ thành công!');
             })
             .catch(err => {
-              console.log(err);
+              console.error(err);
             });
         });
     },

@@ -157,7 +157,7 @@ export default {
           .call_api(`accounts/passwords/change`, "post", this.user)
           .then(res => {})
           .catch(err => {
-            console.log(err);
+            console.error(err);
           });
       });
     },

@@ -50,7 +50,7 @@ export const store = new Vuex.Store({
                         resolve(userInfo);
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.error(err);
                         reject(err);
                     });
             })
@@ -70,7 +70,7 @@ export const store = new Vuex.Store({
                             localStorage.removeItem('access_token');
                             localStorage.removeItem('user_role');
                             context.commit('destroyToken');
-                            console.log(err);
+                            console.error(err);
                             reject(err);
                         });
                 })

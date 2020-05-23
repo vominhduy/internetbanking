@@ -139,7 +139,7 @@ export default {
                     }
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.error(err);
                     utilsHelper.showErrorMsg(me, 'Lỗi hệ thống!');
                 });
         },
@@ -184,7 +184,7 @@ export default {
                         utilsHelper.showSuccessfullMsg(me, 'Hủy nhắc nợ thành công!');
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.error(err);
                         this.$refs['cancel-modal'].hide();
                         utilsHelper.showErrorMsg(me, 'Lỗi hệ thống!');
                     });

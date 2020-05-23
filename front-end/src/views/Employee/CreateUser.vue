@@ -155,7 +155,7 @@ export default {
           })
           .catch(err => {
             this.empty = true;
-            console.log(err);
+            console.error(err);
           });
     })},
     canceled(evt) {

@@ -133,7 +133,7 @@ export default {
                         me.canceled();
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.error(err);
                     });
                 }
                 else 
@@ -150,7 +150,7 @@ export default {
                         }
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.error(err);
                     });
                 }
                 
@@ -172,7 +172,7 @@ export default {
                     }
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.error(err);
                 });
         },
         getAllContacts(){
@@ -199,7 +199,7 @@ export default {
                     }
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.error(err);
                 });
         },
         validateState(ref) {
@@ -252,12 +252,12 @@ export default {
                         }
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.error(err);
                     });
                 }
             })
             .catch(err => {
-                console.log(err);
+                console.error(err);
             })
         },
         clearFormData(){

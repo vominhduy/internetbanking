@@ -177,7 +177,7 @@ export default {
                 this.hisIns = res.data;
               })
               .catch(err => {
-                console.log(err);
+                console.error(err);
               });
             // get histories out
             apiHelper
@@ -186,7 +186,7 @@ export default {
                 this.hisOuts = res.data;
               })
               .catch(err => {
-                console.log(err);
+                console.error(err);
               });
             // get histories dept in
             apiHelper
@@ -195,7 +195,7 @@ export default {
                 this.hisDeptIns = res.data;
               })
               .catch(err => {
-                console.log(err);
+                console.error(err);
               });
             // get histories dept out  
             apiHelper
@@ -204,12 +204,12 @@ export default {
                 this.hisDeptOuts = res.data;
               })
               .catch(err => {
-                console.log(err);
+                console.error(err);
               });
           })
           .catch(err => {
             this.statusOk = false;
-            console.log(err);
+            console.error(err);
             this.responeMessage = "Không tìm thấy thông tin tài khoản!";
             this.$refs["respone"].show();
           });

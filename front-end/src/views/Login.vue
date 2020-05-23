@@ -58,7 +58,7 @@ import axios from "axios";
               })
               .catch(err => {
                 this.empty = true;
-                console.log(err);
+                console.error(err);
               })
         },
         onReset(evt) {
