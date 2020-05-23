@@ -39,6 +39,14 @@
     <b-modal ref="respone" title="Thông tin người dùng">
       <b-row>
         <b-col>
+          <label>Số tài khoản</label>
+        </b-col>
+        <b-col>
+          <label class="font-weight-bold pt-0">{{respone.AccountNumber}}</label>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
           <label>Tên</label>
         </b-col>
         <b-col>
@@ -92,7 +100,7 @@
           <label>Số điện thoại</label>
         </b-col>
         <b-col>
-          <label class="font-weight-bold pt-0">{{respone.AccountNumber}}</label>
+          <label class="font-weight-bold pt-0">{{respone.Phone}}</label>
         </b-col>
       </b-row>
       <template v-slot:modal-footer>

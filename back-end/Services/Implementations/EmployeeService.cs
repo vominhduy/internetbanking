@@ -103,7 +103,7 @@ namespace InternetBanking.Services.Implementations
                     //res.Password = Encrypting.Bcrypt(passDecrypt);
                     res.Password = Encrypting.Bcrypt(randomPass);
                     res.Address = account.Address;
-                    res.Role = 2;
+                    res.Role = 1;
 
                     // Tao so tai khoan
                     while (true)
