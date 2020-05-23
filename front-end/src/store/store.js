@@ -59,7 +59,7 @@ export const store = new Vuex.Store({
             if (context.getters.loggedIn) {
                 return new Promise((resolve, reject) => {
                     apiHelper
-                        .call_api("accounts/logout", "post", '')
+                        .call_api("accounts/logout", "post", {})
                         .then(res => {
                             localStorage.removeItem('access_token');
                             localStorage.removeItem('user_role');
