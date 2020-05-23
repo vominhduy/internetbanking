@@ -25,6 +25,10 @@
         Tạo nhắc nợ
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
+      <router-link to="/user/list-deptreminders">
+        Xem danh sách nợ
+        <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
+      </router-link>
       <router-link to="/user/histories">
         Xem lịch sử giao dịch
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>

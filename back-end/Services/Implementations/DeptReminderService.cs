@@ -245,7 +245,7 @@ namespace InternetBanking.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public IEnumerable<DeptReminder> GetDeptReminders(Guid userId)
+        public object GetDeptReminders(Guid userId)
         {
             var res = new List<DeptReminder>();
 
@@ -256,11 +256,9 @@ namespace InternetBanking.Services.Implementations
                 var lstRecipient = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AccountNumber }).ToList();
                 var lstRequestor = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AccountNumber }).ToList();
 
-                lstRecipient.AddRange(lstRequestor);
-
-                res = lstRecipient;
+                return new { SentDeptReminders = lstRecipient, ReceivedDeptReminders = lstRequestor };
             }
-            return res;
+            return null;
         }
 
         public bool ConfirmDeptReminder(Guid userId, Guid transactionId, string otp)

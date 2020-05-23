@@ -15,6 +15,7 @@ import UserAccounts from '../views/User/UserAccounts.vue'
 import UserContacts from '../views/User/Contacts.vue'
 import UserHistories from '../views/User/History.vue'
 import UserDeptreminders from '../views/User/Deptreminders.vue'
+import UserListDeptreminders from '../views/User/ListDeptreminders.vue'
 
 import AdminHome from '../views/Admin/Home.vue'
 import AddStaff from '../views/Admin/AddStaff.vue'
@@ -76,7 +77,7 @@ const routes = [
     path: '/employee/create-user',
     name: 'CreateUser',
     component: CreateUser,
-    meta: { layout: EmployeeLayout }
+    //meta: { layout: EmployeeLayout }
   },
   {
     path: '/employee/pay-in',
@@ -140,6 +141,16 @@ const routes = [
     path: '/user/deptreminders',
     name: 'UserDeptreminders',
     component: UserDeptreminders,
+    meta: {
+      layout: UserLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.user]
+    }
+  },
+  {
+    path: '/user/list-deptreminders',
+    name: 'UserListDeptreminders',
+    component: UserListDeptreminders,
     meta: {
       layout: UserLayout,
       requiresAuthen: true,
