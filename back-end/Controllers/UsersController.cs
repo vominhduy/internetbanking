@@ -188,7 +188,7 @@ namespace InternetBanking.Controllers
         /// <param name="id"></param>
         /// <returns>bool</returns>
         // DELETE: api/Users/Payees/00000000-0000-0000-0000-000000000000
-        [HttpDelete("Payees/{id}")]
+        [HttpPost("Payees/Delete/{id}")]
         //[Authorize(Roles = "User")]
         public IActionResult DeletePayee(Guid id)
         {
