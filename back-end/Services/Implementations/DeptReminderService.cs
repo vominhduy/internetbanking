@@ -256,7 +256,7 @@ namespace InternetBanking.Services.Implementations
                 var lstRecipient = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RecipientAccountNumber = userDetail.AccountNumber }).ToList();
                 var lstRequestor = _DeptReminderCollection.GetMany(new DeptReminderFilter() { RequestorAccountNumber = userDetail.AccountNumber }).ToList();
 
-                return new { SentDeptReminders = lstRecipient, ReceivedDeptReminders = lstRequestor };
+                return new { SentDeptReminders = lstRequestor, ReceivedDeptReminders = lstRecipient };
             }
             return null;
         }

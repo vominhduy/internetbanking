@@ -119,6 +119,7 @@
 
 <script>
 import apiHelper from '../../helper/call_api'
+import utilsHelper from '../../helper/helper'
 
 export default {
   name: "CreateUser",
@@ -142,6 +143,7 @@ export default {
   },
   methods: {
     onSubmit(evt) {
+      let me = this;
       evt.preventDefault();
       this.$validator.validateAll().then(result => {
         if (!result) {
@@ -150,6 +152,10 @@ export default {
         apiHelper
           .call_api(`employees`, "post", this.user)
           .then(res => {
+            if(res.status === 204){
+              utilsHelper.showErrorMsg(me, "Email đã tồn tại");
+              return;
+            }
             this.respone = res.data;
             this.$refs["respone"].show();
           })

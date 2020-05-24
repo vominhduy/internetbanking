@@ -13,7 +13,7 @@ import EmployeeHome from '../views/Employee/Home.vue'
 import UserHome from '../views/User/Home.vue'
 import UserAccounts from '../views/User/UserAccounts.vue'
 import UserContacts from '../views/User/Contacts.vue'
-import UserHistories from '../views/User/History.vue'
+import UserHistories from '../views/User/UserHistory.vue'
 import UserDeptreminders from '../views/User/Deptreminders.vue'
 import UserListDeptreminders from '../views/User/ListDeptreminders.vue'
 
@@ -77,19 +77,31 @@ const routes = [
     path: '/employee/create-user',
     name: 'CreateUser',
     component: CreateUser,
-    //meta: { layout: EmployeeLayout }
+    meta: {
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/employee/pay-in',
     name: 'PayIn',
     component: PayIn,
-    meta: { layout: EmployeeLayout }
+    meta: {
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/employee/histories',
     name: 'History',
     component: History,
-    meta: { layout: EmployeeLayout }
+    meta: {
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/password/forget',
