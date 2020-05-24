@@ -36,6 +36,7 @@
                   class="mb-2 float-right"
                   variant="success"
                   @click.prevent="changeComponet"
+                  :disabled="next_step == 1"
                 >
                   Xác nhận
                   <b-icon icon="chevron-right"></b-icon>
@@ -68,6 +69,7 @@ import NavBar from "@/components/User/confirm_otp.vue";
 import Categories from "@/components/User/transfer_money_info.vue";
 import axios from "axios";
 import helper from "../../helper/call_api.js";
+import utilsHelper from "../../helper/helper";
 
 export default {
   name: "confirm_otp",
@@ -79,6 +81,7 @@ export default {
   data() {
     return {
       show: false,
+      next_step: 0,
       component: "Categories",
       info_transfer: {
         is_success: false,
@@ -93,9 +96,11 @@ export default {
   //this.$props.info_confirm_otp.transaction_id
   methods: {
     changeComponet() {
+      this.next_step = 1;
       // validate
-      this.$validator.validate('otp').then(result => {
+      this.$validator.validate("otp").then(result => {
         if (!result) {
+          this.next_step = 0;
           return;
         }
 
@@ -110,8 +115,6 @@ export default {
             {}
           )
           .then(res => {
-            console.log("s");
-            console.log(res);
             if (res.status == "200") {
               this.info_transfer.is_success = this.data;
               this.info_transfer.message =
@@ -121,18 +124,20 @@ export default {
               this.info_transfer.destination_account_number = this.$props.info_confirm_otp.destination_account_number;
               this.info_transfer.amount = this.$props.info_confirm_otp.amount;
               this.show = true;
+              this.next_step = 0;
             } else {
               this.info_transfer.message =
                 res.data == true
                   ? "Quý khách đã chuyển tiền thành công!"
                   : "Chuyển tiền thất bại!. Quý khách vui lòng kiểm tra lại mã xác nhận.";
+              this.next_step = 0;
             }
           })
           .catch(err => {
-            console.log("e");
-            console.log(err);
-            this.info_transfer.message = "Error";
+            utilsHelper.showErrorMsg(this, "Xác nhận OTP thất bại.");
+            this.info_transfer.message = "Chuyển khoản thất bại";
             this.show = true;
+            this.next_step = 1;
           });
       });
     },

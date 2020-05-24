@@ -30,6 +30,11 @@ namespace InternetBanking.Controllers
         public IActionResult GetLinkingBank()
         {
             var res = _Service.GetLinkingBank();
+            if (res.Any())
+            {
+                Guid id = Guid.Parse("2d25b9c6-6d30-4441-a360-47e7804c62be");
+                res = res.Where(x => !x.Id.Equals(id));
+            }
             return Ok(res);
         }
 
