@@ -6,7 +6,7 @@
         </b-button>
         <b-table striped hover :items="items" :fields="fields">
              <template v-slot:cell(action)="row">
-                <b-button size="sm" @click="onEdit(row)" class="mr-2">
+                <b-button size="sm" @click="onEdit(row)" variant="primary" style="margin-right:10px">
                     Sửa
                 </b-button>
                 <b-button size="sm" @click="onDelete(row)" class="mr-2">
@@ -83,7 +83,11 @@ export default {
     data() {
         return {
             // Note `isActive` is left out and will not appear in the rendered table
-            fields: ['Account_Number', 'Bank', 'Mnemonic_Name', 'action'],
+            fields: [
+                {key: 'Account_Number', label: 'Số tài khoản'}, 
+                {key: 'Bank', label: 'Ngân hàng'},
+                {key: 'Mnemonic_Name', label: 'Tên gợi nhớ'},
+                {key: 'action'}],
             items: [],
             contacInfo: {
                 IdContact: '',
@@ -98,7 +102,6 @@ export default {
     },
     mounted: function() {
         this.getLinkingBankInfo();
-        this.getAllContacts();
     },
     methods:{
         onSubmit(evt) {
@@ -169,6 +172,8 @@ export default {
                                 text: item.Name
                             })
                         });
+                        
+                        me.getAllContacts();
                     }
                 })
                 .catch(err => {
@@ -241,10 +246,10 @@ export default {
             .then(value => {
                 if(value){
                     apiHelper
-                    .call_api(`Users/Payees/${row.item.Id}`, "get",'')
+                    .call_api(`Users/Payees/Delete/${row.item.Id}`, "post",{})
                     .then(res => {
-                        if(res){
-                            let deletedContact = me.items.filter(x => x.Id === me.contacInfo.IdContact);
+                        if(res.data){
+                            let deletedContact = me.items.filter(x => x.Id === row.item.Id);
                             if(deletedContact.length > 0){
                                 me.items.splice( me.items.indexOf(deletedContact[0]), 1 );
                             }
@@ -252,6 +257,7 @@ export default {
                         }
                     })
                     .catch(err => {
+                        me.showErrorMsg('Lỗi hệ thống!');
                         console.error(err);
                     });
                 }
