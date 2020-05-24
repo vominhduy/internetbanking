@@ -33,10 +33,6 @@
         Xem lịch sử giao dịch
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
-      <router-link to="/employee/histories">
-        Đổi mật khẩu
-        <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
-      </router-link>
     </div>
     <div id="main">
       <div
