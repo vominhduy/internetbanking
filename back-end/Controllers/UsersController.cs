@@ -71,6 +71,11 @@ namespace InternetBanking.Controllers
                     externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                     externalBanking.SetPartnerCode();
                 }
+                else if(bankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
+                {
+                    externalBanking = new ExternalBanking_VuBank(_Encrypt, _Setting);
+                    externalBanking.SetPartnerCode();
+                }
 
                 var result = externalBanking.GetInfoUser(accountNumber);
                 if (result != null)

@@ -193,6 +193,11 @@ namespace InternetBanking.Services.Implementations
                                                         externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                                                         externalBanking.SetPartnerCode();
                                                     }
+                                                    else if (transfer.DestinationLinkingBankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
+                                                    {
+                                                        externalBanking = new ExternalBanking_VuBank(_Encrypt, _Setting);
+                                                        externalBanking.SetPartnerCode();
+                                                    }
 
                                                     var result = externalBanking.PayIn(transfer.SourceAccountNumber, transfer.DestinationAccountNumber, transfer.Money, transfer.Description);
 
@@ -522,6 +527,12 @@ namespace InternetBanking.Services.Implementations
                                 externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                                 externalBanking.SetPartnerCode();
                             }
+                            else if (transfer.DestinationLinkingBankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
+                            {
+                                externalBanking = new ExternalBanking_VuBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+
                             var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
                             if (source != null)
                             {
@@ -615,6 +626,12 @@ namespace InternetBanking.Services.Implementations
                                 externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                                 externalBanking.SetPartnerCode();
                             }
+                            else if (transfer.DestinationLinkingBankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
+                            {
+                                externalBanking = new ExternalBanking_VuBank(_Encrypt, _Setting);
+                                externalBanking.SetPartnerCode();
+                            }
+
                             var dest = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
                             if (dest != null)
                             {
@@ -833,12 +850,17 @@ namespace InternetBanking.Services.Implementations
                     IExternalBanking externalBanking = null;
                     if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
                     {
+                        // test only
+                        transfer.DestinationAccountNumber = "0000000034";
                         externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                         externalBanking.SetPartnerCode();
                     }
+                    else if (transfer.DestinationLinkingBankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
+                    {
+                        externalBanking = new ExternalBanking_VuBank(_Encrypt, _Setting);
+                        externalBanking.SetPartnerCode();
+                    }
 
-                    // test only
-                    transfer.DestinationAccountNumber = "0000000034";
                     var result = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
                     if (result != null)
                     {
