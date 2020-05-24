@@ -94,7 +94,7 @@ namespace InternetBanking
             services.AddSingleton<IAccountService, AccountService>();
             services.AddSingleton<IDeptReminderService, DeptReminderService>();
             services.AddSingleton<ILinkingBankService, LinkingBankService>();
-            services.AddTransient<IExternalBanking, ExternalBanking_BKTBank>();
+            services.AddTransient<IExternalBanking, ExternalBanking_VuBank>();
             ///
 
             services.AddTransient<IEncrypt, Encrypt>();
@@ -115,7 +115,7 @@ namespace InternetBanking
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseMiddleware<Middlewares>();
+            // app.UseMiddleware<Middlewares>();
             app.UseAuthentication();
             app.UseAuthorization();
             System.Reflection.Assembly ass = System.Reflection.Assembly.GetEntryAssembly();

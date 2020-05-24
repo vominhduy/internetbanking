@@ -19,4 +19,23 @@
     {
         public bool is_success { get; set; }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ExternalBank_Vu
+    {
+        public string balance { get; set; }
+        public string ResponseText { get; set; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ExternalBankPayIn_Vu
+    {
+        public string balance { get; set; }
+        public string ResponseText { get; set; }
+        public string timetranfer { get; set; }
+    }
 }

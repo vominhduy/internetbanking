@@ -155,8 +155,8 @@ namespace InternetBanking.Utils
 
     public interface IEncrypt
     {
-        public string EncryptData(string msg, string code);
-        public bool DecryptData(string signed, string msg = "");
+        public string EncryptData(string msg, string code, int type = 1);
+        public bool DecryptData(string signed, string msg = "", int type = 1);
         public void SetKey(string key);
     }
 
@@ -198,15 +198,15 @@ namespace InternetBanking.Utils
                 }
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }
         }
 
-        public string EncryptData(string msg, string code ="")
+        public string EncryptData(string msg, string code ="", int type = 1)
         {
-            if (Init())
+            if (Init(type))
             {
                 if (_type == 1)
                 {
@@ -241,10 +241,10 @@ namespace InternetBanking.Utils
                     var signed = pgp.SignString(msg, stream, _pgpKeyPassword);
 
                     // Xử lý chuỗi lấy ra base64 string
-                    var split = signed.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-                    string result = string.Join("", split.Skip(2).Take(split.Length - 3));
+                    //var split = signed.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    //string result = string.Join("", split.Skip(2).Take(split.Length - 3));
                     //
-                    return result;
+                    return signed;
                 }
             }
             else
@@ -253,9 +253,9 @@ namespace InternetBanking.Utils
             }
         }
 
-        public bool DecryptData(string signed, string msg = "")
+        public bool DecryptData(string signed, string msg = "", int type = 1)
         {
-            if (Init())
+            if (Init(type))
             {
                 if (_type == 1)
                 {

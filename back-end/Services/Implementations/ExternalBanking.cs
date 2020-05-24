@@ -101,4 +101,90 @@ namespace InternetBanking.Services.Implementations
             _secretKey = "99793bb9137042a3a7f15950f1215950";
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+
+    public class ExternalBanking_VuBank : IExternalBanking
+    {
+        private readonly IEncrypt _encrypt;
+        private readonly ISetting _setting;
+
+        public ExternalBanking_VuBank(IEncrypt encrypt, ISetting setting)
+        {
+            _encrypt = encrypt;
+            _setting = setting;
+        }
+
+        public static string _url = "";
+        public static string _secretKey = "";
+        public static string _partnerCode = "";
+
+        public ExternalInfoUserResponse GetInfoUser(string accountNumber)
+        {
+            accountNumber = "18424082";
+            var result = new ExternalInfoUserResponse();
+            long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
+            timestamp = 1590000027;
+            string hash = Encrypting.MD5Hash($"{accountNumber}{timestamp}");
+
+            var obj = new
+            {
+                account_number = accountNumber,
+                timestamp = timestamp.ToString(),
+                hash = hash
+            };
+
+            var info = Helper.CallAPI<ExternalBank_Vu>("http://118.69.190.28:5000/checkquota", "POST", obj);
+            if (info != null)
+            {
+                result.account_number = accountNumber;
+                result.email = "No email";
+                result.full_name = accountNumber;
+                result.username = accountNumber;
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public bool PayIn(string source, string dest, decimal amount, string message)
+        {
+            long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
+            string hash = Encrypting.MD5Hash($"{source}{timestamp}");
+            _encrypt.SetKey(_setting.BankCode);
+
+            var obj = new
+            {
+                moneytranfer = amount.ToString(),
+                account_number = source,
+                to_account_number = dest,
+                hash = hash,
+                timestamp = timestamp.ToString(),
+                sign = _encrypt.EncryptData($"{source}{timestamp}", _secretKey,2)
+            };
+
+            var info = Helper.CallAPI<ExternalBankPayIn_Vu>(string.Concat(_url, "/transmoney"), "POST", obj);
+
+            if (info != null)
+            {
+
+                return info.ResponseText.ToLower().Equals("transfer money is done");
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void SetPartnerCode()
+        {
+            _partnerCode = "99793bb9137042a3a7f15950f1215950";
+            _url = "http://118.69.190.28:5000";
+            _secretKey = "99793bb9137042a3a7f15950f1215950";
+        }
+    }
 }
