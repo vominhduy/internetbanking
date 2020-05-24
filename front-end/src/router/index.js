@@ -77,19 +77,31 @@ const routes = [
     path: '/employee/create-user',
     name: 'CreateUser',
     component: CreateUser,
-    //meta: { layout: EmployeeLayout }
+    meta: {
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/employee/pay-in',
     name: 'PayIn',
     component: PayIn,
-    meta: { layout: EmployeeLayout }
+    meta: {
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/employee/histories',
     name: 'History',
     component: History,
-    meta: { layout: EmployeeLayout }
+    meta: {
+      layout: EmployeeLayout,
+      requiresAuthen: true,
+      requiresRole: [constant.role.employee]
+    }
   },
   {
     path: '/password/forget',
