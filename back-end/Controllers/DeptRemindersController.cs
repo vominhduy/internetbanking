@@ -114,7 +114,7 @@ namespace InternetBanking.Controllers
         /// <param name="otp"></param>
         /// <returns></returns>
         // POST: api/Deptreminders/Confirm/00000000-0000-0000-0000-000000000000?otp=123456
-        [HttpPost("Confirm")]
+        [HttpPost("Confirm/{id}")]
         //[Authorize(Roles = "User")]
         public IActionResult ConfirmDeptreminder(Guid id, [FromQuery] string otp)
         {
