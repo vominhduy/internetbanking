@@ -237,7 +237,7 @@ namespace InternetBanking.Utils
                         {
                             string hash = Encrypting.HMD5Hash(input, secretKey);
                             _encrypt.SetKey(keyReq);
-                            if (_encrypt.DecryptData(encrypt, hash))
+                            if (_encrypt.DecryptData(encrypt, hash, (int)infoPartner.Type))
                             {
                                 return result;
                             }
