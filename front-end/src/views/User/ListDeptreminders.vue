@@ -128,7 +128,7 @@ export default {
                                 if(!item.IsCanceled){
                                     me.sentDeptReminders.push({
                                         isActive: !isActive,
-                                        AccountNumber: item.RequestorAccountNumber,
+                                        AccountNumber: item.RecipientAccountNumber,
                                         Money: item.Money,
                                         Description: item.Description,
                                         Id: item.Id
