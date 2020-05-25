@@ -4,7 +4,8 @@ var md5 = require('md5');
 module.exports = {
     // Thời gian sử dụng token lần gần nhất
     last_usded: 0,
-    base_url: 'https://localhost:44396/api/',
+    base_url: 'http://www.ddpbank.somee.com/api/',
+    //base_url: 'https://localhost:44396/api/',
     secret_key: '75836f6ded2047c4b1f5770c3229fc02',
     token_time: 100,
 
@@ -13,8 +14,30 @@ module.exports = {
         var last_time = new Date((new Date(this.last_usded)).toUTCString() + this.token_time * 60000);
         if ((Math.round(last_time.getTime() / 1000)) > Math.round((new Date()).getTime() / 1000)) {
             // lấy access_token mới và lưu lại
-            // TODO
-            access_token_new = localStorage.getItem('access_token')
+            var obj = {
+                AccessToken: localStorage.getItem('access_token'),
+                RefreshToken: "TODO: lấy refresh token lưu ở đâu t k biết"
+            };
+            var timestamp = Math.round((new Date()).getTime() / 1000);
+            var hash = md5(JSON.stringify(obj) + this.secret_key + timestamp)
+
+            const refreshToken = axios.create({
+                baseURL: this.base_url,
+                timeout: 100000,
+                headers: {
+                    'partner_code': this.secret_key,
+                    'timestamp': timestamp,
+                    'hash': hash,
+                }
+            });
+            refreshToken.post('Accounts/Tokens/Refresh', obj)
+                .then(res => {
+                    access_token_new = res.data.AccessToken
+                    // TODO lưu lại accesstoken và refresh token
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         }
         else {
             // dùng access_token hiện tại
