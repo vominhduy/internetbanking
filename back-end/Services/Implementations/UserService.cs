@@ -851,7 +851,7 @@ namespace InternetBanking.Services.Implementations
                     if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
                     {
                         // test only
-                        transfer.DestinationAccountNumber = "0000000034";
+                       // transfer.DestinationAccountNumber = "0000000034";
                         externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                         externalBanking.SetPartnerCode();
                     }
@@ -913,6 +913,10 @@ namespace InternetBanking.Services.Implementations
                                     if (_Context.SendMail("Xác thực yêu cầu chuyển tiền", sb.ToString(), userDetail.Email, userDetail.Name))
                                     {
                                         res = transaction;
+                                    }
+                                    else
+                                    {
+                                        _Setting.Message.SetMessage("Không mail!");
                                     }
                                 }
                             }

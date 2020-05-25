@@ -493,10 +493,14 @@ export default {
                 this.next_step = 0;
                 this.show = true;
                 this.component = "NavBar";
+              } else {
+                console.log(res);
+                this.next_step = 0;
               }
             })
             .catch(err => {
-              this.next_step = 1;
+              console.log(err);
+              this.next_step = 0;
               utilsHelper.showErrorMsg(this, "Lỗi chuyển khoản.");
             });
         });
@@ -538,11 +542,11 @@ export default {
                 this.component = "NavBar";
               } else {
                 utilsHelper.showErrorMsg(this, "Lỗi chuyển khoản.");
-                this.next_step = 1;
+                this.next_step = 0;
               }
             })
             .catch(err => {
-              this.next_step = 1;
+             this.next_step = 0;
               utilsHelper.showErrorMsg(this, "Lỗi chuyển khoản.");
             });
         });
@@ -580,7 +584,7 @@ export default {
         }
 
         // clear
-        this.external_transfer.from_account = "";
+        //this.external_transfer.from_account = "";
         this.external_transfer.to_account = "";
         this.external_transfer.amount = 0;
         this.external_transfer.description = "";
@@ -597,7 +601,7 @@ export default {
         });
 
         //clear data
-        this.internal_transfer.from_account = "";
+        // this.internal_transfer.from_account = "";
         this.internal_transfer.to_account = "";
         this.internal_transfer.amount = 0;
         this.internal_transfer.description = "";
@@ -609,6 +613,8 @@ export default {
     change_banking(value) {
       this.payees_filter = [];
       this.external_transfer.destination_linking_bank_id = value;
+      this.external_transfer.to_account = "";
+      this.external_transfer.to_name ="";
       // Load ds người nhận cùng ngân hàng
       this.user_detail.payess.forEach(item => {
         if (
