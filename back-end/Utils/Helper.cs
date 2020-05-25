@@ -56,7 +56,7 @@ namespace InternetBanking.Utils
                 }
                 WebResponse response = request.GetResponse();
                 HttpStatusCode statusCode = ((HttpWebResponse)response).StatusCode;
-                if (statusCode.Equals(HttpStatusCode.OK))
+                if (statusCode.Equals(HttpStatusCode.OK) || statusCode.Equals(HttpStatusCode.Created))
                 {
                     StreamReader Reader = new StreamReader(response.GetResponseStream());
                     json = Reader.ReadToEnd();

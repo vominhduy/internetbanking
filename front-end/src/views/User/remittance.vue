@@ -10,7 +10,7 @@
         </div>
         <div class="body">
           <div class="info_user">
-            <label>Thông tin tài khoản</label>
+            <h6>Thông tin tài khoản</h6>
             <b-form-group
               label-cols-sm="12"
               label-cols-md="4"
@@ -58,7 +58,7 @@
               </b-col>
             </b-row>
           </div>
-          <label>Thông tin người nhận</label>
+          <h6>Thông tin người nhận</h6>
 
           <div class="info_transfer">
             <b-card no-body>
@@ -132,6 +132,8 @@
                         id="inAmount"
                         :type="'number'"
                         name="inAmount"
+                        min="1000"
+                        step="1000"
                         v-validate="'required'"
                         :state="validateState('inAmount')"
                         aria-describedby="inAmountFeedback"
@@ -260,6 +262,8 @@
                         id="exAmount"
                         :type="'number'"
                         name="exAmount"
+                        min="1000"
+                        step="1000"
                         v-validate="'required'"
                         :state="validateState('exAmount')"
                         aria-describedby="exAmountFeedback"
@@ -546,7 +550,7 @@ export default {
               }
             })
             .catch(err => {
-             this.next_step = 0;
+              this.next_step = 0;
               utilsHelper.showErrorMsg(this, "Lỗi chuyển khoản.");
             });
         });
@@ -614,7 +618,7 @@ export default {
       this.payees_filter = [];
       this.external_transfer.destination_linking_bank_id = value;
       this.external_transfer.to_account = "";
-      this.external_transfer.to_name ="";
+      this.external_transfer.to_name = "";
       // Load ds người nhận cùng ngân hàng
       this.user_detail.payess.forEach(item => {
         if (

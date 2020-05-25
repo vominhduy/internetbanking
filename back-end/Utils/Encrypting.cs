@@ -275,6 +275,7 @@ namespace InternetBanking.Utils
                     PGPLib pgp = new PGPLib();
                     byte[] bytes = Encoding.UTF8.GetBytes(_publicKey);
                     var stream = new MemoryStream(bytes);
+                    //Your evaluation period for DidiSoft OpenPGP Library for .NET has expired. You have to purchase a production copy if you want to continue using this product
                     SignatureCheckResult signatureCheck = pgp.VerifyString(signed, stream, out string plainText);
                     var result = signatureCheck == SignatureCheckResult.SignatureVerified;
                     return result;

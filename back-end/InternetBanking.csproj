@@ -18,7 +18,7 @@
 
 <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="3.2.1" />
-    <PackageReference Include="DidiSoft.Pgp.Trial" Version="1.9.2.51" />
+    <PackageReference Include="DidiSoft.Pgp.Trial" Version="1.9.2.64" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0-preview1.19506.2" />

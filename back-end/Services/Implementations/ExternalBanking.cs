@@ -123,10 +123,10 @@ namespace InternetBanking.Services.Implementations
 
         public ExternalInfoUserResponse GetInfoUser(string accountNumber)
         {
-            accountNumber = "18424082";
+            //accountNumber = "18424082";
             var result = new ExternalInfoUserResponse();
             long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
-            timestamp = 1590000027;
+            //timestamp = 1590000027;
             string hash = Encrypting.MD5Hash($"{accountNumber}{timestamp}");
 
             var obj = new
@@ -164,7 +164,7 @@ namespace InternetBanking.Services.Implementations
                 to_account_number = dest,
                 hash = hash,
                 timestamp = timestamp.ToString(),
-                sign = _encrypt.EncryptData($"{source}{timestamp}", _secretKey,2)
+                sign = _encrypt.EncryptData($"{timestamp}", _secretKey,2)
             };
 
             var info = Helper.CallAPI<ExternalBankPayIn_Vu>(string.Concat(_url, "/transmoney"), "POST", obj);
