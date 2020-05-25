@@ -57,8 +57,8 @@ namespace InternetBanking.Services.Implementations
             user.Name = employee.Name;
             user.Phone = employee.Phone;
             user.Password = Encrypting.Bcrypt(employee.Password);
-            employee.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
-            user.Role = 1;
+            user.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
+            user.Role = 2;
 
 
             _UserCollection.Create(user);
@@ -66,6 +66,7 @@ namespace InternetBanking.Services.Implementations
             {
                 employee.Id = user.Id;
                 employee.Password = randomPass;
+                employee.Role = 2;
                 res = employee;
             }
             return res;
@@ -346,6 +347,7 @@ namespace InternetBanking.Services.Implementations
                 employee.Code = user.AccountNumber;
                 employee.Email = user.Email;
                 employee.Name = user.Name;
+                employee.Role = 2;
                 res.Add(employee);
             }
 

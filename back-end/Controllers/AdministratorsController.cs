@@ -37,7 +37,7 @@ namespace InternetBanking.Controllers
         [HttpGet("Employees")]
         public IActionResult GetAll()
         {
-            var records = _Service.GetEmployees(new UserFilter() { Id = Guid.Empty });
+            var records = _Service.GetEmployees(new UserFilter() { Id = Guid.Empty, Role = 2 });
 
             return Ok(records);
         }
@@ -51,7 +51,7 @@ namespace InternetBanking.Controllers
         [HttpGet("Employees/{id}")]
         public IActionResult GetDetailEmployee(Guid id)
         {
-            var records = _Service.GetEmployees(new UserFilter() { Id = id });
+            var records = _Service.GetEmployees(new UserFilter() { Id = id, Role = 2 });
 
             if (records.Any())
                 return Ok(records.FirstOrDefault());

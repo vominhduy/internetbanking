@@ -12,5 +12,6 @@ namespace InternetBanking.Models.Filters
         public string AccountNumber { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
+        public int Role { get; set; } = -1;
     }
 }

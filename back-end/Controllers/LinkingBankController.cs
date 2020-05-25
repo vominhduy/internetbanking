@@ -25,7 +25,7 @@ namespace InternetBanking.Controllers
         /// Danh sách ngân hàng liên kết
         /// </summary>
         /// <returns>IEnumerable<LinkingBank></returns>
-        // GET: api/Ultis/LinkingBanks
+        // GET: api/LinkingBanks
         [HttpGet("LinkingBanks")]
         public IActionResult GetLinkingBank()
         {

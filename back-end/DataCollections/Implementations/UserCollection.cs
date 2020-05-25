@@ -62,6 +62,9 @@ namespace InternetBanking.DataCollections.Implementations
             if (!string.IsNullOrEmpty(userFilter.AccountNumber))
                 ops.Add(Builders<User>.Filter.Eq(x => x.AccountNumber, userFilter.AccountNumber));
 
+            if (userFilter.Role != -1)
+                ops.Add(Builders<User>.Filter.Eq(x => x.Role, userFilter.Role));
+
             if (ops.Count > 0)
                 filter = Builders<User>.Filter.And(ops);
 

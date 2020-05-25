@@ -377,11 +377,11 @@ export default {
       payees_filter: [],
       paid_type: [
         {
-          value: 1,
+          value: "1",
           text: "Người gửi trả phí"
         },
         {
-          value: 2,
+          value: "2",
           text: "Người nhận trả phí"
         }
       ],
@@ -391,7 +391,7 @@ export default {
         to_account: "",
         amount: 0,
         description: "",
-        paid_type: 1,
+        paid_type: "1",
         to_name: ""
       },
       external_transfer: {
@@ -399,7 +399,7 @@ export default {
         to_account: "",
         amount: 0,
         description: "",
-        paid_type: 1,
+        paid_type: "1",
         to_name: "",
         destination_linking_bank_id: ""
       }
@@ -481,7 +481,7 @@ export default {
             SourceAccountNumber: this.internal_transfer.from_account,
             DestinationAccountNumber: this.internal_transfer.to_account,
             Money: this.internal_transfer.amount,
-            IsSenderPay: this.paid_type == 1 ? true : false,
+            IsSenderPay: this.paid_type == "1" ? true : false,
             Description: this.internal_transfer.description
           };
           helper
