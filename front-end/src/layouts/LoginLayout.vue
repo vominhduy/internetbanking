@@ -29,7 +29,17 @@
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-        <slot/>
+    <b-row>
+        <b-col sm="6">
+          <img
+          style="margin-top: 56px; width: 100%; cursor:pointer"
+          src="../assets/home.png"
+        />
+        </b-col>
+        <b-col sm="6">
+          <slot />
+        </b-col>
+      </b-row>
   </div>
 </template>
 
