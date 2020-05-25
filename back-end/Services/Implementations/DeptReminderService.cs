@@ -315,10 +315,11 @@ namespace InternetBanking.Services.Implementations
                                                     {
                                                         // Update trạng thái nhắc nợ
                                                         dept.IsPaid = true;
+                                                        dept.PaidTime = DateTime.Now;
                                                         if (_DeptReminderCollection.Replace(dept) > 0)
                                                         {
                                                             // Update trang thai giao dich
-                                                            transaction.ConfirmTime = DateTime.Now;
+                                                            transaction.ConfirmTime = dept.PaidTime;
                                                             if (_TransactionCollection.Replace(transaction) > 0)
                                                             {
                                                                 // Send mail

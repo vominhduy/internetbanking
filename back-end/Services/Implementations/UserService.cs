@@ -208,11 +208,12 @@ namespace InternetBanking.Services.Implementations
                                                 {
                                                     // Update trạng thái chuyển tiền
                                                     transfer.IsConfirmed = true;
+                                                    transfer.ConfirmedTime = DateTime.Now;
                                                     var updateTransfer = _TransferCollection.Replace(transfer);
                                                     if (updateTransfer > 0)
                                                     {
                                                         // Update trạng thái giao dịch
-                                                        transaction.ConfirmTime = DateTime.Now;
+                                                        transaction.ConfirmTime = transfer.ConfirmedTime;
                                                         var updateTransaction = _TransactionCollection.Replace(transaction);
                                                         if (updateTransaction > 0)
                                                         {
@@ -401,6 +402,7 @@ namespace InternetBanking.Services.Implementations
                             hisTransaction.AccountNumber = dest.AccountNumber;
                             hisTransaction.Description = userDept.Description;
                             hisTransaction.Money = userDept.Money;
+                            hisTransaction.ConfirmTime = userDept.PaidTime.HasValue ? userDept.PaidTime.Value : DateTime.Now;
 
                             var linkingBanks = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode } );
                             if (linkingBanks != null)
@@ -488,6 +490,7 @@ namespace InternetBanking.Services.Implementations
                                 hisTransaction.AccountNumber = source.AccountNumber;
                                 hisTransaction.Description = transfer.Description;
                                 hisTransaction.IsPayIn = transfer.IsPayIn;
+                                hisTransaction.ConfirmTime = transfer.ConfirmedTime.HasValue ? transfer.ConfirmedTime.Value : DateTime.Now;
 
                                 if (transfer.IsSenderPay)
                                 {
@@ -498,7 +501,7 @@ namespace InternetBanking.Services.Implementations
                                     hisTransaction.Money = transfer.Money - transfer.Fee;
                                 }
 
-                                if (transfer.SourceLinkingBankId == bank.Id || (hisTransaction.IsPayIn.HasValue && hisTransaction.IsPayIn.Value == true))
+                                if (transfer.SourceLinkingBankId == bank.Id || (hisTransaction.IsPayIn.HasValue && hisTransaction.IsPayIn.Value == true) || transfer.SourceLinkingBankId == Guid.Empty)
                                 {
                                     // noi bo
                                     hisTransaction.BankName = bank.Name;
@@ -580,6 +583,7 @@ namespace InternetBanking.Services.Implementations
                 userTransfers = userTransfers.Where(x => x.SourceLinkingBankId == Guid.Empty && (x.IsPayIn == null || x.IsPayIn.Value == false));
                 if (userTransfers.Any())
                 {
+                    var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
                     foreach (var transfer in userTransfers)
                     {
                         var hisTransaction = new TransactionHistory();
@@ -593,6 +597,7 @@ namespace InternetBanking.Services.Implementations
                                 hisTransaction.AccountName = dest.Name;
                                 hisTransaction.AccountNumber = dest.AccountNumber;
                                 hisTransaction.Description = transfer.Description;
+                                hisTransaction.ConfirmTime = transfer.ConfirmedTime.HasValue ? transfer.ConfirmedTime.Value : DateTime.Now;
 
                                 if (!transfer.IsSenderPay)
                                 {
@@ -607,6 +612,10 @@ namespace InternetBanking.Services.Implementations
                                 if (linkingBank != null)
                                 {
                                     hisTransaction.BankName = linkingBank.Name;
+                                }
+                                else if (transfer.DestinationLinkingBankId == Guid.Empty)
+                                {
+                                    hisTransaction.BankName = bank.Name;
                                 }
                                 else
                                     continue;

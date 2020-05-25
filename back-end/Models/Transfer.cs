@@ -25,5 +25,6 @@ namespace InternetBanking.Models
         public string Description { get; set; }
         public string SignedData { get; set; }
         public bool? IsPayIn { get; set; }
+        public DateTime? ConfirmedTime { get; set; }
     }
 }

@@ -152,9 +152,11 @@ export default {
      // if (this.user.AccountNumber == "" && this.user.Username == "") {
      ///   return;
      // }
-
-      if (this.type == 1) this.user.UserName = this.valueType;
-        else this.user.AccountNumber = this.valueType;
+      this.user = {};
+      if (this.type == 1) 
+        this.user.UserName = this.valueType;
+      else 
+        this.user.AccountNumber = this.valueType;
       
       console.log(this.user);
       apiHelper

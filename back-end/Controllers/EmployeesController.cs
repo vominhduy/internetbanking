@@ -123,7 +123,7 @@ namespace InternetBanking.Controllers
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Dept/In
         [HttpGet("Histories/{userId}/Dept/In")]
         //[Authorize(Roles = "User")]
-        public IActionResult HistoryDeptIn([FromQuery] Guid userId)
+        public IActionResult HistoryDeptIn(Guid userId)
         {
             var res = _UserService.HistoryDeptIn(userId);
 
@@ -149,7 +149,7 @@ namespace InternetBanking.Controllers
         // POST: api/Employees/Histories/962c3538-65f9-40c3-98b4-0ce277c3f559/Dept/Out
         [HttpGet("Histories/{userId}/Dept/Out")]
        // [Authorize(Roles = "User")]
-        public IActionResult HistoryDeptOut([FromQuery] Guid userId)
+        public IActionResult HistoryDeptOut(Guid userId)
         {
             var res = _UserService.HistoryDeptOut(userId);
 

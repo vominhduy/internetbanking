@@ -135,8 +135,7 @@ export default {
           })
           .catch(err => {
             utilsHelper.showErrorMsg(this, "Xác nhận OTP thất bại.");
-            this.info_transfer.message = "Chuyển khoản thất bại";
-            this.show = false;
+            
             this.next_step = 0;
           });
       });
