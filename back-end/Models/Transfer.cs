@@ -26,5 +26,7 @@ namespace InternetBanking.Models
         public string SignedData { get; set; }
         public bool? IsPayIn { get; set; }
         public DateTime? ConfirmedTime { get; set; }
+        public bool IsSaveRecepient { get; set; } = false;
+        public Guid SaveRecepientLinkingBankId { get; set; }
     }
 }

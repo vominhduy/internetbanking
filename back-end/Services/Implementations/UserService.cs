@@ -879,6 +879,18 @@ namespace InternetBanking.Services.Implementations
 
                 if (recepient != null)
                 {
+                    if (transfer.IsSaveRecepient)
+                    {
+                        var payee = new Payee
+                        {
+                            AccountNumber = recepient.AccountNumber,
+                            LinkingBankId = transfer.SaveRecepientLinkingBankId,
+                            MnemonicName = recepient.Name
+                        };
+                        AddPayee(userId, payee);
+
+                    }
+
                     string otp = null;
                     using (var sessionTask = _MongoDBClient.StartSessionAsync())
                     {

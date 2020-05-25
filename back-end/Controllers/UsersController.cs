@@ -212,6 +212,7 @@ namespace InternetBanking.Controllers
         //[Authorize(Roles = "User")]
         public IActionResult InternalTransfer([FromBody] Transfer transfer)
         {
+            transfer.SaveRecepientLinkingBankId = transfer.DestinationLinkingBankId;
             transfer.DestinationLinkingBankId = Guid.Empty;
             var res = _Service.Transfer(UserId, transfer);
 
@@ -241,6 +242,7 @@ namespace InternetBanking.Controllers
                 return BadRequest("Chưa chọn số tài khoản nhận!");
             }
 
+            transfer.SaveRecepientLinkingBankId = transfer.DestinationLinkingBankId;
             var res = _Service.Transfer(UserId, transfer);
 
             if (res != null)

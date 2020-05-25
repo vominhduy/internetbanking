@@ -106,6 +106,21 @@
                     <b-form-group
                       label-cols-sm="12"
                       label-cols-md="4"
+                      label=""
+                    >
+                      <b-input-group>
+                         <b-form-checkbox
+                          id="checkbox-isSaveRecepientInternal"
+                          name="checkbox-isSaveRecepientInternal"
+                          v-model="isSaveRecepientInternal"
+                        >
+                          Lưu vào danh bạ
+                        </b-form-checkbox>
+                      </b-input-group>
+                    </b-form-group>
+                    <b-form-group
+                      label-cols-sm="12"
+                      label-cols-md="4"
                       label="Tên người nhận"
                       label-for="inPayeesName"
                     >
@@ -231,6 +246,21 @@
                         <b-form-invalid-feedback
                           id="exPayeesAccFeedback"
                         >Số tài khoản không được để trống!</b-form-invalid-feedback>
+                      </b-input-group>
+                    </b-form-group>
+                    <b-form-group
+                      label-cols-sm="12"
+                      label-cols-md="4"
+                      label=""
+                    >
+                      <b-input-group>
+                         <b-form-checkbox
+                          id="checkbox-isSaveRecepientExternal"
+                          name="checkbox-isSaveRecepientExternal"
+                          v-model="isSaveRecepientExternal"
+                        >
+                          Lưu vào danh bạ
+                        </b-form-checkbox>
                       </b-input-group>
                     </b-form-group>
                     <b-form-group
@@ -402,7 +432,9 @@ export default {
         paid_type: "1",
         to_name: "",
         destination_linking_bank_id: ""
-      }
+      },
+      isSaveRecepientInternal: false,
+      isSaveRecepientExternal: false
     };
   },
   mounted() {
@@ -482,7 +514,9 @@ export default {
             DestinationAccountNumber: this.internal_transfer.to_account,
             Money: this.internal_transfer.amount,
             IsSenderPay: this.paid_type == "1" ? true : false,
-            Description: this.internal_transfer.description
+            Description: this.internal_transfer.description,
+            DestinationLinkingBankId: this.my_bank_id,
+            IsSaveRecepient: this.isSaveRecepientInternal
           };
           helper
             .call_api("users/internaltransfer", "post", obj)
@@ -529,7 +563,8 @@ export default {
             IsSenderPay: this.external_transfer == 1 ? true : false,
             Description: this.external_transfer.description,
             DestinationLinkingBankId: this.external_transfer
-              .destination_linking_bank_id
+              .destination_linking_bank_id,
+            IsSaveRecepient: this.isSaveRecepientExternal
           };
           helper
             .call_api("users/externaltransfer", "post", obj2)
