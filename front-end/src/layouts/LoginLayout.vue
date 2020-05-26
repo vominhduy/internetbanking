@@ -39,5 +39,6 @@ export default {
 <style scoped>
 .nav {
   border-bottom: solid 1px rgba(0, 0, 0, 0.5);
+  background-color: whitesmoke !important
 }
 </style>

@@ -59,7 +59,7 @@ namespace InternetBanking.Services.Implementations
             user.Password = Encrypting.Bcrypt(employee.Password);
             user.Username = string.Concat(employee.Name.Split(' ').Last(), employee.Code);
             user.Role = 2;
-
+            
 
             _UserCollection.Create(user);
             if (user.Id != Guid.Empty)
@@ -67,6 +67,7 @@ namespace InternetBanking.Services.Implementations
                 employee.Id = user.Id;
                 employee.Password = randomPass;
                 employee.Role = 2;
+                employee.Username = user.Username;
                 res = employee;
             }
             return res;

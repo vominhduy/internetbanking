@@ -104,8 +104,6 @@ namespace InternetBanking.Services.Implementations
             return user;
         }
 
-
-
         public bool ConfirmTransfer(Guid userId, Guid transactionId, string otp)
         {
             var res = false;

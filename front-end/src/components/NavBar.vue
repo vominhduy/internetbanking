@@ -20,7 +20,7 @@
           <b-nav-item-dropdown right>
             <!-- Using 'button-content' slot -->
             <template v-slot:button-content>
-              <em>User</em>
+              <em><b-icon icon="gear"></b-icon></em>
             </template>
             <b-dropdown-item href="#" @click="showChangePassworrd">Đổi mật khẩu</b-dropdown-item>
             <b-dropdown-item href="#" @click="logout">Đăng xuất</b-dropdown-item>

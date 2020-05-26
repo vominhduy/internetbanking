@@ -29,7 +29,7 @@
         >Số tài khoản không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Số tiền (ĐV: nghìn đồng)" label-for="money">
-        <b-form-input id="money" name="money" :type="'number'" v-model="payInfo.Money" v-validate="'between: 1000,50000000'" :state="validateState('money')"
+        <b-form-input id="money" name="money" :type="'number'" v-model="payInfo.Money" v-validate="'required|between: 1000,50000000'" :state="validateState('money')"
           aria-describedby="moneyfeedback"></b-form-input>
         <b-form-invalid-feedback
           id="moneyfeedback"
@@ -68,17 +68,6 @@
 import apiHelper from '../../helper/call_api'
 import { Validator } from 'vee-validate';
 
-const isBetween = (value, { min, max } = {}) => {
-  var isNumeric = !isNaN(parseFloat(value)) && isFinite(value);
-  return isNumeric && Number(min) <= value && Number(max) >= value;
-};
-
-// The first param is called 'min', and the second is called 'max'.
-const paramNames = ['min', 'max'];
-
-Validator.extend('between', isBetween, {
-  paramNames //  pass it in the extend options.
-});
 
 export default {
   name: "PayIn",

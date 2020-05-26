@@ -31,12 +31,14 @@ import PayIn from '../views/Employee/PayIn.vue'
 import remittance from '../views/User/remittance.vue'
 import History from '../views/Employee/History.vue'
 import VeeValidate from "vee-validate";
+import vSelect from 'vue-select'
+
 
 
 import { BootstrapVueIcons } from 'bootstrap-vue'
 
 Vue.use(BootstrapVueIcons)
-
+Vue.component('v-select', vSelect)
 
 Vue.use(VueRouter)
 

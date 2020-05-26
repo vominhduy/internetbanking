@@ -166,5 +166,26 @@ namespace InternetBanking.Controllers
 
             return Ok(res);
         }
+
+        [HttpGet("Users")]
+        // [Authorize(Roles = "Employee")]
+        public IActionResult GetUsers()
+        {
+            var res = _UserService.GetUsers(new Models.Filters.UserFilter() { Role = 1 });
+
+            //res = new List<TransactionHistory>() { 
+            //    new TransactionHistory() { 
+            //        AccountName = "Name",
+            //        AccountNumber = "numberr",
+            //        BankName = "bank",
+            //        ConfirmTime = DateTime.Now,
+            //         Description= "nhan tiền",
+            //         Money = 231232
+            //} 
+            //};
+
+            return Ok(res);
+        }
+
     }
 }

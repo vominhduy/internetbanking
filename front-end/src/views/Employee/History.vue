@@ -2,27 +2,29 @@
   <b-card class="bcard-shadow">
     <h1>Lịch sử giao dịch</h1>
     <b-form @submit.stop.prevent="onSubmit">
-      <b-form-group label-cols-sm="12" label-cols-md="4" label="Loại" label-for="type">
-        <b-form-select id="type" v-model="type" :options="types"></b-form-select>
-      </b-form-group>
-      <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên đăng nhập/Số tài khoản">
-              <b-form-input
-          id="value"
-          name="value"
-          v-model="valueType"
-          v-validate="{required:true}"
-          :state="validateState('value')"
-          aria-describedby="valuefeedback"
-        ></b-form-input>
-        <b-form-invalid-feedback
-          v-if="type == 1"
-          id="valuefeedback"
-        >Tên đăng nhập không được để trống!</b-form-invalid-feedback>
-        <b-form-invalid-feedback
-          v-if="type == 2"
-          id="valuefeedback"
-        >Số tài khoản không được để trống!</b-form-invalid-feedback>
-        <!-- <div v-show="type == 1">
+      <div style="display:none;">
+        <b-form-group label-cols-sm="12" label-cols-md="4" label="Loại" label-for="type">
+          <b-form-select id="type" v-model="type" :options="types"></b-form-select>
+        </b-form-group>
+        <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên đăng nhập/Số tài khoản">
+          <b-form-input
+            id="value"
+            name="value"
+            v-model="valueType"
+            v-validate="{required:true}"
+            :state="validateState('value')"
+            aria-describedby="valuefeedback"
+          ></b-form-input>
+          <b-form-invalid-feedback
+            v-if="type == 1"
+            id="valuefeedback"
+          >Tên đăng nhập không được để trống!</b-form-invalid-feedback>
+          <b-form-invalid-feedback
+            v-if="type == 2"
+            id="valuefeedback"
+          >Số tài khoản không được để trống!</b-form-invalid-feedback>
+          <v-select label="vmName" :options="users"></v-select>
+          <!-- <div v-show="type == 1">
           <b-form-input name="value" id="value" v-model="user.Username" v-validate="{required: true}" :state="validateState('value')"
           aria-describedby="input-live-feedback"></b-form-input>
           <b-form-invalid-feedback id="input-live-feedback">Tên đăng nhập không được để trống!</b-form-invalid-feedback>
@@ -31,20 +33,33 @@
           <b-form-input name="value1" id="value1" v-model="user.AccountNumber" v-validate="{required:true}" :state="validateState('value1')"
           aria-describedby="input-1-live-feedback"></b-form-input>
           <b-form-invalid-feedback id="input-1-live-feedback">Số tài khoản không được để trống!</b-form-invalid-feedback>
-        </div> -->
-      </b-form-group>
+          </div>-->
+        </b-form-group>
+      </div>
+
       <b-form-group>
         <b-row>
-          <b-col>
-            <b-button block type="submit" variant="success">Tra cứu</b-button>
+          <b-col sm="9">
+            <v-select label="Name" :options="users" v-model="selectedUser">
+              <template #no-options="{}">Không tìm thấy!</template>
+              <template #option="{ Name, AccountNumber, Email }">
+                <h5 style="margin: 0">{{ Name }}</h5>
+                <em>{{ AccountNumber }} - {{ Email }}</em>
+              </template>
+            </v-select>
+            <div
+              class="invalid-feedback1"
+              style="display:block;"
+              v-show="selectedUser == null"
+            >Tên đăng nhập không được để trống!</div>
           </b-col>
-          <b-col>
-            <b-button block variant="danger" @click.prevent="canceled">Hủy</b-button>
+          <b-col sm="3">
+            <b-button block type="submit" size="sm" variant="success">Tra cứu</b-button>
           </b-col>
         </b-row>
       </b-form-group>
     </b-form>
-    <div v-if="statusOk">
+    <div v-show="statusOk">
       <h3>Thông tin tài khoản</h3>
       <p>
         Tên:
@@ -72,7 +87,7 @@
         Số điện thoại:
         <span class="font-weight-bold">{{user.Phone}}</span>
       </p>
-      <b-tabs content-class="mt-3">
+      <b-tabs content-class="mt-3" v-show="countCallApi == 4">
         <b-tab title="Nhận tiền" active>
           <HistoryIn :histories1="hisIns" />
         </b-tab>
@@ -86,6 +101,9 @@
           <HistoryDeptOut :histories4="hisDeptOuts" />
         </b-tab>
       </b-tabs>
+    </div>
+    <div class="text-center" v-show="countCallApi < 4 && showSpinner">
+      <b-spinner label="Large Spinner"></b-spinner>
     </div>
     <b-modal ref="respone" title="Thông báo">
       <b-row>
@@ -105,7 +123,8 @@ import HistoryDeptIn from "../../components/Employee/HistoryDeptIn.vue";
 import HistoryIn from "../../components/Employee/HistoryIn.vue";
 import HistoryDeptOut from "../../components/Employee/HistoryDeptOut.vue";
 import HistoryOut from "../../components/Employee/HistoryOut.vue";
-import apiHelper from '../../helper/call_api'
+import apiHelper from "../../helper/call_api";
+import "vue-select/dist/vue-select.css";
 
 export default {
   name: "History",
@@ -117,6 +136,7 @@ export default {
   },
   data() {
     return {
+      showSpinner: false,
       statusOk: false,
       send: "",
       responeMessage: "",
@@ -138,96 +158,112 @@ export default {
       hisIns: [],
       hisOuts: [],
       hisDeptIns: [],
-      hisDeptOuts: []
+      hisDeptOuts: [],
+      users: [],
+      selectedUser: {},
+      countCallApi: 0
     };
   },
-
+  beforeMount: function() {
+    this.$nextTick(function() {
+      apiHelper
+        .call_api(`employees/users`, "get", "")
+        .then(res => {
+          this.users = res.data;
+          this.users.forEach(element => {
+            element.VmName =
+              element.AccountNumber +
+              " - " +
+              element.Name +
+              " - " +
+              element.Phone;
+          });
+          if (this.users.length > 0) this.selectedUser = this.users[0];
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    });
+  },
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
-      this.$validator.validateAll().then(result => {
-        if (!result) {
-          return;
-        }
-     // if (this.user.AccountNumber == "" && this.user.Username == "") {
-     ///   return;
-     // }
+      if (this.selectedUser == null) return;
+      this.countCallApi = 0;
+      this.statusOk = false;
+      this.showSpinner = true;
+      // if (this.user.AccountNumber == "" && this.user.Username == "") {
+      ///   return;
+      // }
       this.user = {};
-      if (this.type == 1) 
-        this.user.UserName = this.valueType;
-      else 
-        this.user.AccountNumber = this.valueType;
-      
+      this.user.UserName = this.selectedUser.Username;
+      this.user.AccountNumber = this.selectedUser.AccountNumber;
+
       console.log(this.user);
       apiHelper
-          .call_api(`employees/users`, "post", this.user)
-          .then(res => {
-            this.user.Username = res.data.Username;
-            this.user.AccountNumber = res.data.AccountNumber;
-            this.user.Id = res.data.Id;
-            this.user.Name = res.data.Name;
-            this.user.Gender = res.data.Gender;
-            this.user.Address = res.data.Address;
-            this.user.Phone = res.data.Phone;
-            this.user.IsPayIn = res.data.IsPayIn;
-            this.user.BankName = res.data.BankName;
-            this.statusOk = true;
-            // get histories in
-            apiHelper
-              .call_api(`employees/histories/${this.user.Id}/in`, "get", '')
-              .then(res => {
-                this.hisIns = res.data;
-              })
-              .catch(err => {
-                console.error(err);
-              });
-            // get histories out
-            apiHelper
-              .call_api(`employees/histories/${this.user.Id}/out`, "get", '')
-              .then(res => {
-                this.hisOuts = res.data;
-              })
-              .catch(err => {
-                console.error(err);
-              });
-            // get histories dept in
-            apiHelper
-              .call_api(`employees/histories/${this.user.Id}/dept/in`, "get", '')
-              .then(res => {
-                this.hisDeptIns = res.data;
-              })
-              .catch(err => {
-                console.error(err);
-              });
-            // get histories dept out  
-            apiHelper
-              .call_api(`employees/histories/${this.user.Id}/dept/out`, "get", '')
-              .then(res => {
-                this.hisDeptOuts = res.data;
-              })
-              .catch(err => {
-                console.error(err);
-              });
-          })
-          .catch(err => {
-            this.statusOk = false;
-            console.error(err);
-            this.responeMessage = "Không tìm thấy thông tin tài khoản!";
-            this.$refs["respone"].show();
-          });
-    })},
-    canceled() {
-      // Reset our form values
-      this.user.AccountNumber = "";
-      this.user.Username = "";
-      this.statusOk = false;
-      this.send = this.valueType;
-      this.payInfo = {};
-      this.valueType = "";
-      this.type = 1;
-      this.$nextTick(() => {
-        this.$validator.reset();
-      });
+        .call_api(`employees/users`, "post", this.user)
+        .then(res => {
+          this.user.Username = res.data.Username;
+          this.user.AccountNumber = res.data.AccountNumber;
+          this.user.Id = res.data.Id;
+          this.user.Name = res.data.Name;
+          this.user.Gender = res.data.Gender;
+          this.user.Address = res.data.Address;
+          this.user.Phone = res.data.Phone;
+          this.user.IsPayIn = res.data.IsPayIn;
+          this.user.BankName = res.data.BankName;
+          this.statusOk = true;
+          // get histories in
+          apiHelper
+            .call_api(`employees/histories/${this.user.Id}/in`, "get", "")
+            .then(res => {
+              this.hisIns = res.data;
+              this.countCallApi++;
+            })
+            .catch(err => {
+              console.error(err);
+              this.countCallApi++;
+            });
+          // get histories out
+          apiHelper
+            .call_api(`employees/histories/${this.user.Id}/out`, "get", "")
+            .then(res => {
+              this.hisOuts = res.data;
+              this.countCallApi++;
+            })
+            .catch(err => {
+              console.error(err);
+              this.countCallApi++;
+            });
+          // get histories dept in
+          apiHelper
+            .call_api(`employees/histories/${this.user.Id}/dept/in`, "get", "")
+            .then(res => {
+              this.hisDeptIns = res.data;
+              this.countCallApi++;
+            })
+            .catch(err => {
+              console.error(err);
+              this.countCallApi++;
+            });
+          // get histories dept out
+          apiHelper
+            .call_api(`employees/histories/${this.user.Id}/dept/out`, "get", "")
+            .then(res => {
+              this.hisDeptOuts = res.data;
+              this.countCallApi++;
+            })
+            .catch(err => {
+              console.error(err);
+              this.countCallApi++;
+            });
+        })
+        .catch(err => {
+          this.statusOk = false;
+          console.error(err);
+          this.responeMessage = "Không tìm thấy thông tin tài khoản!";
+          this.$refs["respone"].show();
+        });
     },
     validateState(ref) {
       if (
@@ -237,7 +273,7 @@ export default {
         return !this.veeErrors.has(ref);
       }
       return null;
-    },
+    }
   }
 };
 </script>
@@ -246,5 +282,11 @@ export default {
 .bcard-shadow {
   margin-top: 15px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.invalid-feedback1 {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 80%;
+  color: #dc3545;
 }
 </style>
