@@ -1,5 +1,7 @@
 <template>
+
     <div>
+        
         <b-card no-body title="Title" header-tag="header" footer-tag="footer">
             <template v-slot:header>
                 <h6 class="mb-0">Categories</h6>
