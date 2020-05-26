@@ -1032,5 +1032,22 @@ namespace InternetBanking.Services.Implementations
             }
             return res;
         }
+
+        public bool CloseBankAccount(Guid userId, Guid id)
+        {
+            var res = false;
+
+            var userDetail = _UserCollection.GetById(userId);
+
+            if (userDetail != null)
+            {
+                userDetail.CheckingAccount.IsClosed = true;
+
+                if (_UserCollection.Replace(userDetail) > 0)
+                    res = true;
+            }
+
+            return res;
+        }
     }
 }

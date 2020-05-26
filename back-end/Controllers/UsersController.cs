@@ -322,5 +322,14 @@ namespace InternetBanking.Controllers
             var res = _Service.HistoryDeptOut(UserId);
             return Ok(res);
         }
+
+        [HttpPost("BankAccounts/{id}/close")]
+        //[Authorize(Roles = "User")]
+        public IActionResult CloseBankAccount(Guid id)
+        {
+            var res = _Service.DeletePayee(UserId, id);
+
+            return Ok(res);
+        }
     }
 }

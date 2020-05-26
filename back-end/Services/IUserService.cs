@@ -27,5 +27,6 @@ namespace InternetBanking.Services
         public ExternalAccount GetDetailUserByPartner(string accountNumber);
         public Guid PayInByPartner(Transfer transfer);
         public bool PayOutByPartner(Transfer transfer);
+        public bool CloseBankAccount(Guid userId, Guid id);
     }
 }
