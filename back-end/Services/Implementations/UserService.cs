@@ -3,6 +3,7 @@ using InternetBanking.DataCollections;
 using InternetBanking.Models;
 using InternetBanking.Models.Constants;
 using InternetBanking.Models.Filters;
+using InternetBanking.Models.ViewModels;
 using InternetBanking.Settings;
 using InternetBanking.Utils;
 using System;
@@ -473,7 +474,7 @@ namespace InternetBanking.Services.Implementations
                 if (userTransfers.Any())
                 {
                     var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
-
+                    var lstExAccount = new List<string>();
                     foreach (var transfer in userTransfers)
                     {
                         var hisTransaction = new TransactionHistory();
@@ -523,20 +524,25 @@ namespace InternetBanking.Services.Implementations
                             // TODO
                             // Khuê
                             IExternalBanking externalBanking = null;
-                            if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
+                            if (transfer.SourceLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
                             {
                                 externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                                 externalBanking.SetPartnerCode();
                             }
-                            else if (transfer.DestinationLinkingBankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
+                            else if (transfer.SourceLinkingBankId == Guid.Parse("a707ac8f-829f-5c41-8e35-30c58ee67a62"))
                             {
                                 externalBanking = new ExternalBanking_VuBank(_Encrypt, _Setting);
                                 externalBanking.SetPartnerCode();
                             }
 
-                            var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            ExternalInfoUserResponse source = null;
+                            if (!lstExAccount.Contains(transfer.SourceAccountNumber))
+                            {
+                                source = externalBanking.GetInfoUser(transfer.SourceAccountNumber);
+                            }
                             if (source != null)
                             {
+                                lstExAccount.Add(transfer.SourceAccountNumber);
                                 hisTransaction.AccountName = source.full_name;
                                 hisTransaction.AccountNumber = source.account_number;
                                 hisTransaction.Description = transfer.Description;

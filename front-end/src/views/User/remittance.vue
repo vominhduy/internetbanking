@@ -17,13 +17,11 @@
               label="Tên người dùng"
               label-for="Name"
             >
-              <b-form-input
+              <h6
                 id="Name"
                 name="Name"
-                disabled
-                v-model="user_detail.name"
                 aria-describedby="NameFeedback"
-              ></b-form-input>
+              >{{user_detail.name}}</h6>
             </b-form-group>
             <b-form-group
               label-cols-sm="12"
@@ -31,22 +29,18 @@
               label="Số tài khoản"
               label-for="Name"
             >
-              <b-form-input
+              <h6
                 id="Name"
                 name="Name"
-                disabled
-                v-model="user_detail.account_number"
                 aria-describedby="NameFeedback"
-              ></b-form-input>
+              >{{user_detail.account_number}}</h6>
             </b-form-group>
             <b-form-group label-cols-sm="12" label-cols-md="4" label="Số dư" label-for="Name">
-              <b-form-input
+              <h6
                 id="Name"
                 name="Name"
-                disabled
-                v-model="user_detail.checking_account.account_balance"
                 aria-describedby="NameFeedback"
-              ></b-form-input>
+              >{{user_detail.checking_account.account_balance}}</h6>
             </b-form-group>
 
             <b-row>
@@ -87,9 +81,13 @@
                           aria-describedby="inPayeesFeedback"
                           v-model="internal_transfer.to_account"
                           v-on:blur="loadInfoDestination"
+                          :disabled="form_internal_validate.isDisable == 1"
                         ></b-form-input>
                         <b-input-group-append>
-                          <b-dropdown text="Chọn người nhận">
+                          <b-dropdown
+                            text="Chọn người nhận"
+                            :disabled="form_internal_validate.isDisable == 1"
+                          >
                             <b-dropdown-item
                               v-for="option in payees_filter"
                               :key="option.id"
@@ -103,19 +101,13 @@
                         >Số tài khoản không được để trống!</b-form-invalid-feedback>
                       </b-input-group>
                     </b-form-group>
-                    <b-form-group
-                      label-cols-sm="12"
-                      label-cols-md="4"
-                      label=""
-                    >
+                    <b-form-group label-cols-sm="12" label-cols-md="4" label>
                       <b-input-group>
-                         <b-form-checkbox
+                        <b-form-checkbox
                           id="checkbox-isSaveRecepientInternal"
                           name="checkbox-isSaveRecepientInternal"
                           v-model="isSaveRecepientInternal"
-                        >
-                          Lưu vào danh bạ
-                        </b-form-checkbox>
+                        >Lưu vào danh bạ</b-form-checkbox>
                       </b-input-group>
                     </b-form-group>
                     <b-form-group
@@ -124,6 +116,13 @@
                       label="Tên người nhận"
                       label-for="inPayeesName"
                     >
+                      <div
+                        class="spinner-grow text-primary"
+                        role="status"
+                        v-show="form_internal_validate.isLoading == 1"
+                      >
+                        <span class="sr-only">Loading...</span>
+                      </div>
                       <b-form-input
                         id="inPayeesName"
                         name="inPayeesName"
@@ -132,6 +131,7 @@
                         aria-describedby="inPayeesNameFeedback"
                         v-model="internal_transfer.to_name"
                         disabled="disabled"
+                        v-show="form_internal_validate.isLoading == 0"
                       ></b-form-input>
                       <b-form-invalid-feedback
                         id="inPayeesNameFeedback"
@@ -211,10 +211,19 @@
                       label="Chọn ngân hàng"
                       label-for="linkbank"
                     >
+                      <div
+                        class="spinner-grow text-primary"
+                        role="status"
+                        v-show="form_external_validate.isLoadingBanking == 0"
+                      >
+                        <span class="sr-only">Loading...</span>
+                      </div>
+
                       <b-form-select
                         id="linkbank"
                         :options="external_bank"
                         @change="change_banking"
+                        v-show="form_external_validate.isLoadingBanking == 1"
                       ></b-form-select>
                     </b-form-group>
                     <b-form-group
@@ -232,9 +241,13 @@
                           aria-describedby="exPayeesAccFeedback"
                           v-model="external_transfer.to_account"
                           v-on:blur="loadInfoDestinationExternal"
+                          :disabled="form_external_validate.isDisable == 1"
                         ></b-form-input>
                         <b-input-group-append>
-                          <b-dropdown text="Chọn người nhận">
+                          <b-dropdown
+                            text="Chọn người nhận"
+                            :disabled="form_external_validate.isDisable == 1"
+                          >
                             <b-dropdown-item
                               v-for="option in payees_filter"
                               :key="option.id"
@@ -248,19 +261,13 @@
                         >Số tài khoản không được để trống!</b-form-invalid-feedback>
                       </b-input-group>
                     </b-form-group>
-                    <b-form-group
-                      label-cols-sm="12"
-                      label-cols-md="4"
-                      label=""
-                    >
+                    <b-form-group label-cols-sm="12" label-cols-md="4" label>
                       <b-input-group>
-                         <b-form-checkbox
+                        <b-form-checkbox
                           id="checkbox-isSaveRecepientExternal"
                           name="checkbox-isSaveRecepientExternal"
                           v-model="isSaveRecepientExternal"
-                        >
-                          Lưu vào danh bạ
-                        </b-form-checkbox>
+                        >Lưu vào danh bạ</b-form-checkbox>
                       </b-input-group>
                     </b-form-group>
                     <b-form-group
@@ -269,6 +276,13 @@
                       label="Tên người nhận"
                       label-for="exPayeesName"
                     >
+                      <div
+                        class="spinner-grow text-primary"
+                        role="status"
+                        v-show="form_external_validate.isLoading == 1"
+                      >
+                        <span class="sr-only">Loading...</span>
+                      </div>
                       <b-form-input
                         id="exPayeesName"
                         name="exPayeesName"
@@ -277,6 +291,7 @@
                         aria-describedby="exPayeesNameFeedback"
                         v-model="external_transfer.to_name"
                         disabled="disabled"
+                        v-show="form_external_validate.isLoading == 0"
                       ></b-form-input>
                       <b-form-invalid-feedback
                         id="exPayeesNameFeedback"
@@ -434,7 +449,16 @@ export default {
         destination_linking_bank_id: ""
       },
       isSaveRecepientInternal: false,
-      isSaveRecepientExternal: false
+      isSaveRecepientExternal: false,
+      form_internal_validate: {
+        isLoading: 0,
+        isDisable: 0
+      },
+      form_external_validate: {
+        isLoading: 0,
+        isDisable: 0,
+        isLoadingBanking: 0,
+      }
     };
   },
   mounted() {
@@ -596,9 +620,11 @@ export default {
     },
 
     tabActivated(newTabIndex, oldTabIndex) {
+      this.form_external_validate.isDisable = 1;
+
       this.next_step = 1;
       this.payees_filter = [];
-      this.external_bank = [];
+      //this.external_bank = [];
       this.tabIndex = newTabIndex;
       if (newTabIndex == 1) {
         // lay danh sach ngan hang
@@ -620,6 +646,9 @@ export default {
               this.empty = true;
               utilsHelper.showErrorMsg(this, "Lỗi lấy danh sách ngân hàng.");
             });
+
+          this.form_external_validate.isDisable = 0;
+          this.form_external_validate.isLoadingBanking = 1
         }
 
         // clear
@@ -676,6 +705,8 @@ export default {
       if (this.internal_transfer.to_account == "") {
         return;
       }
+      this.form_internal_validate.isDisable = 1;
+      this.form_internal_validate.isLoading = 1;
       helper
         .call_api(
           "users/infotransfer?accountNumber=" +
@@ -690,16 +721,24 @@ export default {
             this.internal_transfer.to_name = "";
             utilsHelper.showErrorMsg(this, "Tài khoản không tồn tại.");
           }
+          this.form_internal_validate.isDisable = 0;
+          this.form_internal_validate.isLoading = 0;
         })
         .catch(err => {
           utilsHelper.showErrorMsg(this, "Tài khoản không tồn tại.");
           this.internal_transfer.to_name = "";
+
+          this.form_internal_validate.isDisable = 0;
+          this.form_internal_validate.isLoading = 0;
         });
     },
     loadInfoDestinationExternal() {
       if (this.external_transfer.to_account == "") {
         return;
       }
+      this.form_external_validate.isDisable = 1;
+      this.form_external_validate.isLoading = 1;
+
       helper
         .call_api(
           "users/infotransfer?accountNumber=" +
@@ -716,10 +755,16 @@ export default {
             utilsHelper.showErrorMsg(this, "Tài khoản không tồn tại.");
             this.external_transfer.to_name = "";
           }
+
+          this.form_external_validate.isDisable = 0;
+          this.form_external_validate.isLoading = 0;
         })
         .catch(err => {
           utilsHelper.showErrorMsg(this, "Tài khoản không tồn tại.");
           this.external_transfer.to_name = "";
+          
+          this.form_external_validate.isDisable = 0;
+          this.form_external_validate.isLoading = 0;
         });
     },
     canceled() {},
