@@ -1,7 +1,8 @@
+import {store} from '../store/store'
 var axios = require("axios");
 var md5 = require('md5');
 
-module.exports = {
+export default {
     // Thời gian sử dụng token lần gần nhất
     last_usded: 0,
     base_url: 'http://www.ddpbank.somee.com/api/',
@@ -11,12 +12,13 @@ module.exports = {
 
     auto_get_access_token() {
         var access_token_new = ""
-        var last_time = new Date((new Date(this.last_usded)).toUTCString() + this.token_time * 60000);
-        if ((Math.round(last_time.getTime() / 1000)) > Math.round((new Date()).getTime() / 1000)) {
+        var time_use_token = Math.round(localStorage.getItem('timestart_token')) + this.token_time * 60000;
+        var now = Math.round((new Date()).getTime())
+        if (now > time_use_token) {
             // lấy access_token mới và lưu lại
             var obj = {
                 AccessToken: localStorage.getItem('access_token'),
-                RefreshToken: "TODO: lấy refresh token lưu ở đâu t k biết"
+                RefreshToken: localStorage.getItem('refresh_token')
             };
             var timestamp = Math.round((new Date()).getTime() / 1000);
             var hash = md5(JSON.stringify(obj) + this.secret_key + timestamp)
@@ -33,7 +35,10 @@ module.exports = {
             refreshToken.post('Accounts/Tokens/Refresh', obj)
                 .then(res => {
                     access_token_new = res.data.AccessToken
-                    // TODO lưu lại accesstoken và refresh token
+                    localStorage.setItem('access_token', access_token_new); //aware cross-site scripting
+                    localStorage.setItem('refresh_token', res.data.RefreshToken); //aware cross-site scripting
+                    localStorage.setItem('timestart_token', (new Date()).getTime());
+                    store.commit('retrieveToken', access_token_new);
                 })
                 .catch(err => {
                     console.log(err);
