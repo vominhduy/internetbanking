@@ -12,42 +12,46 @@ export default {
 
     auto_get_access_token() {
         var access_token_new = ""
-        var time_use_token = Math.round(localStorage.getItem('timestart_token')) + this.token_time * 60000;
-        var now = Math.round((new Date()).getTime())
-        if (now > time_use_token) {
-            // lấy access_token mới và lưu lại
-            var obj = {
-                AccessToken: localStorage.getItem('access_token'),
-                RefreshToken: localStorage.getItem('refresh_token')
-            };
-            var timestamp = Math.round((new Date()).getTime() / 1000);
-            var hash = md5(JSON.stringify(obj) + this.secret_key + timestamp)
-
-            const refreshToken = axios.create({
-                baseURL: this.base_url,
-                timeout: 100000,
-                headers: {
-                    'partner_code': this.secret_key,
-                    'timestamp': timestamp,
-                    'hash': hash,
-                }
-            });
-            refreshToken.post('Accounts/Tokens/Refresh', obj)
-                .then(res => {
-                    access_token_new = res.data.AccessToken
-                    localStorage.setItem('access_token', access_token_new); //aware cross-site scripting
-                    localStorage.setItem('refresh_token', res.data.RefreshToken); //aware cross-site scripting
-                    localStorage.setItem('timestart_token', (new Date()).getTime());
-                    store.commit('retrieveToken', access_token_new);
-                })
-                .catch(err => {
-                    console.log(err);
+        let time_start_token = Math.round(localStorage.getItem('timestart_token'));
+        if(time_start_token > 0){
+            var time_use_token = time_start_token + this.token_time * 60000;
+            var now = Math.round((new Date()).getTime())
+            if (now > time_use_token) {
+                // lấy access_token mới và lưu lại
+                var obj = {
+                    AccessToken: localStorage.getItem('access_token'),
+                    RefreshToken: localStorage.getItem('refresh_token')
+                };
+                var timestamp = Math.round((new Date()).getTime() / 1000);
+                var hash = md5(JSON.stringify(obj) + this.secret_key + timestamp)
+    
+                const refreshToken = axios.create({
+                    baseURL: this.base_url,
+                    timeout: 100000,
+                    headers: {
+                        'partner_code': this.secret_key,
+                        'timestamp': timestamp,
+                        'hash': hash,
+                    }
                 });
+                refreshToken.post('Accounts/Tokens/Refresh', obj)
+                    .then(res => {
+                        access_token_new = res.data.AccessToken
+                        localStorage.setItem('access_token', access_token_new); //aware cross-site scripting
+                        localStorage.setItem('refresh_token', res.data.RefreshToken); //aware cross-site scripting
+                        localStorage.setItem('timestart_token', (new Date()).getTime());
+                        store.commit('retrieveToken', access_token_new);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+            else {
+                // dùng access_token hiện tại
+                access_token_new = localStorage.getItem('access_token')
+            }
         }
-        else {
-            // dùng access_token hiện tại
-            access_token_new = localStorage.getItem('access_token')
-        }
+        
         return access_token_new;
     },
 
