@@ -7,7 +7,7 @@ import EmployeeLayout from '../layouts/EmployeeLayout.vue'
 import UserLayout from '../layouts/UserLayout.vue'
 import constant from '../helper/constant'
 
-import AddStaffLayout from '../layouts/AddStaffLayout.vue'
+// import AddStaffLayout from '../layouts/AddStaffLayout.vue'
 import EmployeeHome from '../views/Employee/Home.vue'
 
 import UserHome from '../views/User/Home.vue'
@@ -215,7 +215,7 @@ const routes = [
   path: '/admin/addstaff/',
   name: 'AddStaff',
   component: AddStaff,
-  meta: { layout: AddStaffLayout,
+  meta: { layout: AdminLayout,
       requiresAuthen: true,
       requiresRole: [constant.role.admin] }
 },
