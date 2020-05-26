@@ -57,16 +57,23 @@ namespace InternetBanking.Services.Implementations
 
                     //if (payeeDetail != null)
                     //{
-                        if (string.IsNullOrEmpty(payee.MnemonicName))
-                            payee.MnemonicName = "payee" + payee.AccountNumber;
-                        payee.Id = Guid.NewGuid();
-                        
-
-                        var countModified = _UserCollection.AddPayee(userId, payee);
-                        if (countModified > 0)
+                    if (string.IsNullOrEmpty(payee.MnemonicName))
+                    {
+                        var payeeDetail = _UserCollection.GetByAccountNumber(payee.AccountNumber);
+                        if (payeeDetail != null)
                         {
-                            res = payee;
+                            payee.MnemonicName = payeeDetail.Name;
                         }
+                    }
+
+                    payee.Id = Guid.NewGuid();
+
+
+                    var countModified = _UserCollection.AddPayee(userId, payee);
+                    if (countModified > 0)
+                    {
+                        res = payee;
+                    }
                     //}
                 }
             }
@@ -405,7 +412,7 @@ namespace InternetBanking.Services.Implementations
                             hisTransaction.Money = userDept.Money;
                             hisTransaction.ConfirmTime = userDept.PaidTime.HasValue ? userDept.PaidTime.Value : DateTime.Now;
 
-                            var linkingBanks = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode } );
+                            var linkingBanks = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode });
                             if (linkingBanks != null)
                             {
                                 hisTransaction.BankName = linkingBanks.FirstOrDefault().Name;
@@ -508,7 +515,8 @@ namespace InternetBanking.Services.Implementations
                                     // noi bo
                                     hisTransaction.BankName = bank.Name;
                                 }
-                                else {
+                                else
+                                {
                                     var linkingBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
                                     if (linkingBank != null)
                                     {
@@ -869,7 +877,7 @@ namespace InternetBanking.Services.Implementations
                     if (transfer.DestinationLinkingBankId == Guid.Parse("8df09f0a-fd6d-42b9-804c-575183dadaf3"))
                     {
                         // test only
-                       // transfer.DestinationAccountNumber = "0000000034";
+                        // transfer.DestinationAccountNumber = "0000000034";
                         externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
                         externalBanking.SetPartnerCode();
                     }
@@ -896,7 +904,7 @@ namespace InternetBanking.Services.Implementations
                         {
                             AccountNumber = recepient.AccountNumber,
                             LinkingBankId = transfer.SaveRecepientLinkingBankId,
-                            MnemonicName = recepient.Name
+                            MnemonicName = string.IsNullOrEmpty(recepient.Name) ? "payee" + recepient.AccountNumber : recepient.Name,
                         };
                         AddPayee(userId, payee);
 

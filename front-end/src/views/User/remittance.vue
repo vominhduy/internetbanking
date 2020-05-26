@@ -11,46 +11,52 @@
         <div class="body">
           <div class="info_user">
             <h6>Thông tin tài khoản</h6>
-            <b-form-group
-              label-cols-sm="12"
-              label-cols-md="4"
-              label="Tên người dùng"
-              label-for="Name"
-            >
-              <h6
-                id="Name"
-                name="Name"
-                aria-describedby="NameFeedback"
-              >{{user_detail.name}}</h6>
-            </b-form-group>
-            <b-form-group
-              label-cols-sm="12"
-              label-cols-md="4"
-              label="Số tài khoản"
-              label-for="Name"
-            >
-              <h6
-                id="Name"
-                name="Name"
-                aria-describedby="NameFeedback"
-              >{{user_detail.account_number}}</h6>
-            </b-form-group>
-            <b-form-group label-cols-sm="12" label-cols-md="4" label="Số dư" label-for="Name">
-              <h6
-                id="Name"
-                name="Name"
-                aria-describedby="NameFeedback"
-              >{{user_detail.checking_account.account_balance}}</h6>
-            </b-form-group>
+            <div v-show="isLoadingUser == 0">
+              <b-spinner
+                style="width: 3rem; height: 3rem;"
+                variant="primary"
+                label="Large Spinner"
+                type="grow"
+              ></b-spinner>
+            </div>
+            <div v-show="isLoadingUser == 1">
+              <b-form-group
+                label-cols-sm="12"
+                label-cols-md="4"
+                label="Tên người dùng"
+                label-for="Name"
+              >
+                <h6 id="Name" name="Name" aria-describedby="NameFeedback">{{user_detail.name}}</h6>
+              </b-form-group>
+              <b-form-group
+                label-cols-sm="12"
+                label-cols-md="4"
+                label="Số tài khoản"
+                label-for="Name"
+              >
+                <h6
+                  id="Name"
+                  name="Name"
+                  aria-describedby="NameFeedback"
+                >{{user_detail.account_number}}</h6>
+              </b-form-group>
+              <b-form-group label-cols-sm="12" label-cols-md="4" label="Số dư" label-for="Name">
+                <h6
+                  id="Name"
+                  name="Name"
+                  aria-describedby="NameFeedback"
+                >{{user_detail.checking_account.account_balance}}</h6>
+              </b-form-group>
 
-            <b-row>
-              <b-col>
-                <b-button variant="primary" size="sm" class="float-right">
-                  Đổi tài khoản
-                  <b-icon icon="chevron-right"></b-icon>
-                </b-button>
-              </b-col>
-            </b-row>
+              <b-row>
+                <b-col>
+                  <b-button variant="primary" size="sm" class="float-right">
+                    Đổi tài khoản
+                    <b-icon icon="chevron-right"></b-icon>
+                  </b-button>
+                </b-col>
+              </b-row>
+            </div>
           </div>
           <h6>Thông tin người nhận</h6>
 
@@ -395,6 +401,7 @@ export default {
   },
   data() {
     return {
+      isLoadingUser: 0,
       show: false,
       next_step: 1,
       my_bank_id: "d7b6f37e-0a82-4894-84c1-91a3e89f6fed",
@@ -457,11 +464,12 @@ export default {
       form_external_validate: {
         isLoading: 0,
         isDisable: 0,
-        isLoadingBanking: 0,
+        isLoadingBanking: 0
       }
     };
   },
   mounted() {
+    this.isLoadingUser = 0;
     // lấy thông tin chi tiết của user
     try {
       helper
@@ -499,13 +507,16 @@ export default {
             });
 
             this.next_step = 0;
+            this.isLoadingUser = 1;
           }
         })
         .catch(err => {
           utilsHelper.showErrorMsg(this, "Lỗi lấy thông tin tài khoản.");
+          this.isLoadingUser = 1;
         });
     } catch {
       utilsHelper.showErrorMsg(this, "Lỗi lấy thông tin tài khoản.");
+      this.isLoadingUser = 1;
     }
   },
   methods: {
@@ -641,14 +652,20 @@ export default {
                   this.external_bank.push(bank);
                 }
               });
+
+              this.form_external_validate.isDisable = 0;
+              this.form_external_validate.isLoadingBanking = 1;
             })
             .catch(err => {
               this.empty = true;
               utilsHelper.showErrorMsg(this, "Lỗi lấy danh sách ngân hàng.");
-            });
 
+              this.form_external_validate.isDisable = 0;
+              this.form_external_validate.isLoadingBanking = 1;
+            });
+        } else {
           this.form_external_validate.isDisable = 0;
-          this.form_external_validate.isLoadingBanking = 1
+          this.form_external_validate.isLoadingBanking = 1;
         }
 
         // clear
@@ -762,7 +779,7 @@ export default {
         .catch(err => {
           utilsHelper.showErrorMsg(this, "Tài khoản không tồn tại.");
           this.external_transfer.to_name = "";
-          
+
           this.form_external_validate.isDisable = 0;
           this.form_external_validate.isLoading = 0;
         });
