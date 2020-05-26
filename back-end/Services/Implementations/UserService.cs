@@ -45,27 +45,29 @@ namespace InternetBanking.Services.Implementations
             Payee res = null;
             var detail = _UserCollection.GetById(userId);
 
-            if (detail != null)
+            if (detail != null && !detail.Payees.Any(x => x.AccountNumber == payee.AccountNumber))
             {
                 var linkingBank = _LinkingBankCollection.GetById(payee.LinkingBankId);
 
                 if (linkingBank != null)
                 {
                     // get payee detail
-                    var payeeDetail = _UserCollection.GetByAccountNumber(payee.AccountNumber);
+                    //var payeeDetail = _UserCollection.GetByAccountNumber(payee.AccountNumber);
 
 
-                    if (payeeDetail != null)
-                    {
+                    //if (payeeDetail != null)
+                    //{
                         if (string.IsNullOrEmpty(payee.MnemonicName))
-                            payee.MnemonicName = payeeDetail.Name;
+                            payee.MnemonicName = "payee" + payee.AccountNumber;
                         payee.Id = Guid.NewGuid();
+                        
+
                         var countModified = _UserCollection.AddPayee(userId, payee);
                         if (countModified > 0)
                         {
                             res = payee;
                         }
-                    }
+                    //}
                 }
             }
 
@@ -878,6 +880,8 @@ namespace InternetBanking.Services.Implementations
                     if (result != null)
                     {
                         recepient = new User();
+                        recepient.AccountNumber = transfer.DestinationAccountNumber;
+                        recepient.Name = result.full_name;
                     }
                 }
 
