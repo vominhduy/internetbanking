@@ -1,6 +1,6 @@
 <template>
   <b-card class="bcard-shadow">
-    <h1>Thêm nhân viên</h1>
+    <h1>Tạo tài khoản khách hàng</h1>
     <b-form @submit.stop.prevent="onSubmit" v-if="show">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
         <b-form-input id="Name" name="Name" v-validate="{required:true}" v-model="user.Name" :state="validateState('Name')"
@@ -37,9 +37,10 @@
       </b-form-group>
     </b-form>
     <b-modal ref="respone" title="Thông tin người dùng">
+      
       <b-row>
         <b-col>
-          <label>Tên Nhân Viên</label>
+          <label>Tên</label>
         </b-col>
         <b-col>
           <label class="font-weight-bold pt-0">{{respone.Name}}</label>
@@ -92,7 +93,7 @@
           <label>Số điện thoại</label>
         </b-col>
         <b-col>
-          <label class="font-weight-bold pt-0">{{respone.AccountNumber}}</label>
+          <label class="font-weight-bold pt-0">{{respone.Phone}}</label>
         </b-col>
       </b-row>
       <template v-slot:modal-footer>
@@ -111,6 +112,7 @@
 
 <script>
 import apiHelper from '../../helper/call_api'
+import utilsHelper from '../../helper/helper'
 
 export default {
   name: "AddStaff",
@@ -134,6 +136,7 @@ export default {
   },
   methods: {
     onSubmit(evt) {
+      let me = this;
       evt.preventDefault();
       this.$validator.validateAll().then(result => {
         if (!result) {
@@ -142,12 +145,16 @@ export default {
         apiHelper
           .call_api(`Administrators/Employees`, "post", this.user)
           .then(res => {
+            if(res.status === 204){
+              utilsHelper.showErrorMsg(me, "Email đã tồn tại");
+              return;
+            }
             this.respone = res.data;
             this.$refs["respone"].show();
           })
           .catch(err => {
             this.empty = true;
-            console.log(err);
+            console.error(err);
           });
     })},
     canceled(evt) {

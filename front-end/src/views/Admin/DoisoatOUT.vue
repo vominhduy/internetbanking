@@ -1,6 +1,6 @@
 <template>
 <b-card class="bcard-shadow">
-    <h1>Lịch sử Đối Soát IN</h1>
+    <h1>Lịch sử Đối Soát OUT</h1>
     <b-form @submit.stop.prevent="onSubmit">
         <b-form-group label-cols-sm="12" label-cols-md="4" label="Ngày bắt đầu ">
             <!-- <b-form-input id="value" name="value" v-model="valueType" v-validate="{required:true}" :state="validateState('value')" aria-describedby="valuefeedback"></b-form-input> -->
@@ -9,6 +9,14 @@
         <b-form-group label-cols-sm="12" label-cols-md="4" label="Ngày kết thúc ">
             <!-- <b-form-input id="value" name="value" v-model="valueType" v-validate="{required:true}" :state="validateState('value')" aria-describedby="valuefeedback"></b-form-input> -->
             <datetime format="YYYY-MM-DD" width="300px" v-model="toDate"></datetime>
+        </b-form-group>
+        <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên Ngân Hàng ">
+            <select v-model="selectedBank">
+                <option v-for="bank in banks" v-bind:value="bank.Id" v-bind:key="bank.id">
+                    {{ bank.Name }}
+                </option>
+            </select>
+            
         </b-form-group>
         <b-form-group>
             <b-row>
@@ -21,44 +29,23 @@
             </b-row>
         </b-form-group>
     </b-form>
-     <b-row>
-          <b-col sm="5" md="6" class="my-1">
-            <b-form-group
-              label="Hiển thị"
-              label-cols-sm="6"
-              label-cols-md="4"
-              label-cols-lg="3"
-              label-align-sm="right"
-              label-size="sm"
-              label-for="perPageSelect"
-              class="mb-0"
-            >
-              <b-form-select v-model="perPage3" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
+    <b-row>
+        <b-col sm="5" md="6" class="my-1">
+            <b-form-group label="Hiển thị" label-cols-sm="6" label-cols-md="4" label-cols-lg="3" label-align-sm="right" label-size="sm" label-for="perPageSelect" class="mb-0">
+                <b-form-select v-model="perPage3" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
             </b-form-group>
-          </b-col>
-          <b-col lg="6" class="my-1">
-            <b-form-group
-              label="Tìm kiếm"
-              label-cols-sm="3"
-              label-align-sm="right"
-              label-size="sm"
-              label-for="filterInput"
-              class="mb-0"
-            >
-              <b-input-group size="sm">
-                <b-form-input
-                  v-model="filter"
-                  type="search"
-                  id="filterInput"
-                  placeholder="Tìm kiếm"
-                ></b-form-input>
-                <b-input-group-append>
-                  <b-button :disabled="!filter" @click="filter = ''">Tìm Kiếm</b-button>
-                </b-input-group-append>
-              </b-input-group>
+        </b-col>
+        <b-col lg="6" class="my-1">
+            <b-form-group label="Tìm kiếm" label-cols-sm="3" label-align-sm="right" label-size="sm" label-for="filterInput" class="mb-0">
+                <b-input-group size="sm">
+                    <b-form-input v-model="filter" type="search" id="filterInput" placeholder="Tìm kiếm"></b-form-input>
+                    <b-input-group-append>
+                        <b-button :disabled="!filter" @click="filter = ''">Tìm Kiếm</b-button>
+                    </b-input-group-append>
+                </b-input-group>
             </b-form-group>
-          </b-col>
-        </b-row>
+        </b-col>
+    </b-row>
     <div v-if="statusOk">
         <b-table show-empty small stacked="md" :items="hisIns" :fields="fields" :current-page="currentPage3" :per-page="perPage3" :filter="filter" :filterIncludedFields="filterOn" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :sort-direction="sortDirection" @filtered="onFiltered">
             <template v-slot:cell(name)="row">{{ row.value.first }} {{ row.value.last }}</template>
@@ -71,18 +58,12 @@
             </template>
         </b-table>
         <b-row>
-          <b-col sm="6" md="6" class="my-1">
-            <div></div>
-          </b-col>
-          <b-col sm="6" md="6" class="my-1">
-            <b-pagination
-              v-model="currentPage3"
-              :total-rows="totalRows3"
-              :per-page="perPage3"
-              class="mt-4"
-              align="right"
-            ></b-pagination>
-          </b-col>
+            <b-col sm="6" md="6" class="my-1">
+                <div></div>
+            </b-col>
+            <b-col sm="6" md="6" class="my-1">
+                <b-pagination v-model="currentPage3" :total-rows="totalRows3" :per-page="perPage3" class="mt-4" align="right"></b-pagination>
+            </b-col>
         </b-row>
 
     </div>
@@ -123,7 +104,8 @@ export default {
                 AccountNumber: "",
                 Money: 0
             },
-            
+            selectedBank: null,
+            banks: [],
             hisIns: [],
             hisOuts: [],
             hisDeptIns: [],
@@ -145,17 +127,29 @@ export default {
                 },
                 {
                     key: "SourceAccountName",
-                    label: "Tên ",
+                    label: "Tên Người Gửi",
                     sortable: true,
                     sortDirection: "desc"
                 },
                 {
                     key: "SourceBankName",
-                    label: "Bank Liên Kết ",
+                    label: "Bank Gửi ",
                     sortable: true,
                     sortDirection: "desc"
                 },
-                 {
+                {
+                    key: "DestinationAccountName",
+                    label: "Tên Người Nhận",
+                    sortable: true,
+                    sortDirection: "desc"
+                },
+                {
+                    key: "DestinationBankName",
+                    label: "Bank Nhận",
+                    sortable: true,
+                    sortDirection: "desc"
+                },
+                {
                     key: "Money",
                     label: "Tiền",
                     sortable: true,
@@ -167,23 +161,39 @@ export default {
                     sortable: true,
                     sortDirection: "desc"
                 },
-                  {
+                {
                     key: "Description",
                     label: "Mô tả",
                     sortable: true,
                     sortDirection: "desc"
                 },
-             
+
             ],
         };
     },
-
+    mounted() {
+        apiHelper
+            .call_api(`LinkingBank/LinkingBanks`, "get", '')
+            .then(res => {
+                this.banks = res.data;
+                 const all = {
+                    Id: "",
+                    Name: "All"
+                }
+                this.banks.push(all);
+                // this.statusOk = true;
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    },
     methods: {
         onSubmit(evt) {
-            
+
             var _this = this;
             var fromDate = this.fromDate;
             var toDate = this.toDate;
+            var bankId = this.selectedBank;
             evt.preventDefault();
             this.$validator.validateAll().then(result => {
                 if (!result) {
@@ -199,7 +209,7 @@ export default {
 
                 // get histories in
                 apiHelper
-                    .call_api(`Administrators/CrossCheckings/Out?from=${fromDate}&to=${toDate}`, "get", '')
+                    .call_api(`Administrators/CrossCheckings/Out?from=${fromDate}&to=${toDate}&bankId=${bankId}`, "get", '')
                     .then(res => {
                         this.hisIns = res.data;
                         this.statusOk = true;
