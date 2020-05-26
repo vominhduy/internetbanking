@@ -172,9 +172,9 @@ namespace InternetBanking.Services.Implementations
 
             var obj = new
             {
-                moneytranfer = 1, //amount.ToString(),
-                account_number = 1 ,//source,
-                to_account_number = 2,//dest,
+                moneytranfer = "1", //amount.ToString(),
+                account_number = "1" ,//source,
+                to_account_number = "2",//dest,
                 hash = hash,
                 timestamp = timestamp.ToString(),
                 sign = _encrypt.EncryptData($"{timestamp}", _secretKey,2)

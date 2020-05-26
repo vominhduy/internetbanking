@@ -49,7 +49,7 @@ namespace InternetBanking.Services.Implementations
 
         public LinkingBank GetLinkingBankById(LinkingBankFilter filter)
         {
-            return _LinkingBankCollection.Get(new LinkingBankFilter()).ToList().FirstOrDefault();
+            return _LinkingBankCollection.Get(new LinkingBankFilter() { Code = filter.Code }).ToList().FirstOrDefault();
         }
     }
 }
