@@ -4,10 +4,38 @@ import App from './App.vue'
 import router from './router'
 import {store} from './store/store'
 import helper from './helper/helper'
+import constant from './helper/constant'
+
 
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
+  if(to.fullPath === '/' || to.fullPath.toLocaleLowerCase().includes('login')){
+    if (store.getters.loggedIn) {
+      let token = localStorage.getItem('access_token');
+      let userInfo = helper.parseJwt(token);
+      if(token && userInfo){
+        switch(userInfo.role) {
+          case constant.role.employee:
+            next({
+              name: 'EmployeeHome',
+            })
+            break;
+          case constant.role.user:
+            next({
+              name: 'UserHome',
+            })
+            break;
+          case constant.role.admin:
+            next({
+              name: 'AdminHome',
+            })
+            break;
+        }
+        return;
+      }
+    }
+  }
   if (to.matched.some(record => record.meta.requiresAuthen)) {
     if (!store.getters.loggedIn) {
       next({
@@ -26,6 +54,8 @@ router.beforeEach((to, from, next) => {
             name: 'Login',
           })
         }
+
+
 
         if (authorize.length && authorize.includes(userInfo.role)) {
           next()
