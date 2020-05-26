@@ -56,7 +56,7 @@ namespace InternetBanking.Utils
                 }
                 WebResponse response = request.GetResponse();
                 HttpStatusCode statusCode = ((HttpWebResponse)response).StatusCode;
-                if (statusCode.Equals(HttpStatusCode.OK) || statusCode.Equals(HttpStatusCode.Created))
+                if (statusCode.Equals(HttpStatusCode.OK))
                 {
                     StreamReader Reader = new StreamReader(response.GetResponseStream());
                     json = Reader.ReadToEnd();
@@ -70,6 +70,23 @@ namespace InternetBanking.Utils
                         result = JsonConvert.DeserializeObject<T>(json);
                     }
                 }
+                else if (statusCode.Equals(HttpStatusCode.Created))
+                {
+                    StreamReader Reader = new StreamReader(response.GetResponseStream());
+                    json = Reader.ReadToEnd();
+                    Reader.Close();
+                    if (typeof(System.String) == typeof(T))
+                    {
+                        result = (T)Convert.ChangeType(json, typeof(T));
+                    }
+                    else
+                    {
+                        result = JsonConvert.DeserializeObject<T>(json);
+                    }
+
+                    LogTxt.WritetLog(string.Concat("201", JsonConvert.SerializeObject(result)));
+                }
+                    
             }
             catch (Exception ex)
             {

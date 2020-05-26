@@ -187,7 +187,7 @@ namespace InternetBanking.Services.Implementations
             if (info != null)
             {
 
-                return info.ResponseText.ToLower().Equals("transfer money is done");
+                return info != null;
             }
             else
             {
