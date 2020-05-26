@@ -445,6 +445,7 @@ namespace InternetBanking.Services.Implementations
                             hisTransaction.AccountNumber = source.AccountNumber;
                             hisTransaction.Description = userDept.Description;
                             hisTransaction.Money = userDept.Money;
+                            hisTransaction.ConfirmTime = userDept.PaidTime.HasValue ? userDept.PaidTime.Value : DateTime.Now;
 
                             var linkingBanks = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode });
                             if (linkingBanks != null)
@@ -548,6 +549,7 @@ namespace InternetBanking.Services.Implementations
                                 hisTransaction.AccountName = source.full_name;
                                 hisTransaction.AccountNumber = source.account_number;
                                 hisTransaction.Description = transfer.Description;
+                                hisTransaction.ConfirmTime = transfer.ConfirmedTime.HasValue ? transfer.ConfirmedTime.Value : DateTime.Now;
 
                                 if (transfer.IsSenderPay)
                                 {
@@ -653,6 +655,7 @@ namespace InternetBanking.Services.Implementations
                                 hisTransaction.AccountName = dest.full_name;
                                 hisTransaction.AccountNumber = dest.account_number;
                                 hisTransaction.Description = transfer.Description;
+                                hisTransaction.ConfirmTime = transfer.ConfirmedTime.HasValue ? transfer.ConfirmedTime.Value : DateTime.Now;
 
                                 if (!transfer.IsSenderPay)
                                 {

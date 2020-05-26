@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
 {
+    // [Authorize(Roles = "User")]
     public class UsersController : ApiController
     {
         private ISetting _Setting;

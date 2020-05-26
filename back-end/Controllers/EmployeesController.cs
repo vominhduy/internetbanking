@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBanking.Controllers
 {
-    
+    // [Authorize(Roles = "Employee")]
     public class EmployeesController : ApiController
     {
         private ISetting _Setting;
