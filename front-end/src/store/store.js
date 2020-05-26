@@ -65,12 +65,14 @@ export const store = new Vuex.Store({
                         .then(res => {
                             localStorage.removeItem('access_token');
                             localStorage.removeItem('user_role');
+                            localStorage.removeItem('timestart_token');
                             context.commit('destroyToken');
                             resolve(res);
                         })
                         .catch(err => {
                             localStorage.removeItem('access_token');
                             localStorage.removeItem('user_role');
+                            localStorage.removeItem('timestart_token');
                             context.commit('destroyToken');
                             console.error(err);
                             reject(err);
