@@ -61,6 +61,7 @@ module.exports = {
             baseURL: this.base_url,
             timeout: 100000,
             headers: {
+                'admin_key': '09411a3942454ec9b36e3bcaf1d69f22',
                 'partner_code': this.secret_key,
                 'timestamp': timestamp,
                 'hash': hash,
