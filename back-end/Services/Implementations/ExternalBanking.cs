@@ -1,8 +1,10 @@
 ﻿using InternetBanking.Models.ViewModels;
 using InternetBanking.Settings;
 using InternetBanking.Utils;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace InternetBanking.Services.Implementations
 {
@@ -33,6 +35,7 @@ namespace InternetBanking.Services.Implementations
 
         public ExternalInfoUserResponse GetInfoUser(string accountNumber)
         {
+            var log = new StringBuilder();
 
             long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
             string hash = Encrypting.HMD5Hash($"{_partnerCode}|{timestamp.ToString()}|{accountNumber}", _secretKey);
@@ -47,9 +50,11 @@ namespace InternetBanking.Services.Implementations
             var obj = new
             {
                 account_number = accountNumber,
-            };
-
+            };          
             var info = Helper.CallAPI<ExternalBankRes<ExternalInfoUserResponse>>(string.Concat(_url, "api/transactions/query_info"), "POST", obj, headers, addQueryParams: true);
+            log.AppendLine(JsonConvert.SerializeObject(obj));
+            log.AppendLine(JsonConvert.SerializeObject(info));
+            LogTxt.WritetLog(log.ToString());
             if (info != null)
             {
                 return info.data;
@@ -62,6 +67,7 @@ namespace InternetBanking.Services.Implementations
 
         public bool PayIn(string source, string dest, decimal amount, string message)
         {
+            var log = new StringBuilder();
             long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
             string hash = Encrypting.HMD5Hash($"{_partnerCode}|{timestamp.ToString()}|{source}|{dest}|{(int)amount}|{message}", _secretKey);
             _encrypt.SetKey(_setting.BankCode);
@@ -83,7 +89,9 @@ namespace InternetBanking.Services.Implementations
             };
 
             var info = Helper.CallAPI<ExternalBankRes<ExternalTransferMoneyResponse>>(string.Concat(_url, "api/transactions/receive_external"), "POST", obj, headers, addQueryParams: true);
-
+            log.AppendLine(JsonConvert.SerializeObject(obj));
+            log.AppendLine(JsonConvert.SerializeObject(info));
+            LogTxt.WritetLog(log.ToString());
             if (info != null)
             {
                 return info.data.is_success;
@@ -123,6 +131,7 @@ namespace InternetBanking.Services.Implementations
 
         public ExternalInfoUserResponse GetInfoUser(string accountNumber)
         {
+            var log = new StringBuilder();
             //accountNumber = "18424082";
             var result = new ExternalInfoUserResponse();
             long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
@@ -137,6 +146,9 @@ namespace InternetBanking.Services.Implementations
             };
 
             var info = Helper.CallAPI<ExternalBank_Vu>("http://118.69.190.28:5000/checkquota", "POST", obj);
+            log.AppendLine(JsonConvert.SerializeObject(obj));
+            log.AppendLine(JsonConvert.SerializeObject(info));
+            LogTxt.WritetLog(log.ToString());
             if (info != null)
             {
                 result.account_number = accountNumber;
@@ -153,22 +165,25 @@ namespace InternetBanking.Services.Implementations
 
         public bool PayIn(string source, string dest, decimal amount, string message)
         {
+            var log = new StringBuilder();
             long timestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
             string hash = Encrypting.MD5Hash($"{source}{timestamp}");
             _encrypt.SetKey(_setting.BankCode);
 
             var obj = new
             {
-                moneytranfer = amount.ToString(),
-                account_number = source,
-                to_account_number = dest,
+                moneytranfer = 1, //amount.ToString(),
+                account_number = 1 ,//source,
+                to_account_number = 2,//dest,
                 hash = hash,
                 timestamp = timestamp.ToString(),
                 sign = _encrypt.EncryptData($"{timestamp}", _secretKey,2)
             };
 
             var info = Helper.CallAPI<ExternalBankPayIn_Vu>(string.Concat(_url, "/transmoney"), "POST", obj);
-
+            log.AppendLine(JsonConvert.SerializeObject(obj));
+            log.AppendLine(JsonConvert.SerializeObject(info));
+            LogTxt.WritetLog(log.ToString());
             if (info != null)
             {
 

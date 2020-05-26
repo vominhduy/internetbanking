@@ -4,11 +4,14 @@ using InternetBanking.Models.Request;
 using InternetBanking.Models.ViewModels;
 using InternetBanking.Services;
 using InternetBanking.Settings;
+using InternetBanking.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Net;
+using System.Text;
 
 namespace InternetBanking.Controllers
 {
@@ -40,8 +43,10 @@ namespace InternetBanking.Controllers
         {
             try
             {
+                var log = new StringBuilder();
                 var record = _Service.GetDetailUserByPartner(info.account_number);
-
+                log.AppendLine(JsonConvert.SerializeObject(record));
+                LogTxt.WritetLog(log.ToString());
                 if (record != null)
                 {
                     return Ok(new
@@ -89,7 +94,9 @@ namespace InternetBanking.Controllers
                     SourceLinkingBankId = _bankService.GetLinkingBankById(new LinkingBankFilter() { Code = _Setting.BankCode }).Id, // Luôn lấy mặc định là chính ngân hàng của mình
                 };
                 var record = _Service.PayInByPartner(transferDao);
-
+                var log = new StringBuilder();
+                log.AppendLine(JsonConvert.SerializeObject(record));
+                LogTxt.WritetLog(log.ToString());
                 if (record != Guid.Empty)
                 {
                     return Ok(new
