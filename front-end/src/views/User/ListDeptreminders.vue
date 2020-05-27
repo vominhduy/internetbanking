@@ -10,7 +10,7 @@
           <b-card>
             <b-table striped hover :items="sentDeptReminders" :fields="fields">
               <template v-slot:cell(action)="row">
-                <b-button size="sm" @click="onCancel(row)" class="mr-2">Hủy</b-button>
+                <b-button :disabled="IsClosedBankAccount" size="sm" @click="onCancel(row)" class="mr-2">Hủy</b-button>
               </template>
             </b-table>
           </b-card>
@@ -25,8 +25,8 @@
           <b-card>
             <b-table striped hover :items="receivedDeptReminders" :fields="fields">
               <template v-slot:cell(action)="row">
-                <b-button size="sm" @click="onResolve(row)" class="btn btn-success">Thanh toán</b-button>
-                <b-button size="sm" @click="onCancel(row)" class="mr-2">Hủy</b-button>
+                <b-button :disabled="IsClosedBankAccount" size="sm" @click="onResolve(row)" class="btn btn-success">Thanh toán</b-button>
+                <b-button :disabled="IsClosedBankAccount" size="sm" @click="onCancel(row)" class="mr-2">Hủy</b-button>
               </template>
             </b-table>
           </b-card>
@@ -53,10 +53,10 @@
         <b-form-group>
           <b-row>
             <b-col>
-              <b-button block type="submit" variant="success">Xác nhận hủy</b-button>
+              <b-button :disabled="IsClosedBankAccount" block type="submit" variant="success">Xác nhận hủy</b-button>
             </b-col>
             <b-col>
-              <b-button block variant="danger" @click.prevent="exitCancel">Thoát</b-button>
+              <b-button :disabled="IsClosedBankAccount" block variant="danger" @click.prevent="exitCancel">Thoát</b-button>
             </b-col>
           </b-row>
         </b-form-group>
@@ -97,7 +97,7 @@
           <b-form-group>
             <b-row>
               <b-col>
-                <b-button
+                <b-button :disabled="IsClosedBankAccount"
                   block
                   type="submit"
                   variant="success"
@@ -105,7 +105,7 @@
                 >Xác nhận thanh toán</b-button>
               </b-col>
               <b-col>
-                <b-button block variant="danger" @click.prevent="exitCancel">Thoát</b-button>
+                <b-button :disabled="IsClosedBankAccount" block variant="danger" @click.prevent="exitCancel">Thoát</b-button>
               </b-col>
             </b-row>
           </b-form-group>
@@ -155,8 +155,10 @@ export default {
         step: 1,
         account_number: "0",
         amount: "0",
-        otp: "0"
-      }
+        otp: "0",
+        id:''
+      },
+      IsClosedBankAccount: localStorage.getItem('IsClosedBank') == 'true'
     };
   },
   mounted: function() {
@@ -173,7 +175,7 @@ export default {
             if (response.ReceivedDeptReminders.length > 0) {
               let isActive = false;
               response.ReceivedDeptReminders.forEach(function(item) {
-                if (!item.IsCanceled) {
+                if (!item.IsCanceled && !item.IsPaid) {
                   me.receivedDeptReminders.push({
                     isActive: !isActive,
                     AccountNumber: item.RequestorAccountNumber,
@@ -188,7 +190,7 @@ export default {
             if (response.SentDeptReminders.length > 0) {
               let isActive = false;
               response.SentDeptReminders.forEach(function(item) {
-                if (!item.IsCanceled) {
+                if (!item.IsCanceled && !item.IsPaid) {
                   me.sentDeptReminders.push({
                     isActive: !isActive,
                     AccountNumber: item.RecipientAccountNumber,
@@ -228,21 +230,21 @@ export default {
           apiHelper
             .call_api(`Deptreminders/${me.formCancel.Id}`, "post", deptReminder)
             .then(res => {
-              let removedDept = me.ReceivedDeptReminders.filter(
+              let removedDept = me.receivedDeptReminders.filter(
                 x => x.Id === me.formCancel.Id
               );
               if (removedDept.length > 0) {
-                let index = me.ReceivedDeptReminders.indexOf(removedDept[0]);
+                let index = me.receivedDeptReminders.indexOf(removedDept[0]);
                 if (index > -1) {
-                  me.ReceivedDeptReminders.splice(index, 1);
+                  me.receivedDeptReminders.splice(index, 1);
                 }
               } else {
-                removedDept = me.SentDeptReminders.filter(
+                removedDept = me.sentDeptReminders.filter(
                   x => x.Id === me.formCancel.Id
                 );
-                let index = me.SentDeptReminders.indexOf(removedDept[0]);
+                let index = me.sentDeptReminders.indexOf(removedDept[0]);
                 if (index > -1) {
-                  me.SentDeptReminders.splice(index, 1);
+                  me.sentDeptReminders.splice(index, 1);
                 }
               }
 
@@ -283,6 +285,7 @@ export default {
             this.formConfirm.step = 1;
             this.formConfirm.account_number = dataRow.AccountNumber;
             this.formConfirm.amount = dataRow.Money;
+            this.formConfirm.id = dataRow.Id;
           } else {
             utilsHelper.showErrorMsg(this, "Lỗi hệ thống!");
           }
@@ -293,6 +296,7 @@ export default {
         });
     },
     confirmOtp() {
+      let me = this;
       // call api xác nhận otp
       apiHelper
         .call_api(
@@ -306,6 +310,17 @@ export default {
           if (res.data == true) {
             this.formConfirm.message = "thành công";
             this.formConfirm.step = 2;
+
+            let resolvedDept = me.receivedDeptReminders.filter(
+                x => x.Id === me.formConfirm.id
+              );
+              if (resolvedDept.length > 0) {
+                let index = me.receivedDeptReminders.indexOf(resolvedDept[0]);
+                if (index > -1) {
+                  me.receivedDeptReminders.splice(index, 1);
+                }
+              }
+
           } else {
             this.formConfirm.message = "thất bại";
             this.formConfirm.step = 2;
