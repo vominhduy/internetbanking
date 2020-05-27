@@ -66,6 +66,7 @@ export const store = new Vuex.Store({
                             localStorage.removeItem('access_token');
                             localStorage.removeItem('user_role');
                             localStorage.removeItem('timestart_token');
+                            localStorage.removeItem('IsClosedBank');
                             context.commit('destroyToken');
                             resolve(res);
                         })
@@ -73,6 +74,7 @@ export const store = new Vuex.Store({
                             localStorage.removeItem('access_token');
                             localStorage.removeItem('user_role');
                             localStorage.removeItem('timestart_token');
+                            localStorage.removeItem('IsClosedBank');
                             context.commit('destroyToken');
                             console.error(err);
                             reject(err);

@@ -50,7 +50,7 @@
 
               <b-row>
                 <b-col>
-                  <b-button variant="primary" size="sm" class="float-right">
+                  <b-button :disabled="IsClosedBankAccount" variant="primary" size="sm" class="float-right">
                     Đổi tài khoản
                     <b-icon icon="chevron-right"></b-icon>
                   </b-button>
@@ -62,7 +62,7 @@
 
           <div class="info_transfer">
             <b-card no-body>
-              <b-tabs
+              <b-tabs :disabled="IsClosedBankAccount"
                 pills
                 card
                 content-class="mt-3"
@@ -70,9 +70,9 @@
                 v-model="tabIndex"
                 v-on:activate-tab="tabActivated"
               >
-                <b-tab title="Trong DDPBank" active id="internal">
+                <b-tab title="Trong DDPBank" active id="internal" :disabled="IsClosedBankAccount">
                   <b-form @submit.stop.prevent="onSubmit">
-                    <b-form-group
+                    <b-form-group :disabled="IsClosedBankAccount"
                       label-cols-sm="12"
                       label-cols-md="4"
                       label="Số tài khoản"
@@ -87,14 +87,14 @@
                           aria-describedby="inPayeesFeedback"
                           v-model="internal_transfer.to_account"
                           v-on:blur="loadInfoDestination"
-                          :disabled="form_internal_validate.isDisable == 1"
+                          :disabled="form_internal_validate.isDisable == 1 || IsClosedBankAccount"
                         ></b-form-input>
                         <b-input-group-append>
                           <b-dropdown
                             text="Chọn người nhận"
-                            :disabled="form_internal_validate.isDisable == 1"
+                            :disabled="form_internal_validate.isDisable == 1 || IsClosedBankAccount"
                           >
-                            <b-dropdown-item
+                            <b-dropdown-item :disabled="IsClosedBankAccount"
                               v-for="option in payees_filter"
                               :key="option.id"
                               :value="option.id"
@@ -109,14 +109,14 @@
                     </b-form-group>
                     <b-form-group label-cols-sm="12" label-cols-md="4" label>
                       <b-input-group>
-                        <b-form-checkbox
+                        <b-form-checkbox :disabled="IsClosedBankAccount"
                           id="checkbox-isSaveRecepientInternal"
                           name="checkbox-isSaveRecepientInternal"
                           v-model="isSaveRecepientInternal"
                         >Lưu vào danh bạ</b-form-checkbox>
                       </b-input-group>
                     </b-form-group>
-                    <b-form-group
+                    <b-form-group :disabled="IsClosedBankAccount"
                       label-cols-sm="12"
                       label-cols-md="4"
                       label="Tên người nhận"
@@ -149,7 +149,7 @@
                       label="Số tiền"
                       label-for="inAmount"
                     >
-                      <b-form-input
+                      <b-form-input :disabled="IsClosedBankAccount"
                         id="inAmount"
                         :type="'number'"
                         name="inAmount"
@@ -168,7 +168,7 @@
                       label="Nội dung"
                       label-for="inDescription"
                     >
-                      <b-form-input
+                      <b-form-input :disabled="IsClosedBankAccount"
                         id="inDescription"
                         name="inDescription"
                         v-validate="{required:true}"
@@ -187,7 +187,7 @@
                       label="Hình thức thanh toán phí"
                       label-for="Gender"
                     >
-                      <b-form-select
+                      <b-form-select :disabled="IsClosedBankAccount"
                         id="Gender"
                         v-model="internal_transfer.paid_type"
                         :options="paid_type"
@@ -199,7 +199,7 @@
                           class="mb-2 float-right"
                           variant="success"
                           @click.prevent="changeComponet"
-                          :disabled="next_step == 1"
+                          :disabled="next_step == 1 ||  IsClosedBankAccount"
                         >
                           Tiếp tục
                           <b-icon icon="chevron-right"></b-icon>
@@ -209,7 +209,7 @@
                   </b-form>
                 </b-tab>
 
-                <b-tab title="Liên ngân hàng" id="external">
+                <b-tab title="Liên ngân hàng" id="external" :disabled="IsClosedBankAccount">
                   <b-form @submit.stop.prevent="changeComponet">
                     <b-form-group
                       label-cols-sm="12"
@@ -225,7 +225,7 @@
                         <span class="sr-only">Loading...</span>
                       </div>
 
-                      <b-form-select
+                      <b-form-select :disabled="IsClosedBankAccount"
                         id="linkbank"
                         :options="external_bank"
                         @change="change_banking"
@@ -247,14 +247,14 @@
                           aria-describedby="exPayeesAccFeedback"
                           v-model="external_transfer.to_account"
                           v-on:blur="loadInfoDestinationExternal"
-                          :disabled="form_external_validate.isDisable == 1"
+                          :disabled="form_external_validate.isDisable == 1 || IsClosedBankAccount"
                         ></b-form-input>
                         <b-input-group-append>
                           <b-dropdown
                             text="Chọn người nhận"
-                            :disabled="form_external_validate.isDisable == 1"
+                            :disabled="form_external_validate.isDisable == 1 || IsClosedBankAccount"
                           >
-                            <b-dropdown-item
+                            <b-dropdown-item :disabled="IsClosedBankAccount"
                               v-for="option in payees_filter"
                               :key="option.id"
                               :value="option.id"
@@ -269,7 +269,7 @@
                     </b-form-group>
                     <b-form-group label-cols-sm="12" label-cols-md="4" label>
                       <b-input-group>
-                        <b-form-checkbox
+                        <b-form-checkbox :disabled="IsClosedBankAccount"
                           id="checkbox-isSaveRecepientExternal"
                           name="checkbox-isSaveRecepientExternal"
                           v-model="isSaveRecepientExternal"
@@ -309,7 +309,7 @@
                       label="Số tiền"
                       label-for="exAmount"
                     >
-                      <b-form-input
+                      <b-form-input :disabled="IsClosedBankAccount"
                         id="exAmount"
                         :type="'number'"
                         name="exAmount"
@@ -328,7 +328,7 @@
                       label="Nội dung"
                       label-for="exDescription"
                     >
-                      <b-form-input
+                      <b-form-input :disabled="IsClosedBankAccount"
                         id="exDescription"
                         name="exDescription"
                         v-validate="{required:true}"
@@ -347,7 +347,7 @@
                       label="Hình thức thanh toán phí"
                       label-for="Gender"
                     >
-                      <b-form-select
+                      <b-form-select :disabled="IsClosedBankAccount"
                         id="Gender"
                         v-model="external_transfer.paid_type"
                         :options="paid_type"
@@ -359,7 +359,7 @@
                           class="mb-2 float-right"
                           variant="success"
                           @click.prevent="changeComponet"
-                          :disabled="next_step == 1"
+                          :disabled="next_step == 1 ||  IsClosedBankAccount"
                         >
                           Tiếp tục
                           <b-icon icon="chevron-right"></b-icon>
@@ -465,7 +465,8 @@ export default {
         isLoading: 0,
         isDisable: 0,
         isLoadingBanking: 0
-      }
+      },
+      IsClosedBankAccount: localStorage.getItem('IsClosedBank') == 'true'
     };
   },
   mounted() {

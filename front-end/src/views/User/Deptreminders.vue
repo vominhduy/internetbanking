@@ -1,12 +1,12 @@
 <template>
   <b-card class="bcard-shadow">
     <h1>Tạo nhắc nợ</h1>
-    <b-form @submit.prevent="onSubmit" @reset="onReset" v-if="show">
+    <b-form :disabled="IsClosedBankAccount" @submit.prevent="onSubmit" @reset="onReset" v-if="show">
       <b-form-group
         label="Số tài khoản:"
         description=""
       >
-        <b-form-input
+        <b-form-input :disabled="IsClosedBankAccount"
           name="accountNumber"
           type="text"
           v-model="form.accountNumber"
@@ -18,7 +18,7 @@
       </b-form-group>
 
       <b-form-group id="input-group-2" label="Số tiền:" label-for="input-2">
-        <b-form-input
+        <b-form-input :disabled="IsClosedBankAccount"
           name="money"
           v-model="form.money"
           v-validate="{required:true}"
@@ -33,7 +33,7 @@
       label="Nội dung nhắc nợ"
       label-for="textarea-description"
       description="">
-        <b-form-textarea
+        <b-form-textarea :disabled="IsClosedBankAccount"
           name="description"
           id="textarea-description"
           placeholder="Nhập nội dung nhắc nợ"
@@ -44,8 +44,8 @@
         <b-form-invalid-feedback id="DescriptionFeedback">Nội dung nhắc nợ không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <br/>
-        <b-button type="submit" variant="primary">Gửi nhắc nợ</b-button>
-        <b-button type="reset" variant="danger">Hủy</b-button>
+        <b-button :disabled="IsClosedBankAccount" type="submit" variant="primary" style="margin-right:10px">Gửi nhắc nợ</b-button>
+        <b-button :disabled="IsClosedBankAccount" type="reset" variant="danger">Hủy</b-button>
     </b-form>
       
   </b-card>
@@ -68,6 +68,7 @@ export default {
         description: "",
       },
       show: true,
+      IsClosedBankAccount: localStorage.getItem('IsClosedBank') == 'true'
     };
   },
   mounted: function() {

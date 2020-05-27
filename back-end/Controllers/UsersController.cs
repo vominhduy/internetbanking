@@ -328,7 +328,7 @@ namespace InternetBanking.Controllers
         //[Authorize(Roles = "User")]
         public IActionResult CloseBankAccount(Guid id)
         {
-            var res = _Service.DeletePayee(UserId, id);
+            var res = _Service.CloseBankAccount(UserId, id);
 
             return Ok(res);
         }
