@@ -39,7 +39,6 @@ namespace InternetBanking.Utils
             try
             {
                 var request = httpContext.Request;
-
                 // Test only
                 string admin = request.Headers["admin_key"];
                 if (!string.IsNullOrWhiteSpace(admin)
@@ -233,6 +232,12 @@ namespace InternetBanking.Utils
 
                         // Nếu là controller partners thì check thêm mã hóa bất đối xứng
                         string encrypt = request.Query["signature"].ToString();
+                        // PGP lay trong body
+                        if ((int)infoPartner.Type == 2)
+                        {
+                            encrypt = obj.signature;
+                        }
+
                         if (!string.IsNullOrWhiteSpace(encrypt))
                         {
                             string hash = Encrypting.HMD5Hash(input, secretKey);
