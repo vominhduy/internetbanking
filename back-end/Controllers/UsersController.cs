@@ -282,6 +282,7 @@ namespace InternetBanking.Controllers
         public IActionResult HistoryIn()
         {
             var res = _Service.HistoryIn(UserId);
+            res = res.Where(x => x.ConfirmTime > DateTime.Now.AddDays(-30));
             return Ok(res);
         }
 
@@ -295,6 +296,7 @@ namespace InternetBanking.Controllers
         public IActionResult HistoryOut()
         {
             var res = _Service.HistoryOut(UserId);
+            res = res.Where(x => x.ConfirmTime > DateTime.Now.AddDays(-30));
             return Ok(res);
         }
 
@@ -308,6 +310,7 @@ namespace InternetBanking.Controllers
         public IActionResult HistoryDeptIn()
         {
             var res = _Service.HistoryDeptIn(UserId);
+            res = res.Where(x => x.ConfirmTime > DateTime.Now.AddDays(-30));
             return Ok(res);
         }
 
@@ -321,6 +324,7 @@ namespace InternetBanking.Controllers
         public IActionResult HistoryDeptOut()
         {
             var res = _Service.HistoryDeptOut(UserId);
+            res = res.Where(x => x.ConfirmTime > DateTime.Now.AddDays(-30));
             return Ok(res);
         }
 
