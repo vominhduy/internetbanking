@@ -6,17 +6,28 @@
                 </b-button>
                 <b-collapse id="collapse-1" class="mt-2">
                     <b-card>
-                        <b-list-group>
-                            <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                Tên tài khoản: {{paymentAccount.Name}}
-                            </b-list-group-item>
-                            <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                Số tài khoản: {{paymentAccount.Id}}
-                            </b-list-group-item>
-                            <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                Số dư: {{paymentAccount.AccountBalance}} VNĐ
-                            </b-list-group-item>
-                        </b-list-group>
+                         <b-col lg="12">
+                            <b-list-group>
+                                <b-list-group-item class="d-flex justify-content-between align-items-center">
+                                    Tên tài khoản: {{paymentAccount.Name}}
+                                </b-list-group-item>
+                                <b-list-group-item class="d-flex justify-content-between align-items-center">
+                                    Số tài khoản: {{AccountNumber}}
+                                </b-list-group-item>
+                                <b-list-group-item class="d-flex justify-content-between align-items-center">
+                                    Số dư: {{paymentAccount.AccountBalance}} VNĐ
+                                </b-list-group-item>
+                                <b-list-group-item class="d-flex justify-content-between align-items-center" v-if="paymentAccount.IsClosed">
+                                <span class="text-danger">Đã đóng</span>
+                                </b-list-group-item>
+                                <b-list-group-item class="d-flex justify-content-between align-items-center" v-if="!paymentAccount.IsClosed">
+                                <span class="text-success">Đang hoạt động</span>
+                                </b-list-group-item>
+                            </b-list-group>
+                        </b-col>
+                        <b-col lg="4" class="pb-2">
+                            <b-button @click="CloseBankAccount" :disabled="paymentAccount.IsClosed" size="sm" variant="danger" style="margin-top:10px">Đóng tài khoản</b-button>
+                        </b-col>
                     </b-card>
                 </b-collapse>
             </b-list-group-item>
@@ -46,6 +57,7 @@
 
 <script>
 import apiHelper from '../../helper/call_api'
+import utilsHelper from '../../helper/helper'
 
 export default {
     name:'UserAccounts',
@@ -54,9 +66,11 @@ export default {
             paymentAccount: {
                 Id: '',
                 AccountBalance: '',
-                Name: ''
+                Name: '',
+                IsClosed: false,
             },
-            savingAccounts:[]
+            savingAccounts:[],
+            AccountNumber: '',
         }
     },
     mounted: function(){
@@ -70,9 +84,12 @@ export default {
                 .then(res => {
                     if(res.data){
                         if(res.data.CheckingAccount){
+                            me.AccountNumber = res.data.AccountNumber;
                             me.paymentAccount.Id = res.data.CheckingAccount.Id;
                             me.paymentAccount.AccountBalance = res.data.CheckingAccount.AccountBalance;
                             me.paymentAccount.Name = res.data.CheckingAccount.Name;
+                            me.paymentAccount.IsClosed = res.data.CheckingAccount.IsClosed;
+                            localStorage.setItem('IsClosedBank', me.paymentAccount.IsClosed);
                         }
 
                         if(res.data.SavingsAccounts.length > 0){
@@ -87,6 +104,26 @@ export default {
                     }
                 })
                 .catch(err => {
+                    console.error(err);
+                });
+        },
+        CloseBankAccount(){
+            let me = this;
+            apiHelper
+                .call_api(`Users/BankAccounts/${me.paymentAccount.Id}/close`, "post", {})
+                .then(res => {
+                    if(res.data){
+                        if(res.status == 204){
+                            utilsHelper.showErrorMsg(me, 'Thông tin tài khoản không hợp lệ!');
+                            return;
+                        }
+
+                        me.paymentAccount.IsClosed = res.data;
+                        localStorage.setItem('IsClosedBank', me.paymentAccount.IsClosed);
+                    }
+                })
+                .catch(err => {
+                    utilsHelper.showErrorMsg(me, 'Lỗi hệ thống!');
                     console.error(err);
                 });
         }

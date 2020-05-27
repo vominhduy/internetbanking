@@ -1,15 +1,15 @@
 <template>
     <div>
         <h1 style="float:left">Danh bạ người nhận</h1>
-        <b-button variant="success" style="margin:10px" @click="onAdd">
+        <b-button :disabled="IsClosedBankAccount" variant="success" style="margin:10px" @click="onAdd">
             <b-icon icon="plus"></b-icon>
         </b-button>
-        <b-table striped hover :items="items" :fields="fields">
+        <b-table :disabled="IsClosedBankAccount" striped hover :items="items" :fields="fields">
              <template v-slot:cell(action)="row">
-                <b-button size="sm" @click="onEdit(row)" variant="primary" style="margin-right:10px">
+                <b-button :disabled="IsClosedBankAccount" size="sm" @click="onEdit(row)" variant="primary" style="margin-right:10px">
                     Sửa
                 </b-button>
-                <b-button size="sm" @click="onDelete(row)" class="mr-2">
+                <b-button :disabled="IsClosedBankAccount" size="sm" @click="onDelete(row)" class="mr-2">
                     Xóa
                 </b-button>
             </template>
@@ -20,7 +20,7 @@
                 <div class="w-100">
                 </div>
             </template>
-            <b-form @submit.stop.prevent="onSubmit" v-if="show">
+            <b-form :disabled="IsClosedBankAccount" @submit.stop.prevent="onSubmit" v-if="show">
                 <b-form-group label-cols-sm="12" label-cols-md="4" label="Ngân hàng" label-for="linkingBank">
                     <b-form-select id="linkingBank" v-model="linkingBank" :options="linkingBankList"
                         v-bind:disabled="contacInfo.IdContact != ''"
@@ -39,7 +39,7 @@
                     <b-form-input
                         id="accountNumber"
                         name="accountNumber"
-                        v-bind:disabled="contacInfo.IdContact != ''"
+                        v-bind:disabled="contacInfo.IdContact != '' || IsClosedBankAccount"
                         v-model="contacInfo.AccountNumber"
                         v-validate="{required:true}"
                         :state="validateState('accountNumber')"
@@ -54,7 +54,7 @@
                     label-cols-md="4"
                     label="Tên gợi nhớ"
                     label-for="mnemonicName">
-                    <b-form-input
+                    <b-form-input :disabled="IsClosedBankAccount"
                         id="mnemonicName"
                         name="mnemonicName"
                         v-model="contacInfo.MnemonicName">
@@ -63,10 +63,10 @@
                 <b-form-group>
                     <b-row>
                     <b-col>
-                        <b-button block type="submit" variant="success">Lưu danh bạ</b-button>
+                        <b-button :disabled="IsClosedBankAccount" block type="submit" variant="success">Lưu danh bạ</b-button>
                     </b-col>
                     <b-col>
-                        <b-button block variant="danger" @click.prevent="canceled">Hủy</b-button>
+                        <b-button :disabled="IsClosedBankAccount" block variant="danger" @click.prevent="canceled">Hủy</b-button>
                     </b-col>
                     </b-row>
                 </b-form-group>
@@ -98,6 +98,7 @@ export default {
             linkingBank: '',
             linkingBankList:[],
             show: true,
+            IsClosedBankAccount: localStorage.getItem('IsClosedBank') == 'true'
         }
     },
     mounted: function() {

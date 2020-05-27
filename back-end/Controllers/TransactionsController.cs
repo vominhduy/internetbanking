@@ -82,7 +82,15 @@ namespace InternetBanking.Controllers
             try
             {
                 var partnerCode = Request.Query["partner_code"];
-                var signed = Request.Query["signature"];
+                string signed = "";
+                try
+                {
+                     signed = Request.Query["signature"];
+                }
+                catch(Exception ex)
+                {
+                    signed = transfer.signature;
+                }
                 var transferDao = new Transfer()
                 {
                     SignedData = signed,

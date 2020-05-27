@@ -54,7 +54,7 @@
             <b-form-input v-model="infoModal.content.Address">
             </b-form-input>
         </b-form-group>
-        <b-form-group label-cols-sm="12" label-cols-md="4" label="Địa chỉ" label-for="mnemonicName">
+        <b-form-group label-cols-sm="12" label-cols-md="4" label="Phone" label-for="mnemonicName">
             <b-form-input v-model="infoModal.content.Phone">
             </b-form-input>
         </b-form-group>
@@ -248,10 +248,23 @@ export default {
 
             apiHelper
                 .call_api('Administrators/Employees/' + this.infoModal.content.Id, 'delete')
-                .then(response => {
-                    //   (this.info = response)
-                    this.items = response.data;
-                })
+                 .then(response => {
+                    if (response && response.data) {
+                         apiHelper
+                             .call_api('Administrators/Employees', 'get')
+                               .then(response => {
+                //   (this.info = response)
+                              this.items = response.data;
+            });
+                        
+                        alert('Xoa thanh cong');
+                    } else {
+                        alert('Xoa that bai');
+                    }
+                    
+                    this.infoModal.title = "";
+                    this.infoModal.content = "";
+                }).catch(error => alert(error));
         },
         resetInfoModal() {
             let config = {
@@ -277,10 +290,15 @@ export default {
             //     }).catch(error => alert(error));
             apiHelper
                 .call_api('Administrators/Employees/' + this.infoModal.content.Id, 'put', cloneObj)
-                .then(response => {
-                    //   (this.info = response)
-                    this.items = response.data;
-                })
+               .then(response => {
+                    if (response && response.data) {
+                        alert('Sua thanh cong');
+                    } else {
+                        alert('Sua that bai');
+                    }
+                    this.infoModal.title = "";
+                    this.infoModal.content = "";
+                }).catch(error => alert(error));
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
