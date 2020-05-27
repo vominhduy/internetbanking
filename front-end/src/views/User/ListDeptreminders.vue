@@ -327,7 +327,7 @@ export default {
           }
         })
         .catch(err => {
-          utilsHelper.showErrorMsg(this, err);
+          utilsHelper.showErrorMsg(this, 'Thất bại!');
         });
     },
     validateState(ref) {
