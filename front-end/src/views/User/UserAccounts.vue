@@ -12,7 +12,7 @@
                                     Tên tài khoản: {{paymentAccount.Name}}
                                 </b-list-group-item>
                                 <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                    Số tài khoản: {{paymentAccount.Id}}
+                                    Số tài khoản: {{AccountNumber}}
                                 </b-list-group-item>
                                 <b-list-group-item class="d-flex justify-content-between align-items-center">
                                     Số dư: {{paymentAccount.AccountBalance}} VNĐ
@@ -69,7 +69,8 @@ export default {
                 Name: '',
                 IsClosed: false,
             },
-            savingAccounts:[]
+            savingAccounts:[],
+            AccountNumber: '',
         }
     },
     mounted: function(){
@@ -83,6 +84,7 @@ export default {
                 .then(res => {
                     if(res.data){
                         if(res.data.CheckingAccount){
+                            me.AccountNumber = res.data.AccountNumber;
                             me.paymentAccount.Id = res.data.CheckingAccount.Id;
                             me.paymentAccount.AccountBalance = res.data.CheckingAccount.AccountBalance;
                             me.paymentAccount.Name = res.data.CheckingAccount.Name;
