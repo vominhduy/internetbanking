@@ -484,7 +484,9 @@ namespace InternetBanking.Services.Implementations
                 if (userTransfers.Any())
                 {
                     var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
-                    var lstExAccount = new List<string>();
+                    var lstExAccount = new List<ExternalInfoUserResponse>();
+                    var lstFailed = new List<string>();
+
                     foreach (var transfer in userTransfers)
                     {
                         var hisTransaction = new TransactionHistory();
@@ -547,13 +549,20 @@ namespace InternetBanking.Services.Implementations
                             }
 
                             ExternalInfoUserResponse source = null;
-                            if (!lstExAccount.Contains(transfer.SourceAccountNumber))
+                            if (!lstExAccount.Any(x => x.account_number == transfer.SourceAccountNumber) && !lstFailed.Any(x => x == transfer.SourceAccountNumber))
                             {
                                 source = externalBanking.GetInfoUser(transfer.SourceAccountNumber);
+                                if (source != null)
+                                    lstExAccount.Add(source);
+                                else
+                                    lstFailed.Add(transfer.SourceAccountNumber);
+                            }
+                            else
+                            {
+                                source = lstExAccount.FirstOrDefault(x => x.account_number == transfer.SourceAccountNumber);
                             }
                             if (source != null)
                             {
-                                lstExAccount.Add(transfer.SourceAccountNumber);
                                 hisTransaction.AccountName = source.full_name;
                                 hisTransaction.AccountNumber = source.account_number;
                                 hisTransaction.Description = transfer.Description;
@@ -600,6 +609,9 @@ namespace InternetBanking.Services.Implementations
                 if (userTransfers.Any())
                 {
                     var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
+
+                    var lstExAccount = new List<ExternalInfoUserResponse>();
+
                     foreach (var transfer in userTransfers)
                     {
                         var hisTransaction = new TransactionHistory();
@@ -657,7 +669,17 @@ namespace InternetBanking.Services.Implementations
                                 externalBanking.SetPartnerCode();
                             }
 
-                            var dest = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            ExternalInfoUserResponse dest = null;
+                            if (!lstExAccount.Any(x => x.account_number == transfer.DestinationAccountNumber))
+                            {
+                                dest = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                                if (dest != null)
+                                    lstExAccount.Add(dest);
+                            }
+                            else
+                            {
+                                dest = lstExAccount.FirstOrDefault(x => x.account_number == transfer.DestinationAccountNumber);
+                            }
                             if (dest != null)
                             {
                                 hisTransaction.AccountName = dest.full_name;

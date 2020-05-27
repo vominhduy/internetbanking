@@ -2,6 +2,7 @@
 using InternetBanking.DataCollections;
 using InternetBanking.Models;
 using InternetBanking.Models.Filters;
+using InternetBanking.Models.ViewModels;
 using InternetBanking.Settings;
 using InternetBanking.Utils;
 using MongoDB.Bson.IO;
@@ -157,11 +158,15 @@ namespace InternetBanking.Services.Implementations
             {
                 transfers = transfers.Where(x => x.SourceLinkingBankId == bankId.Value);
             }
+
+            var listEx = new List<ExternalInfoUserResponse>();
+            var listExFaild = new List<string>();
             foreach (var transfer in transfers)
             {
                 var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
                 // Get ngân hàng liên kết
                 var linkBank = _LinkingBankCollection.GetById(transfer.SourceLinkingBankId);
+
                 if (linkBank != null)
                 {
                     // Get thông tin giao dịch
@@ -194,9 +199,28 @@ namespace InternetBanking.Services.Implementations
                             externalBanking.SetPartnerCode();
                         }
 
-                        var source = externalBanking.GetInfoUser(transfer.SourceAccountNumber);
+                        if (externalBanking == null)
+                            externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+
+                        ExternalInfoUserResponse source = null;
+                        if (!listEx.Any(x => x.account_number == transfer.SourceAccountNumber) && !listExFaild.Any(x => x == transfer.SourceAccountNumber))
+                        {
+                            source = externalBanking.GetInfoUser(transfer.SourceAccountNumber);
+                            if (source != null)
+                                listEx.Add(source);
+                            else
+                            {
+                                listExFaild.Add(transfer.SourceAccountNumber);
+                            }
+                        }
+                        else
+                        {
+                            source = listEx.FirstOrDefault(x => x.account_number == transfer.SourceAccountNumber);
+                        }
+
                         if (source != null)
                         {
+                            
                             sourceAccount.Name = source.full_name;
                             sourceAccount.AccountNumber = source.account_number;
                         }
@@ -243,6 +267,9 @@ namespace InternetBanking.Services.Implementations
             {
                 transfers = transfers.Where(x => x.DestinationLinkingBankId == bankId.Value);
             }
+
+            var listEx = new List<ExternalInfoUserResponse>();
+            var listExFaild = new List<string>();
             foreach (var transfer in transfers)
             {
                 var bank = _LinkingBankCollection.Get(new LinkingBankFilter() { Code = _Setting.BankCode }).FirstOrDefault();
@@ -284,7 +311,25 @@ namespace InternetBanking.Services.Implementations
                                 externalBanking.SetPartnerCode();
                             }
 
-                            var source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                            if (externalBanking == null)
+                                externalBanking = new ExternalBanking_BKTBank(_Encrypt, _Setting);
+
+                            ExternalInfoUserResponse source = null;
+                            if (!listEx.Any(x => x.account_number == transfer.DestinationAccountNumber) && !listExFaild.Any(x => x == transfer.DestinationAccountNumber))
+                            {
+                                source = externalBanking.GetInfoUser(transfer.DestinationAccountNumber);
+                                if (source != null)
+                                    listEx.Add(source);
+                                else
+                                {
+                                    listExFaild.Add(transfer.DestinationAccountNumber);
+                                }
+                            }
+                            else
+                            {
+                                source = listEx.FirstOrDefault(x => x.account_number == transfer.DestinationAccountNumber);
+                            }
+
                             if (source != null)
                             {
                                 destAccount.AccountNumber = source.account_number;
@@ -299,10 +344,10 @@ namespace InternetBanking.Services.Implementations
                                 var history = new CrossChecking();
                                 history.SourceAccountName = sourceAccount.Name;
                                 history.SourceAccountNumber = sourceAccount.AccountNumber;
-                                history.SourceBankName = linkBank.Name;
+                                history.SourceBankName = bank.Name;
                                 history.DestinationAccountName = destAccount.Name;
                                 history.DestinationAccountNumber = destAccount.AccountNumber;
-                                history.DestinationBankName = bank.Name;
+                                history.DestinationBankName = linkBank.Name;
                                 history.Description = transfer.Description;
                                 history.Money = transfer.Money;
                                 if (transfer.IsSenderPay)
