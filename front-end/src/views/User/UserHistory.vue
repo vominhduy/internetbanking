@@ -5,7 +5,7 @@
       <b-form-group>
         <b-row>
           <b-col>
-            <b-button block type="submit" variant="success">Tra cứuuuuuuuu</b-button>
+            <b-button block type="submit" variant="success">Tra cứu</b-button>
           </b-col>
         </b-row>
       </b-form-group>
