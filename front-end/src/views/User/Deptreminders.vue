@@ -77,6 +77,7 @@ export default {
 
   methods: {
     onSubmit(evt) {
+      let me = this;
         evt.preventDefault()
         
         this.$validator.validateAll().then(result => {
@@ -96,6 +97,7 @@ export default {
                   return;
               }
               utilsHelper.showSuccessfullMsg(me, 'Gửi nhắc nợ thành công!');
+              me.resetForm();
             })
             .catch(err => {
               console.error(err);
@@ -104,6 +106,9 @@ export default {
     },
     onReset(evt) {
       evt.preventDefault()
+      this.resetForm();
+    },
+    resetForm(){
       // Reset our form values
       this.form.accountNumber = ''
       this.form.money = ''
