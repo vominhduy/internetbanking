@@ -18,11 +18,11 @@
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
       <router-link to="/admin/DoisoatIN">
-         Đối soát IN
+         Đối soát nhận
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
     <router-link to="/admin/DoisoatOUT">
-         Đối soát OUT
+         Đối soát chuyển
         <b-icon icon="chevron-right" class="rightMenuIcon"></b-icon>
       </router-link>
     </div>

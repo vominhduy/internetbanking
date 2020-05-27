@@ -28,9 +28,21 @@
           id="valuefeedback"
         >Số tài khoản không được để trống!</b-form-invalid-feedback>
       </b-form-group>
-      <b-form-group label-cols-sm="12" label-cols-md="4" label="Số tiền (ĐV: nghìn đồng)" label-for="money">
-        <b-form-input id="money" name="money" :type="'number'" v-model="payInfo.Money" v-validate="'required|between: 1000,50000000'" :state="validateState('money')"
-          aria-describedby="moneyfeedback"></b-form-input>
+      <b-form-group
+        label-cols-sm="12"
+        label-cols-md="4"
+        label="Số tiền (ĐV: nghìn đồng)"
+        label-for="money"
+      >
+        <b-form-input
+          id="money"
+          name="money"
+          :type="'number'"
+          v-model="payInfo.Money"
+          v-validate="'required|between: 1000,50000000'"
+          :state="validateState('money')"
+          aria-describedby="moneyfeedback"
+        ></b-form-input>
         <b-form-invalid-feedback
           id="moneyfeedback"
         >Số phải phải nằm trong khoảng [1,000 - 50,000,000]!</b-form-invalid-feedback>
@@ -38,7 +50,7 @@
       <b-form-group>
         <b-row>
           <b-col>
-            <b-button block type="submit" variant="success">Nạp tiền</b-button>
+            <b-button block type="submit" :disabled="disButton" variant="success">Nạp tiền</b-button>
           </b-col>
           <b-col>
             <b-button block variant="danger" @click.prevent="canceled">Hủy</b-button>
@@ -65,9 +77,8 @@
 }
 </style>
 <script>
-import apiHelper from '../../helper/call_api'
-import { Validator } from 'vee-validate';
-
+import apiHelper from "../../helper/call_api";
+import { Validator } from "vee-validate";
 
 export default {
   name: "PayIn",
@@ -85,7 +96,8 @@ export default {
         { value: 1, text: "Tên đăng nhập" },
         { value: 2, text: "Số tài khoản" }
       ],
-      show: true
+      show: true,
+      disButton: false
     };
   },
   methods: {
@@ -95,6 +107,9 @@ export default {
         if (!result) {
           return;
         }
+
+        this.disButton = true;
+
         if (this.type == 1) this.payInfo.UserName = this.valueType;
         else this.payInfo.AccountNumber = this.valueType;
 
@@ -103,30 +118,33 @@ export default {
           .then(res => {
             if (res.data == true) {
               this.responeMessage = "Nạp tiền thành công!";
-              this.makeToast('success', "Nạp tiền thành công!");
-            }
-            else {
+              this.makeToast("success", "Nạp tiền thành công!");
+            } else {
               this.responeMessage = "Nạp tiền thất bại!";
-              this.makeToast('danger', "Nạp tiền thất bại!");
+              this.makeToast("danger", "Nạp tiền thất bại!");
             }
+            this.disButton = false;
             //this.$refs["respone"].show();
           })
           .catch(err => {
             console.error(err);
+            this.disButton = false;
           });
       });
     },
     canceled(evt) {
-      evt.preventDefault()
+      evt.preventDefault();
       // Reset our form values
-      this.payInfo = {};
-      this.valueType = "";
-      this.type = 1;
+
       // Trick to reset/clear native browser form validation state
-      this.show = false
+      this.show = false;
       this.$nextTick(() => {
-        this.show = true
-      })
+        this.payInfo = {};
+        this.payInfo.Money = 0;
+        this.valueType = "";
+        this.type = 1;
+        this.show = true;
+      });
     },
     validateState(ref) {
       if (

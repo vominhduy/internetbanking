@@ -41,6 +41,7 @@
 
         <!-- Main table element -->
         <b-table
+          id="my-table3"
           show-empty
           small
           stacked="md"
@@ -71,6 +72,7 @@
           </b-col>
           <b-col sm="6" md="6" class="my-1">
             <b-pagination
+              aria-controls="my-table3"
               v-model="currentPage3"
               :total-rows="totalRows3"
               :per-page="perPage3"
@@ -81,11 +83,11 @@
         </b-row>
 
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
-          <p>Tên: {{infoModal.content.AccountName}}</p>
-          <p>Số tài khoản: {{infoModal.content.AccountNumber}}</p>
-          <p>Số tiền chuyển: {{infoModal.content.Money}}</p>
-          <p>Nội dung: {{infoModal.content.Description}}</p>
-          <p>Ngày: {{ infoModal.content.ConfirmTime | formatDate }}</p>
+          <p>Tên: <b>{{infoModal.content.AccountName}}</b></p>
+          <p>Số tài khoản: <b>{{infoModal.content.AccountNumber}}</b></p>
+          <p>Số tiền chuyển: <b>{{infoModal.content.Money}}</b></p>
+          <p>Nội dung: <b>{{infoModal.content.Description}}</b></p>
+          <p>Ngày: <b>{{ infoModal.content.ConfirmTime | formatDate }}</b></p>
         </b-modal>
   </div>
 </template>
@@ -102,7 +104,8 @@ export default {
   },
   watch: {
     histories3: function() {
-      this.items = this.histories3
+      this.items = this.histories3;
+      this.totalRows3 = this.items.length;
     }
   },
   data() {

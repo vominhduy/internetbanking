@@ -42,9 +42,9 @@
           <b-col sm="9">
             <v-select label="Name" :options="users" v-model="selectedUser">
               <template #no-options="{}">Không tìm thấy!</template>
-              <template #option="{ Name, AccountNumber, Email }">
-                <h5 style="margin: 0">{{ Name }}</h5>
-                <em>{{ AccountNumber }} - {{ Email }}</em>
+              <template #option="{ Name, AccountNumber, Email, Username }">
+                <h6 style="margin: 0">{{ Name }}</h6>
+                <em>{{Username}} - {{ AccountNumber }} - {{ Email }}</em>
               </template>
             </v-select>
             <div
@@ -54,7 +54,7 @@
             >Tên đăng nhập không được để trống!</div>
           </b-col>
           <b-col sm="3">
-            <b-button block type="submit" size="sm" variant="success">Tra cứu</b-button>
+            <b-button block type="submit" size="sm" :disabled="countCallApi < 4 && showSpinner" variant="success">Tra cứu</b-button>
           </b-col>
         </b-row>
       </b-form-group>

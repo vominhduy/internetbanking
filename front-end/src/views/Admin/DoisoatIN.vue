@@ -1,21 +1,21 @@
 <template>
 <b-card class="bcard-shadow">
-    <h1>Lịch sử Đối Soát In</h1>
+    <h1>Lịch sử đối soát nhận</h1>
     <b-form @submit.stop.prevent="onSubmit">
         <b-form-group label-cols-sm="12" label-cols-md="4" label="Ngày bắt đầu ">
             <!-- <b-form-input id="value" name="value" v-model="valueType" v-validate="{required:true}" :state="validateState('value')" aria-describedby="valuefeedback"></b-form-input> -->
-            <datetime format="YYYY-MM-DD" width="300px" v-model="fromDate"></datetime>
+            <datetime format="YYYY-MM-DD" v-model="fromDate"></datetime>
         </b-form-group>
         <b-form-group label-cols-sm="12" label-cols-md="4" label="Ngày kết thúc ">
             <!-- <b-form-input id="value" name="value" v-model="valueType" v-validate="{required:true}" :state="validateState('value')" aria-describedby="valuefeedback"></b-form-input> -->
-            <datetime format="YYYY-MM-DD" width="300px" v-model="toDate"></datetime>
+            <datetime format="YYYY-MM-DD" v-model="toDate"></datetime>
         </b-form-group>
         <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên Ngân Hàng ">
-            <select v-model="selectedBank">
+            <b-form-select v-model="selectedBank">
                 <option v-for="bank in banks" v-bind:value="bank.Id" v-bind:key="bank.id">
                     {{ bank.Name }}
                 </option>
-            </select>
+            </b-form-select>
             
         </b-form-group>
         <b-form-group>
@@ -29,7 +29,7 @@
             </b-row>
         </b-form-group>
     </b-form>
-    <b-row>
+    <b-row v-show="statusOk">
         <b-col sm="5" md="6" class="my-1">
             <b-form-group label="Hiển thị" label-cols-sm="6" label-cols-md="4" label-cols-lg="3" label-align-sm="right" label-size="sm" label-for="perPageSelect" class="mb-0">
                 <b-form-select v-model="perPage3" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
@@ -46,7 +46,7 @@
             </b-form-group>
         </b-col>
     </b-row>
-    <div v-if="statusOk">
+    <div v-show="statusOk">
         <b-table show-empty small stacked="md" :items="hisIns" :fields="fields" :current-page="currentPage3" :per-page="perPage3" :filter="filter" :filterIncludedFields="filterOn" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :sort-direction="sortDirection" @filtered="onFiltered">
             <template v-slot:cell(name)="row">{{ row.value.first }} {{ row.value.last }}</template>
             <template v-slot:cell(name)="row">{{ row.value}}</template>
@@ -66,6 +66,9 @@
             </b-col>
         </b-row>
 
+    </div>
+    <div class="text-center" v-show="countCallApi && !statusOk">
+      <b-spinner label="Large Spinner"></b-spinner>
     </div>
     <b-modal ref="respone" title="Thông báo">
         <b-row>
@@ -104,6 +107,7 @@ export default {
                 AccountNumber: "",
                 Money: 0
             },
+            countCallApi: false,
             selectedBank: null,
             banks: [],
             hisIns: [],
@@ -181,6 +185,7 @@ export default {
                     Name: "All"
                 }
                 this.banks.push(all);
+                this.selectedBank = this.banks[0].Id;
                 // this.statusOk = true;
             })
             .catch(err => {
@@ -189,7 +194,7 @@ export default {
     },
     methods: {
         onSubmit(evt) {
-
+            this.statusOk = false;
             var _this = this;
             var fromDate = this.fromDate;
             var toDate = this.toDate;
@@ -199,7 +204,7 @@ export default {
                 if (!result) {
                     return;
                 }
-
+            this.countCallApi = true;
                 // if (this.user.AccountNumber == "" && this.user.Username == "") {
                 ///   return;
                 // }
@@ -213,6 +218,7 @@ export default {
                     .then(res => {
                         this.hisIns = res.data;
                         this.statusOk = true;
+                        this.totalRows3 = this.hisIns.length;
                     })
                     .catch(err => {
                         console.log(err);

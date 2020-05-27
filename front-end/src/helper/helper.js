@@ -29,5 +29,5 @@ module.exports = {
             footerClass: 'p-2 border-top-0',
             centered: true
         });
-    },
+    }
 }

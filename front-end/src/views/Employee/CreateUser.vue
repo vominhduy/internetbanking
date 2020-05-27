@@ -3,35 +3,61 @@
     <h1>Tạo tài khoản khách hàng</h1>
     <b-form @submit.stop.prevent="onSubmit" v-if="show">
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Tên người dùng" label-for="Name">
-        <b-form-input id="Name" name="Name" v-validate="{required:true}" v-model="user.Name" :state="validateState('Name')"
-          aria-describedby="NameFeedback"></b-form-input>
+        <b-form-input
+          id="Name"
+          name="Name"
+          v-validate="{required:true}"
+          v-model="user.Name"
+          :state="validateState('Name')"
+          aria-describedby="NameFeedback"
+        ></b-form-input>
         <b-form-invalid-feedback id="NameFeedback">Tên người dùng không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Giới tính" label-for="Gender">
         <b-form-select id="Gender" v-model="user.Gender" :options="Genders"></b-form-select>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Địa chỉ" label-for="Address">
-        <b-form-input id="Address" name="Address" v-model="user.Address" v-validate="{required:true}" :state="validateState('Address')"
-          aria-describedby="AddressFeedback"></b-form-input>
+        <b-form-input
+          id="Address"
+          name="Address"
+          v-model="user.Address"
+          v-validate="{required:true}"
+          :state="validateState('Address')"
+          aria-describedby="AddressFeedback"
+        ></b-form-input>
         <b-form-invalid-feedback id="AddressFeedback">Địa chỉ không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Email" label-for="Email">
-        <b-form-input id="Email" :type="'email'" name="Email" v-validate="'required|email'" v-model="user.Email" :state="validateState('Email')"
-          aria-describedby="EmailFeedback"></b-form-input>
+        <b-form-input
+          id="Email"
+          :type="'email'"
+          name="Email"
+          v-validate="'required|email'"
+          v-model="user.Email"
+          :state="validateState('Email')"
+          aria-describedby="EmailFeedback"
+        ></b-form-input>
         <b-form-invalid-feedback id="EmailFeedback">Email không đúng định dạng!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group label-cols-sm="12" label-cols-md="4" label="Số điện thoại" label-for="Phone">
-        <b-form-input id="Phone" :type="'number'" name="Phone" v-validate="{required:true}" v-model="user.Phone" :state="validateState('Phone')"
-          aria-describedby="PhoneFeedback"></b-form-input>
+        <b-form-input
+          id="Phone"
+          :type="'number'"
+          name="Phone"
+          v-validate="{required:true}"
+          v-model="user.Phone"
+          :state="validateState('Phone')"
+          aria-describedby="PhoneFeedback"
+        ></b-form-input>
         <b-form-invalid-feedback id="PhoneFeedback">Số điện thoại không được để trống!</b-form-invalid-feedback>
       </b-form-group>
       <b-form-group>
         <b-row>
           <b-col>
-            <b-button block type="submit" variant="success">Thêm</b-button>
+            <b-button block type="submit" :disabled="disButton" variant="success">Thêm</b-button>
           </b-col>
           <b-col>
-            <b-button block variant="danger" @click.prevent="canceled">Hủy</b-button>
+            <b-button block variant="danger" @click.prevent="canceled">Xóa nhập liệu</b-button>
           </b-col>
         </b-row>
       </b-form-group>
@@ -118,8 +144,8 @@
 </style>
 
 <script>
-import apiHelper from '../../helper/call_api'
-import utilsHelper from '../../helper/helper'
+import apiHelper from "../../helper/call_api";
+import utilsHelper from "../../helper/helper";
 
 export default {
   name: "CreateUser",
@@ -138,7 +164,8 @@ export default {
         { value: 2, text: "Nữ" },
         { value: 3, text: "Khác" }
       ],
-      show: true
+      show: true,
+      disButton: false
     };
   },
   methods: {
@@ -149,31 +176,40 @@ export default {
         if (!result) {
           return;
         }
+        this.disButton = true;
         apiHelper
           .call_api(`employees`, "post", this.user)
           .then(res => {
-            if(res.status === 204){
+            if (res.status === 204) {
               utilsHelper.showErrorMsg(me, "Email đã tồn tại");
               return;
+            } else {
+              this.respone = res.data;
+
+              this.$refs["respone"].show();
             }
-            this.respone = res.data;
-            this.$refs["respone"].show();
+            this.disButton = false;
           })
           .catch(err => {
             this.empty = true;
+            this.disButton = false;
             console.error(err);
           });
-    })},
+      });
+    },
     canceled(evt) {
-      evt.preventDefault()
+      evt.preventDefault();
       // Reset our form values
-      this.user = {};
-      this.user.Gender = 1;
+
       // Trick to reset/clear native browser form validation state
-      this.show = false
+      this.show = false;
+
       this.$nextTick(() => {
-        this.show = true
-      })
+        this.user = null;
+        this.user = {};
+        this.user.Gender = 1;
+        this.show = true;
+      });
     },
     validateState(ref) {
       if (
@@ -183,7 +219,7 @@ export default {
         return !this.veeErrors.has(ref);
       }
       return null;
-    },
+    }
   }
 };
 </script>

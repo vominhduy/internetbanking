@@ -41,6 +41,7 @@
 
         <!-- Main table element -->
         <b-table
+          id="my-table1"
           show-empty
           small
           stacked="md"
@@ -71,6 +72,7 @@
           </b-col>
           <b-col sm="6" md="6" class="my-1">
             <b-pagination
+              aria-controls="my-table1"
               v-model="currentPage1"
               :total-rows="totalRows1"
               :per-page="perPage1"
@@ -81,12 +83,12 @@
         </b-row>
 
         <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
-          <p>Tên: {{infoModal.content.AccountName}}</p>
-          <p>Số tài khoản: {{infoModal.content.AccountNumber}}</p>
-          <p>Ngân hàng: {{infoModal.content.BankName}}</p>
-          <p>Số tiền chuyển: {{infoModal.content.Money}}</p>
-          <p>Nội dung: {{infoModal.content.Description}}</p>
-          <p>Ngày: {{ infoModal.content.ConfirmTime | formatDate }}</p>
+          <p>Tên: <b>{{infoModal.content.AccountName}}</b></p>
+          <p>Số tài khoản: <b>{{infoModal.content.AccountNumber}}</b></p>
+          <p>Ngân hàng: <b>{{infoModal.content.BankName}}</b></p>
+          <p>Số tiền chuyển: <b>{{infoModal.content.Money}}</b></p>
+          <p>Nội dung: <b>{{infoModal.content.Description}}</b></p>
+          <p>Ngày: <b>{{ infoModal.content.ConfirmTime | formatDate }}</b></p>
           <p v-if="infoModal.content.IsPayIn != null && infoModal.content.IsPayIn">Ghi chú: Nạp tiền từ nhân viên!</p>
         </b-modal>
   </div>
@@ -105,6 +107,7 @@ export default {
   watch: {
     histories1: function() {
       this.items = this.histories1
+      this.totalRows1 = this.items.length;
     }
   },
   data() {

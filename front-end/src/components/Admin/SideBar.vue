@@ -14,10 +14,10 @@
                     Thêm nhân viên
                 </b-list-group-item>
                 <b-list-group-item :to="`/admin/DoisoatIN`" >
-                    Đối soát IN
+                    Đối soát nhận
                 </b-list-group-item>
                 <b-list-group-item :to="`/admin/DoisoatOUT`" >
-                    Đối soát OUT
+                    Đối soát chuyển
                 </b-list-group-item>
             </b-list-group>
         </b-card>
