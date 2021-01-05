@@ -10,7 +10,7 @@
   "dependencies": {
     "@coreui/coreui": "^3.0.0",
     "@coreui/vue": "^3.0.5",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap-vue": "^2.1.0",
     "core-js": "^3.6.4",
     "md5": "^2.2.1",
